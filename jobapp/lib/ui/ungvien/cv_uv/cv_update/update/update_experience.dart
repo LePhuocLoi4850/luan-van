@@ -22,13 +22,17 @@ class _UpdateExperienceState extends State<UpdateExperience> {
   final _endController = TextEditingController();
   DateTime? _startDate;
   DateTime? _endDate;
+  int expeId = 0;
   bool isLoading = false;
   Map<String, dynamic> _experience = {};
 
   @override
   void initState() {
     super.initState();
+
     _experience = Get.arguments;
+    expeId = _experience['expe_id'];
+
     _companyNameController.text = _experience['nameCompany'];
     _positionController.text = _experience['position'];
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
@@ -43,7 +47,6 @@ class _UpdateExperienceState extends State<UpdateExperience> {
     setState(() {
       isLoading = true;
     });
-    int expeId = _experience['expe_id'];
     String nameCompany = _companyNameController.text;
     String position = _positionController.text;
     final DateFormat formatter = DateFormat('yyyy-M-d');
@@ -63,11 +66,37 @@ class _UpdateExperienceState extends State<UpdateExperience> {
     }
   }
 
+  void _handleDelete(BuildContext context, String message) async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Database().deleteExperience(expeId);
+              Navigator.of(ctx).pop(false);
+              Get.back(result: true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm kinh nghiệm'),
+        title: Text('Cập nhật kinh nghiệm'),
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -79,7 +108,13 @@ class _UpdateExperienceState extends State<UpdateExperience> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên công ty'),
+                    child: Text(
+                      'Tên công ty',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -95,15 +130,20 @@ class _UpdateExperienceState extends State<UpdateExperience> {
                       filled: true,
                       fillColor: Colors.white,
                     ),
-                    controller:
-                        _companyNameController, // Sử dụng controller cho tên công ty
+                    controller: _companyNameController,
                   ),
                   const SizedBox(
                     height: 15,
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Vị trí công việc'),
+                    child: Text(
+                      'Vị trí công việc',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -127,7 +167,13 @@ class _UpdateExperienceState extends State<UpdateExperience> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Thời gian làm việc'),
+                    child: Text(
+                      'Thời gian làm việc',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,7 +229,13 @@ class _UpdateExperienceState extends State<UpdateExperience> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Mô tả chi tiết'),
+                    child: Text(
+                      'Mô tả chi tiết',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextField(
                     decoration: InputDecoration(
@@ -196,6 +248,30 @@ class _UpdateExperienceState extends State<UpdateExperience> {
                     ),
                     maxLines: 6,
                     controller: _descriptionController,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[300],
+                            shape: BeveledRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            _handleDelete(
+                                context, 'Bạn có muốn xóa kinh nghiệm');
+                          },
+                          child: Text(
+                            'Xóa kinh nghiệm',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          )),
+                    ),
                   ),
                 ],
               ),

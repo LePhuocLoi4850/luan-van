@@ -39,7 +39,7 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
   String? _selectedCity;
   String? _selectedDistrict;
   String? _selectGender;
- 
+
   void _updateAddressController() {
     _addressController.text =
         "${_selectedCity ?? ''} - ${_selectedDistrict ?? ''}".trim();
@@ -534,7 +534,8 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
       ),
     );
   }
-   final Map<String, List<String>> _districts = {
+
+  final Map<String, List<String>> _districts = {
     'Hà Nội': [
       'Quận Ba Đình',
       'Quận Hoàn Kiếm',
@@ -643,16 +644,4 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
     'Nữ': 'Nữ',
     'Khác': 'Khác'
   };
-
-  // Future<void> _takePhoto() async {
-  //   final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _image = File(pickedFile.path);
-  //     });
-  //     List<int> imageBytes = File(_image!.path).readAsBytesSync();
-  //     base64String = base64Encode(imageBytes);
-  //     Provider.of<MyBase64>(context, listen: false).updateBase64(base64String!);
-  //   }
-  // }
 }

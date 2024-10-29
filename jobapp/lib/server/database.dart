@@ -163,6 +163,35 @@ class Database {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchAllJobSearch(bool status) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, j.type FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status
+    '''), parameters: {
+        'status': status,
+      });
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'nameC': row[1],
+          'address': row[2],
+          'image': row[3],
+          'jid': row[4],
+          'title': row[5],
+          'careerJ': row[6],
+          'salaryFrom': row[7],
+          'salaryTo': row[8],
+          'experience': row[9],
+          'expiration_date': row[10],
+          'type': row[11],
+        };
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAllJobForCid(
       int cId, bool status) async {
     try {
@@ -262,6 +291,34 @@ class Database {
   SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE j.career = @career
     '''), parameters: {
         'career': career,
+      });
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'nameC': row[1],
+          'address': row[2],
+          'image': row[3],
+          'jid': row[4],
+          'title': row[5],
+          'careerJ': row[6],
+          'salaryFrom': row[7],
+          'salaryTo': row[8],
+          'experience': row[9],
+          'expiration_date': row[10],
+        };
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchJobForTitle(String title) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE j.title = @title
+    '''), parameters: {
+        'title': title,
       });
       return result.map((row) {
         return {
@@ -492,21 +549,6 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
     } catch (e) {
       print(e);
       rethrow;
-    }
-  }
-
-  Future<void> deleteJob(int jid, bool status) async {
-    final conn = DatabaseConnection().connection;
-    try {
-      await conn?.execute(
-        Sql.named('''UPDATE job SET status = @status WHERE jid = @jid;'''),
-        parameters: {
-          'jid': jid,
-          'status': status,
-        },
-      );
-    } catch (e) {
-      print('error: $e');
     }
   }
 
@@ -744,11 +786,11 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
   ) async {
     try {
       await conn!.execute(Sql.named('''
-      INSERT INTO skill (uid, name, rating) 
-       VALUES (@uid, @name, @rating)
+      INSERT INTO skill (uid, nameSkill, rating) 
+       VALUES (@uid, @nameSkill, @rating)
 '''), parameters: {
         'uid': uid,
-        'name': name,
+        'nameSkill': name,
         'rating': rating,
       });
       print('thêm Kỹ năng thành công');
@@ -1100,6 +1142,103 @@ ORDER BY u.uid,
     } catch (e) {
       print('fetch all company error: $e');
       rethrow;
+    }
+  }
+
+  // DELETE
+
+  Future<void> deleteJob(int jid, bool status) async {
+    final conn = DatabaseConnection().connection;
+    try {
+      await conn?.execute(
+        Sql.named('''UPDATE job SET status = @status WHERE jid = @jid;'''),
+        parameters: {
+          'jid': jid,
+          'status': status,
+        },
+      );
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
+  Future<void> deleteExperience(int expeId) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM experience WHERE expe_id = @expe_id 
+'''), parameters: {
+        'expe_id': expeId,
+      });
+      print('xóa kinh nghiệm thành công');
+    } catch (e) {
+      print('xóa kinh nghiệm thất bại');
+    }
+  }
+
+  Future<void> deleteEducation(int eduId) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM education WHERE edu_id = @edu_id 
+'''), parameters: {
+        'edu_id': eduId,
+      });
+      print('xóa học vấn thành công');
+    } catch (e) {
+      print('xóa học vấn thất bại');
+    }
+  }
+
+  Future<void> deleteSkill(int skill) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM skill WHERE skill_id = @skill_id 
+'''), parameters: {
+        'skill_id': skill,
+      });
+      print('xóa kỹ năng thành công');
+    } catch (e) {
+      print('xóa kỹ năng thất bại');
+    }
+  }
+
+  Future<void> deleteCertificate(int certiId) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM certificate WHERE certi_id = @certi_id 
+'''), parameters: {
+        'certi_id': certiId,
+      });
+      print('xóa chứng chỉ thành công');
+    } catch (e) {
+      print('xóa chứng chỉ thất bại');
+    }
+  }
+
+Future<void> deleteCvUpload(int cvId) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM myCv WHERE cv_id = @cv_id 
+'''), parameters: {
+        'cv_id': cvId,
+      });
+      print('xóa cvUpload thành công');
+    } catch (e) {
+      print('xóa cvUpload thất bại');
+    }
+  }
+
+  // update name cv upload
+  void updateNameCV(int cvId, String nameCV) async {
+    try {
+      await conn!.execute(Sql.named('''
+      UPDATE myCv SET nameCv = @nameCv WHERE cv_id = @cv_id 
+'''), parameters: {
+        'cv_id': cvId,
+        'nameCv': nameCV,
+      });
+      print('Đổi tên cv upload thành công');
+    } catch (e) {
+      print('Lỗi cập nhật tên cv upload');
     }
   }
 }

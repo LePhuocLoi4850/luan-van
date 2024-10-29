@@ -84,12 +84,18 @@ class _UpdateNameState extends State<UpdateName> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Họ và tên'),
+                child: Text(
+                  'Họ và tên',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  hintText: 'Nhập tên công ty',
+                  hintText: 'Nhập Họ và Tên',
                   hintStyle: TextStyle(
                     color: Colors.grey[600],
                   ),
@@ -103,7 +109,7 @@ class _UpdateNameState extends State<UpdateName> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập tên kỹ năng';
+                    return 'Họ Tên không được để trống';
                   }
                   return null;
                 },
@@ -111,7 +117,13 @@ class _UpdateNameState extends State<UpdateName> {
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Ngành nghề'),
+                child: Text(
+                  'Ngành nghề',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               GestureDetector(
                 onTap: () {

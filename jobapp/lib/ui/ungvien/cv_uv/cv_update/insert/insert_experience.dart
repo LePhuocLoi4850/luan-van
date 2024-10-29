@@ -62,7 +62,13 @@ class _InsertExperienceState extends State<InsertExperience> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên công ty'),
+                    child: Text(
+                      'Tên công ty',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -86,7 +92,13 @@ class _InsertExperienceState extends State<InsertExperience> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Vị trí công việc'),
+                    child: Text(
+                      'Vị trí công việc',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -110,7 +122,13 @@ class _InsertExperienceState extends State<InsertExperience> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Thời gian làm việc'),
+                    child: Text(
+                      'Thời gian làm việc',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -166,7 +184,13 @@ class _InsertExperienceState extends State<InsertExperience> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Mô tả chi tiết'),
+                    child: Text(
+                      'Mô tả chi tiết',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextField(
                     decoration: InputDecoration(

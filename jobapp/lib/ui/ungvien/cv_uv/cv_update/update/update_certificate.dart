@@ -20,6 +20,7 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
   final _startController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _endController = TextEditingController();
+  int certId = 0;
   DateTime? _startDate;
   DateTime? _endDate;
   bool isLoading = false;
@@ -29,6 +30,7 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
   void initState() {
     super.initState();
     _certificate = Get.arguments;
+    certId = _certificate['cerTi_id'];
     _certificateNameController.text = _certificate['nameCertificate'];
     _nameHostController.text = _certificate['nameHost'];
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
@@ -43,8 +45,6 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
     setState(() {
       isLoading = true;
     });
-    int certId = _certificate['cerTi_id'];
-    print(certId);
     String nameCertificate = _certificateNameController.text;
     String nameHost = _nameHostController.text;
     final DateFormat formatter = DateFormat('yyyy-M-d');
@@ -64,11 +64,37 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
     }
   }
 
+  void _handleDelete(BuildContext context, String message) async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Database().deleteCertificate(certId);
+              Navigator.of(ctx).pop(false);
+              Get.back(result: true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm chứng chỉ'),
+        title: Text('Cập nhật chứng chỉ'),
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -80,7 +106,13 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên chứng chỉ'),
+                    child: Text(
+                      'Tên chứng chỉ',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -104,7 +136,13 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên tổ chức'),
+                    child: Text(
+                      'Tên tổ chức',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -127,7 +165,13 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Thời gian'),
+                    child: Text(
+                      'Thời gian',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,7 +227,13 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Mô tả chi tiết'),
+                    child: Text(
+                      'Mô tả chi tiết',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextField(
                     decoration: InputDecoration(
@@ -195,6 +245,29 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
                     ),
                     maxLines: 6,
                     controller: _descriptionController,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[300],
+                            shape: BeveledRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            _handleDelete(context, 'Bạn có muốn xóa chứng chỉ');
+                          },
+                          child: Text(
+                            'Xóa kinh nghiệm',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          )),
+                    ),
                   ),
                 ],
               ),

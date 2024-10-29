@@ -24,7 +24,7 @@ class _UpdateEducationState extends State<UpdateEducation> {
   final _endController = TextEditingController();
   final _careerController = TextEditingController();
   final _searchController = TextEditingController();
-
+  int eduId = 0;
   Career? selectedCareer;
   CareerManager careerManager = CareerManager();
   DateTime? _startDate;
@@ -35,6 +35,8 @@ class _UpdateEducationState extends State<UpdateEducation> {
   void initState() {
     super.initState();
     _education = Get.arguments;
+    eduId = _education['edu_id'];
+
     _nameController.text = _education['name'];
     _levelController.text = _education['level'];
     _careerController.text = _education['career'];
@@ -49,7 +51,6 @@ class _UpdateEducationState extends State<UpdateEducation> {
   }
 
   Future<void> _handleUpdateEducation() async {
-    int eduId = _education['edu_id'];
     String level = _levelController.text;
     String name = _nameController.text;
     String career = _careerController.text;
@@ -69,11 +70,37 @@ class _UpdateEducationState extends State<UpdateEducation> {
     }
   }
 
+  void _handleDelete(BuildContext context, String message) async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Database().deleteEducation(eduId);
+              Navigator.of(ctx).pop(false);
+              Get.back(result: true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Học vấn'),
+        title: Text('Cập nhật học vấn'),
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -85,7 +112,13 @@ class _UpdateEducationState extends State<UpdateEducation> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Cấp bậc'),
+                    child: Text(
+                      'Cấp bậc',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -139,7 +172,13 @@ class _UpdateEducationState extends State<UpdateEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên trường học'),
+                    child: Text(
+                      'Tên trường học',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -171,7 +210,13 @@ class _UpdateEducationState extends State<UpdateEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Ngành nghề'),
+                    child: Text(
+                      'Ngành nghề',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -211,7 +256,13 @@ class _UpdateEducationState extends State<UpdateEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Thời gian học tập'),
+                    child: Text(
+                      'Thời gian học tập',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -267,7 +318,13 @@ class _UpdateEducationState extends State<UpdateEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Mô tả chi tiết'),
+                    child: Text(
+                      'Mô tả chi tiết',
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextField(
                     decoration: InputDecoration(
@@ -280,6 +337,29 @@ class _UpdateEducationState extends State<UpdateEducation> {
                     ),
                     maxLines: 6,
                     controller: _descriptionController,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[300],
+                            shape: BeveledRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            _handleDelete(context, 'Bạn có muốn xóa học vấn');
+                          },
+                          child: Text(
+                            'Xóa kinh nghiệm',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          )),
+                    ),
                   ),
                 ],
               ),

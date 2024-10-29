@@ -58,7 +58,7 @@ class _InsertEducationState extends State<InsertEducation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Học vấn'),
+        title: Text('Thêm học vấn'),
       ),
       body: SingleChildScrollView(
         child: Stack(
@@ -70,7 +70,10 @@ class _InsertEducationState extends State<InsertEducation> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Cấp bậc'),
+                    child: Text('Cấp bậc' , style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -124,7 +127,10 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên trường học'),
+                    child: Text('Tên trường học',  style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -156,7 +162,10 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Ngành nghề'),
+                    child: Text('Ngành nghề',  style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -196,7 +205,10 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Thời gian học tập'),
+                    child: Text('Thời gian học tập',  style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -252,7 +264,10 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Mô tả chi tiết'),
+                    child: Text('Mô tả chi tiết',  style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),),
                   ),
                   TextField(
                     decoration: InputDecoration(

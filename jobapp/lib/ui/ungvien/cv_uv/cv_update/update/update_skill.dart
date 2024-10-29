@@ -16,18 +16,20 @@ class _UpdateSkillState extends State<UpdateSkill> {
   final _formKey = GlobalKey<FormState>();
   final _skillNameController = TextEditingController();
   double _rating = 0;
+  int skillId = 0;
   Map<String, dynamic> _skill = {};
   @override
   void initState() {
     super.initState();
     _skill = Get.arguments;
+    skillId = _skill['skill_id'];
+
     _skillNameController.text = _skill['nameSkill'];
     _rating = _skill['rating'].toDouble();
   }
 
   Future<void> _saveSkill() async {
     if (_formKey.currentState!.validate()) {
-      int skillId = _skill['skill_id'];
       String name = _skillNameController.text;
       int rating = _rating.toInt();
       try {
@@ -39,11 +41,37 @@ class _UpdateSkillState extends State<UpdateSkill> {
     }
   }
 
+  void _handleDelete(BuildContext context, String message) async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Database().deleteSkill(skillId);
+              Navigator.of(ctx).pop(false);
+              Get.back(result: true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Thêm kỹ năng'),
+        title: const Text('Cập nhật kỹ năng'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -54,12 +82,18 @@ class _UpdateSkillState extends State<UpdateSkill> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Tên kỹ năng'),
+                child: Text(
+                  'Tên kỹ năng',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               TextFormField(
                 controller: _skillNameController,
                 decoration: InputDecoration(
-                  hintText: 'Nhập tên công ty',
+                  hintText: 'Nhập tên kỹ năng',
                   hintStyle: TextStyle(
                     color: Colors.grey[600],
                   ),
@@ -97,6 +131,29 @@ class _UpdateSkillState extends State<UpdateSkill> {
                 },
               ),
               const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        shape: BeveledRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () {
+                        _handleDelete(context, 'Bạn có muốn xóa kỹ năng');
+                      },
+                      child: Text(
+                        'Xóa kinh nghiệm',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      )),
+                ),
+              ),
             ],
           ),
         ),

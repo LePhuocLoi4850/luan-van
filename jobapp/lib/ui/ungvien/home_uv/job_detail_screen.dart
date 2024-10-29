@@ -1031,19 +1031,20 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          switch (applicationStatus) {
-                            case 'apply':
-                              apply();
-                              break;
-                            case 'applied':
-                              withdraw();
-                              break;
-                            case 'withdraw':
-                              reapply();
-                              break;
-                            default:
-                              break;
-                          }
+                          // switch (applicationStatus) {
+                          //   case 'apply':
+                          //     apply();
+                          //     break;
+                          //   case 'applied':
+                          //     withdraw();
+                          //     break;
+                          //   case 'withdraw':
+                          //     reapply();
+                          //     break;
+                          //   default:
+                          //     break;
+                          // }
+                          Get.toNamed('/');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,

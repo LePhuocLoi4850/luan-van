@@ -43,9 +43,37 @@ class _CvScreenState extends State<CvScreen> {
     }
   }
 
+  void _handleDelete(BuildContext context, String message, int cvId) async {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Are you sure?'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              Database().deleteCvUpload(cvId);
+              Navigator.pop(context);
+              _fetchCvUpload();
+              Navigator.pop(context);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 80,
         backgroundColor: Colors.blue,
@@ -192,13 +220,33 @@ class _CvScreenState extends State<CvScreen> {
                                         ),
                                       ),
                                       const SizedBox(height: 5),
-                                      Text(
-                                        "${DateTime.parse(cv['time'].toString()).year} -"
-                                        "${DateTime.parse(cv['time'].toString()).month} -"
-                                        "${DateTime.parse(cv['time'].toString()).day}",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "${DateTime.parse(cv['time'].toString()).year} -"
+                                              "${DateTime.parse(cv['time'].toString()).month} -"
+                                              "${DateTime.parse(cv['time'].toString()).day}",
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                _showMoreBottomSheet(
+                                                    context,
+                                                    cv['nameCv'],
+                                                    cv['pdf'],
+                                                    cv['cv_id']);
+                                              },
+                                              icon: Icon(Icons.more_horiz),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       const SizedBox(height: 5),
@@ -373,6 +421,178 @@ class _CvScreenState extends State<CvScreen> {
       );
     }
   }
+
+  void _showMoreBottomSheet(
+      BuildContext context, String cvName, String pdf, int cvId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (ctx, setState) {
+          return FractionallySizedBox(
+            heightFactor: 0.35,
+            widthFactor: 100,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    cvName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    width: 400,
+                    color: Colors.grey[200],
+                    child: SingleChildScrollView(
+                        child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => PDFViewerPage(pdfBase64: pdf));
+                            },
+                            child: Container(
+                              width: 400,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Icon(Icons.visibility),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Xem',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return DoiTenDialog(
+                                    name: cvName,
+                                    cvId: cvId,
+                                    onUpdate: () {
+                                      _fetchCvUpload();
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              width: 400,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Icon(Icons.edit),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Đổi tên',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _handleDelete(
+                                  context, 'Bạn có muốn xóa cv', cvId);
+                            },
+                            child: Container(
+                              width: 400,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Xóa',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                        ],
+                      ),
+                    )),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
 }
 
 class PDFViewerPage extends StatelessWidget {
@@ -388,6 +608,133 @@ class PDFViewerPage extends StatelessWidget {
       ),
       body: PDFView(
         pdfData: base64Decode(pdfBase64),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class DoiTenDialog extends StatefulWidget {
+  String name;
+  int cvId;
+  final VoidCallback onUpdate;
+  DoiTenDialog(
+      {required this.name,
+      required this.cvId,
+      required this.onUpdate,
+      super.key});
+
+  @override
+  State<DoiTenDialog> createState() => _DoiTenDialogState();
+}
+
+class _DoiTenDialogState extends State<DoiTenDialog> {
+  final nameController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    nameController.text = widget.name;
+  }
+
+  void _handleUpdateNameCV() async {
+    String nameCV = nameController.text;
+    try {
+      Database().updateNameCV(widget.cvId, nameCV);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: EdgeInsets.zero,
+      child: Container(
+        width: 380,
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Đổi tên",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5.0),
+            SizedBox(
+              height: 90,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tên CV',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              nameController.clear();
+                              print('clear');
+                            });
+                          },
+                          icon: Icon(Icons.cancel_sharp)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 5.0),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.blue),
+                    child: TextButton(
+                      onPressed: () async {
+                        _handleUpdateNameCV();
+                        Navigator.pop(context);
+                        widget.onUpdate();
+                      },
+                      child: Text(
+                        "Đổi tên",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16.0),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.grey[300]),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Hủy",
+                        style: TextStyle(color: Colors.black, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

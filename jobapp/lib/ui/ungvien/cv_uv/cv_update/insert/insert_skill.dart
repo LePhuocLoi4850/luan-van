@@ -46,7 +46,13 @@ class _InsertSkillState extends State<InsertSkill> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text('Tên kỹ năng'),
+                child: Text(
+                  'Tên kỹ năng',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               TextFormField(
                 controller: _skillNameController,

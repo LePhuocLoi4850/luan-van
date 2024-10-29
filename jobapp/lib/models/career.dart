@@ -14,7 +14,7 @@ class Career {
   Career copyWith({
     String? id,
     String? name,
-    String? image, // Thêm trường image vào hàm copyWith
+    String? image,
     bool? isSelected,
   }) {
     return Career(

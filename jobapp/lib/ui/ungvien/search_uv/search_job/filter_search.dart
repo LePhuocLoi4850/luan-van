@@ -4,7 +4,7 @@ import 'package:jobapp/models/career.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
-import '../../../../server/database.dart';
+import '../../../../models/address.dart';
 
 class FilterSearch extends StatefulWidget {
   const FilterSearch({super.key});
@@ -16,6 +16,11 @@ class FilterSearch extends StatefulWidget {
 class _FilterSearchState extends State<FilterSearch> {
   final AuthController controller = Get.find<AuthController>();
   String? title;
+  int? _salaryFrom;
+  int? _salaryTo;
+  Address? selectedAddress;
+  AddressManager addressManager = AddressManager();
+  List<Address> filteredAddressList = AddressManager().allAddress;
   Career? selectedCareer;
   CareerManager careerManager = CareerManager();
   List<Career> filteredCareerList = CareerManager().allCareer;
@@ -48,49 +53,54 @@ class _FilterSearchState extends State<FilterSearch> {
   ];
   final _careerController = TextEditingController();
   final _searchController = TextEditingController();
+  final _addressController = TextEditingController();
   final _experienceController = TextEditingController();
   final _salaryController = TextEditingController();
   final _typeController = TextEditingController();
 
   bool isLoading = true;
   Map<String, dynamic> data = {};
-  List<Map<String, dynamic>> _jobCareer = [];
   List<Map<String, dynamic>> _job = [];
   @override
   void initState() {
     super.initState();
-    _fetchJobCareer();
     data = Get.arguments;
+    _job = List.from(data['job']);
     title = data['title'];
+    _addressController.text = data['address'];
     _experienceController.text = data['experience'];
+    _salaryController.text = data['salary'];
+    print(_salaryController.text);
+    _careerController.text = data['career'];
     _typeController.text = data['type'];
     setState(() {});
   }
 
   void searchJobs() {
     setState(() {
+      String address = removeDiacritics(_addressController.text.toLowerCase());
       String career = removeDiacritics(_careerController.text.toLowerCase());
-      String title = removeDiacritics(_searchController.text.toLowerCase());
+
       String experience =
           removeDiacritics(_experienceController.text.toLowerCase());
-      String salary = removeDiacritics(_salaryController.text.toLowerCase());
       String type = removeDiacritics(_typeController.text.toLowerCase());
-
+      _job = List.from(data['job']);
       _job = _job.where((item) {
-        bool matchesCareer = career.isEmpty ||
-            removeDiacritics(item['careerJ'].toLowerCase()).contains(career);
-        bool matchesTitle = title.isEmpty ||
-            removeDiacritics(item['title'].toLowerCase()).contains(title);
+        bool matChesAddress = address.isEmpty ||
+            removeDiacritics(item['address'].toLowerCase()).contains(address);
         bool matchesExperience = experience.isEmpty ||
             removeDiacritics(item['experience'].toLowerCase())
                 .contains(experience);
-        bool matchesSalary = salary.isEmpty ||
-            removeDiacritics(item['salary'].toLowerCase()).contains(salary);
+        bool matchesSalary = (_salaryFrom == null ||
+                int.parse(item['salaryFrom']) <= _salaryTo!) &&
+            (_salaryTo == null || int.parse(item['salaryTo']) >= _salaryFrom!);
+        bool matchesCareer = career.isEmpty ||
+            removeDiacritics(item['careerJ'].toLowerCase()).contains(career);
         bool matchesType = type.isEmpty ||
             removeDiacritics(item['type'].toLowerCase()).contains(type);
 
-        return matchesCareer &&
-            matchesTitle &&
+        return matChesAddress &&
+            matchesCareer &&
             matchesExperience &&
             matchesSalary &&
             matchesType;
@@ -99,38 +109,84 @@ class _FilterSearchState extends State<FilterSearch> {
     });
   }
 
-  void _fetchJobCareer() async {
-    String career = await Database()
-        .selectCareerUserForEmail(controller.userModel.value.email!);
-    print(career.toString());
+  void _showAddressBottomSheet(
+      BuildContext context, Function updateParentState) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (ctx, setState) {
+          List<Address> filteredAddress = addressManager.allAddress
+              .where((address) => removeDiacritics(address.ten.toLowerCase())
+                  .contains(
+                      removeDiacritics(_searchController.text.toLowerCase())))
+              .toList();
 
-    try {
-      if (mounted) {
-        setState(() {
-          isLoading = true;
+          return FractionallySizedBox(
+            heightFactor: 0.85,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Chọn vị trí',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 20.0, right: 20, bottom: 10),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      hintText: 'Tìm kiếm',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchController.text = value;
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: filteredAddress.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16.0, right: 16),
+                          child: ListTile(
+                            title: Text(filteredAddress[index].ten),
+                            onTap: () {
+                              setState(() {
+                                selectedAddress = filteredAddress[index];
+                                _addressController.text =
+                                    filteredAddress[index].ten;
+                              });
+                              Navigator.of(context).pop();
+                              updateParentState();
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         });
-      }
-      _jobCareer = await Database().fetchJobForCareer(career);
-
-      _filterJobsByTitle(title!);
-    } catch (e) {
-      print('select error job for career: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
-
-  void _filterJobsByTitle(String title) {
-    setState(() {
-      _job = _jobCareer.where((item) {
-        return removeDiacritics(item['title'].toLowerCase())
-            .contains(removeDiacritics(title.toLowerCase()));
-      }).toList();
-    });
+      },
+    );
   }
 
   void _showExperienceBottomSheet(BuildContext context) {
@@ -187,8 +243,10 @@ class _FilterSearchState extends State<FilterSearch> {
   void dispose() {
     _experienceController.dispose();
     _typeController.dispose();
-
-    super.dispose(); // Call the parent dispose method
+    _addressController.dispose();
+    _salaryController.dispose();
+    _careerController.dispose();
+    super.dispose();
   }
 
   void _showTypeBottomSheet(BuildContext context) {
@@ -242,6 +300,16 @@ class _FilterSearchState extends State<FilterSearch> {
   }
 
   void _showSalaryBottomSheet(BuildContext context) {
+    final salaryRanges = {
+      'Tất cả': [0, 100],
+      'Dưới 10 triệu': [1, 9],
+      '10 - 15 triệu': [10, 15],
+      '15 - 20 triệu': [15, 20],
+      '20 - 25 triệu': [20, 25],
+      '25 - 30 triệu': [25, 30],
+      'Trên 30 triệu': [30, 100],
+      'Thỏa thuận': [0, 0],
+    };
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -251,18 +319,18 @@ class _FilterSearchState extends State<FilterSearch> {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Chọn mức lương',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
                       ),
                     ),
-                    TextButton(onPressed: () {}, child: Text('Xong'))
+                    TextButton(onPressed: () {}, child: const Text('Xong'))
                   ],
                 ),
               ),
@@ -275,7 +343,10 @@ class _FilterSearchState extends State<FilterSearch> {
                       onTap: () {
                         setState(
                           () {
+                            final selectedRange = salaryRanges[salary[index]]!;
                             _salaryController.text = salary[index];
+                            _salaryFrom = selectedRange[0];
+                            _salaryTo = selectedRange[1];
                             Navigator.of(context).pop();
                           },
                         );
@@ -382,6 +453,12 @@ class _FilterSearchState extends State<FilterSearch> {
                 fontWeight: FontWeight.bold,
                 color: Color.fromARGB(255, 0, 0, 0)),
           ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Get.back();
+            },
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -392,7 +469,9 @@ class _FilterSearchState extends State<FilterSearch> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      _showCareerBottomSheet(context);
+                      _showAddressBottomSheet(context, () {
+                        setState(() {});
+                      });
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -422,7 +501,8 @@ class _FilterSearchState extends State<FilterSearch> {
                       ],
                     ),
                   ),
-                  _careerController.text.isEmpty
+                  _addressController.text.isEmpty ||
+                          _addressController.text == 'Tất cả'
                       ? const SizedBox.shrink()
                       : ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -433,14 +513,14 @@ class _FilterSearchState extends State<FilterSearch> {
                           ),
                           onPressed: () {
                             setState(() {
-                              _careerController.clear();
+                              _addressController.clear();
                             });
                           },
                           child: IntrinsicWidth(
                             child: Row(
                               children: [
                                 Text(
-                                  _careerController.text,
+                                  _addressController.text,
                                   style: TextStyle(color: Colors.blue),
                                 ),
                                 Icon(Icons.clear, color: Colors.blue)
@@ -549,7 +629,8 @@ class _FilterSearchState extends State<FilterSearch> {
                       ],
                     ),
                   ),
-                  _salaryController.text.isEmpty
+                  _salaryController.text.isEmpty ||
+                          _salaryController.text == 'Tất cả'
                       ? const SizedBox.shrink()
                       : ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -719,9 +800,12 @@ class _FilterSearchState extends State<FilterSearch> {
                         searchJobs();
 
                         Map<String, dynamic> result = {
+                          'job': _job,
                           'title': title,
+                          'address': _addressController.text,
                           'experience': _experienceController.text,
-                          'jobs': _job,
+                          'salary': _salaryController.text,
+                          'career': _careerController.text,
                           'type': _typeController.text,
                         };
                         Get.back(result: result);

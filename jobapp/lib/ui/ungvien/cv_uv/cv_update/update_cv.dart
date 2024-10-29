@@ -656,66 +656,82 @@ class _UpdateCvState extends State<UpdateCv> {
                                             ),
                                           ],
                                         ),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          height: 180,
-                                          child: ListView.builder(
-                                            padding:
-                                                EdgeInsets.only(bottom: 00),
-                                            itemCount: _allSkill.length,
-                                            itemBuilder: (context, index) {
-                                              final skill = _allSkill[index];
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                      color: Colors.grey[200]),
-                                                  child: ListTile(
-                                                    title: Text(
-                                                        skill['nameSkill']),
-                                                    subtitle: RatingBar.builder(
-                                                      initialRating:
-                                                          skill['rating']
-                                                              .toDouble(),
-                                                      ignoreGestures: true,
-                                                      direction:
-                                                          Axis.horizontal,
-                                                      allowHalfRating: false,
-                                                      itemCount: 5,
-                                                      itemSize: 20,
-                                                      itemBuilder:
-                                                          (context, _) =>
-                                                              const Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
+                                        isLoading
+                                            ? const Center(
+                                                child:
+                                                    CircularProgressIndicator())
+                                            : SizedBox(
+                                                width: double.infinity,
+                                                height: 180,
+                                                child: ListView.builder(
+                                                  padding: EdgeInsets.only(
+                                                      bottom: 00),
+                                                  itemCount: _allSkill.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    final skill =
+                                                        _allSkill[index];
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        15),
+                                                            color: Colors
+                                                                .grey[200]),
+                                                        child: ListTile(
+                                                          title: Text(skill[
+                                                              'nameSkill']),
+                                                          subtitle:
+                                                              RatingBar.builder(
+                                                            initialRating:
+                                                                skill['rating']
+                                                                    .toDouble(),
+                                                            ignoreGestures:
+                                                                true,
+                                                            direction:
+                                                                Axis.horizontal,
+                                                            allowHalfRating:
+                                                                false,
+                                                            itemCount: 5,
+                                                            itemSize: 20,
+                                                            itemBuilder:
+                                                                (context, _) =>
+                                                                    const Icon(
+                                                              Icons.star,
+                                                              color:
+                                                                  Colors.amber,
+                                                            ),
+                                                            onRatingUpdate:
+                                                                (rating) {},
+                                                          ),
+                                                          trailing: IconButton(
+                                                            onPressed:
+                                                                () async {
+                                                              final result =
+                                                                  await Get.toNamed(
+                                                                      '/updateSkill',
+                                                                      arguments:
+                                                                          skill);
+                                                              if (result ==
+                                                                  true) {
+                                                                _fetchSkill();
+                                                                setState(() {});
+                                                              }
+                                                            },
+                                                            icon: Icon(
+                                                                Icons.edit),
+                                                          ),
+                                                        ),
                                                       ),
-                                                      onRatingUpdate:
-                                                          (rating) {},
-                                                    ),
-                                                    trailing: IconButton(
-                                                      onPressed: () async {
-                                                        final result =
-                                                            await Get.toNamed(
-                                                                '/updateSkill',
-                                                                arguments:
-                                                                    skill);
-                                                        if (result == true) {
-                                                          _fetchSkill();
-                                                          setState(() {});
-                                                        }
-                                                      },
-                                                      icon: Icon(Icons.edit),
-                                                    ),
-                                                  ),
+                                                    );
+                                                  },
                                                 ),
-                                              );
-                                            },
-                                          ),
-                                        ),
+                                              ),
                                       ],
                                     ),
                                   ),
