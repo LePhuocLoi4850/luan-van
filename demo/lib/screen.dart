@@ -2,6 +2,8 @@ import 'package:demo/home.dart';
 import 'package:demo/update.dart';
 import 'package:flutter/material.dart';
 
+import 'email.dart';
+
 class CompanyScreen extends StatefulWidget {
   const CompanyScreen({super.key});
 
@@ -26,7 +28,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
         children: const [
           MessengerWebView(),
           MessengerWebView(),
-          MessengerWebView(),
+          Email(),
           MessengerWebView(),
           UpdateUserScreen(),
         ],

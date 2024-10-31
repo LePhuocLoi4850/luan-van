@@ -10,7 +10,9 @@ import 'package:jobapp/ui/ungvien/cv_uv/cv_update/update_cv.dart';
 import 'package:jobapp/ui/ungvien/cv_uv/cv_update/update/update_description.dart';
 import 'package:jobapp/ui/ungvien/cv_uv/cv_update/update/update_information.dart';
 import 'package:jobapp/ui/ungvien/cv_uv/upload_cv/upload_cv.dart';
+import 'package:jobapp/ui/ungvien/home_uv/apply.dart';
 import 'package:jobapp/ui/ungvien/home_uv/job_detail_screen.dart';
+import 'package:jobapp/ui/ungvien/home_uv/notification.dart';
 import 'package:jobapp/ui/ungvien/mycv/job_pending.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_job/filter_search.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_job/search_screen.dart';
@@ -123,6 +125,8 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/insertExperience', page: () => const InsertExperience()),
     GetPage(name: '/insertCertificate', page: () => const InsertCertificate()),
     GetPage(name: '/insertSkill', page: () => const InsertSkill()),
+    GetPage(name: '/apply', page: () => const Apply()),
+    GetPage(name: '/notificationApply', page: () => const NotificationApply()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,

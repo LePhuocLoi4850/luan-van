@@ -7,6 +7,8 @@ import 'package:jobapp/ui/ungvien/mycv/mycv_screen.dart';
 import 'package:jobapp/ui/ungvien/profile_uv/profile_uv_screen.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_uv_screen.dart';
 
+import '../../controller/cv_storage.dart';
+
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
 
@@ -16,8 +18,21 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   UserController userController = Get.put(UserController());
+  CvStorageController cvStorageController = Get.put(CvStorageController());
 
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final arguments = Get.arguments;
+    if (arguments != null &&
+        arguments is Map &&
+        arguments.containsKey('selectedIndex')) {
+      _selectedIndex = arguments['selectedIndex'] as int;
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

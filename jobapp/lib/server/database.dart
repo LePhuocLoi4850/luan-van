@@ -6,10 +6,10 @@ class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
 
-  Future<void> uploadCV(
+  Future<int?> uploadCV(
       int uid, String nameCv, DateTime time, String pdfBase) async {
     try {
-      await conn!.execute(Sql.named('''
+      final result = await conn!.execute(Sql.named('''
       INSERT INTO mycv (uid, nameCv, time, pdf) VALUES (@uid, @nameCv, @time, @pdf) 
 '''), parameters: {
         'uid': uid,
@@ -17,9 +17,14 @@ class Database {
         'time': time,
         'pdf': pdfBase,
       });
-      print('upload cv thành công');
+      if (result.isNotEmpty) {
+        return result.first.toColumnMap()['cv_id'];
+      } else {
+        return null;
+      }
     } catch (e) {
       print('Upload CV  thất bại: $e');
+      return null;
     }
   }
 
@@ -38,7 +43,7 @@ class Database {
           'cv_id': row[0],
           'uid': row[1],
           'nameCv': row[2],
-          'time': row[3],
+          'time': row[3].toString(),
           'pdf': row[4],
         };
       }).toList();
@@ -554,23 +559,25 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
 
 // apply
   Future<void> apply(
-    int jid,
-    int uid,
-    int cid,
-    String nameU,
-    String title,
-    String nameC,
-    String address,
-    String experience,
-    String salaryFrom,
-    String salaryTo,
-    DateTime applyDate,
-    String status,
-    String image,
-  ) async {
+      int jid,
+      int uid,
+      int cid,
+      String nameU,
+      String title,
+      String nameC,
+      String address,
+      String experience,
+      String salaryFrom,
+      String salaryTo,
+      DateTime applyDate,
+      String status,
+      String imageC,
+      String imageU,
+      int cvId,
+      String nameCv) async {
     try {
       await conn!.execute(Sql.named('''
-      INSERT INTO apply (jid, uid, cid, nameU, title, nameC, address, experience, salary_from, salary_to, apply_date, status, image) VALUES (@jid, @uid, @cid, @nameU, @title, @nameC, @address, @experience, @salary_from, @salary_to, @apply_date, @status, @image)
+      INSERT INTO apply (jid, uid, cid, nameU, title, nameC, address, experience, salary_from, salary_to, apply_date, status, imageC, imageU, cv_id, nameCv) VALUES (@jid, @uid, @cid, @nameU, @title, @nameC, @address, @experience, @salary_from, @salary_to, @apply_date, @status, @imageC, @imageU, @cv_id, @nameCv)
 '''), parameters: {
         'jid': jid,
         'uid': uid,
@@ -584,7 +591,10 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
         'salary_to': salaryTo,
         'apply_date': applyDate,
         'status': status,
-        'image': image,
+        'imageC': imageC,
+        'imageU': imageU,
+        'cv_id': cvId,
+        'nameCv': nameCv,
       });
       print('apply thành công');
     } catch (e) {
@@ -1214,7 +1224,7 @@ ORDER BY u.uid,
     }
   }
 
-Future<void> deleteCvUpload(int cvId) async {
+  Future<void> deleteCvUpload(int cvId) async {
     try {
       await conn!.execute(Sql.named('''
       DELETE FROM myCv WHERE cv_id = @cv_id 

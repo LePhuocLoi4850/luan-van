@@ -5,6 +5,41 @@ CREATE TABLE auth (
     pass VARCHAR(255) NOT NULL,           -- Mật khẩu đã băm, tối đa 255 ký tự, không cho phép NULL
     created_at TIMESTAMP DEFAULT NOW()    -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
 );
+CREATE TABLE cvprofile (
+      cvp_id SERIAL PRIMARY KEY,              -- Khóa chính tự động tăng
+    uid INT,                                 -- ID công việc (khóa ngoại đến bảng job)
+    certi_id INT,                                 -- ID người dùng (khóa ngoại đến bảng users)
+    edu_id INT,                                 -- ID công ty (khóa ngoại đến bảng company)
+	expe_id INT,
+	skill_id INT,
+    
+    -- Ràng buộc khóa ngoại
+    CONSTRAINT fk_users
+      FOREIGN KEY (uid) 
+      REFERENCES users (uid)
+      ON DELETE CASCADE,                     -- Xóa công việc sẽ xóa các đơn ứng tuyển liên quan
+
+    CONSTRAINT fk_certificate
+      FOREIGN KEY (certi_id) 
+      REFERENCES certificate (certi_id)
+      ON DELETE CASCADE,                     -- Xóa người dùng sẽ xóa các đơn ứng tuyển liên quan
+
+    CONSTRAINT fk_education
+      FOREIGN KEY (edu_id) 
+      REFERENCES education (edu_id)
+      ON DELETE CASCADE,                      -- Xóa công ty sẽ xóa các đơn ứng tuyển liên quan
+	
+    CONSTRAINT fk_experience
+      FOREIGN KEY (expe_id) 
+      REFERENCES experience (expe_id)
+      ON DELETE CASCADE,
+	
+	 CONSTRAINT fk_skill
+      FOREIGN KEY (skill_id) 
+      REFERENCES skill (skill_id)
+      ON DELETE CASCADE
+);
+
 CREATE TABLE education (
     edu_id SERIAL PRIMARY KEY,           -- Khóa chính tự động tăng
 	uid INT,

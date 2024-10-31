@@ -109,29 +109,29 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     }
   }
 
-  void apply() async {
-    int uid = controller.userModel.value.id!;
-    String status = 'applied';
-    int jid = jId;
-    int cid = cId;
-    String nameU = controller.userModel.value.name.toString();
-    String title = detailJob['title'];
-    String nameC = detailJob['name'];
-    String address = detailJob['address'];
-    String experience = detailJob['experience'];
-    String salaryFrom = detailJob['salaryFrom'];
-    String salaryTo = detailJob['salaryTo'];
-    String image = detailJob['image'];
-    DateTime applyDate = DateTime.now();
+  // void apply() async {
+  //   int uid = controller.userModel.value.id!;
+  //   String status = 'applied';
+  //   int jid = jId;
+  //   int cid = cId;
+  //   String nameU = controller.userModel.value.name.toString();
+  //   String title = detailJob['title'];
+  //   String nameC = detailJob['name'];
+  //   String address = detailJob['address'];
+  //   String experience = detailJob['experience'];
+  //   String salaryFrom = detailJob['salaryFrom'];
+  //   String salaryTo = detailJob['salaryTo'];
+  //   String image = detailJob['image'];
+  //   DateTime applyDate = DateTime.now();
 
-    try {
-      await Database().apply(jid, uid, cid, nameU, title, nameC, address,
-          experience, salaryFrom, salaryTo, applyDate, status, image);
-      print('ứng tuyển thành công');
-    } catch (e) {
-      print(e);
-    }
-  }
+  //   try {
+  //     await Database().apply(jid, uid, cid, nameU, title, nameC, address,
+  //         experience, salaryFrom, salaryTo, applyDate, status, image);
+  //     print('ứng tuyển thành công');
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   void withdraw() async {
     int uid = controller.userModel.value.id!;
@@ -1031,20 +1031,19 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          // switch (applicationStatus) {
-                          //   case 'apply':
-                          //     apply();
-                          //     break;
-                          //   case 'applied':
-                          //     withdraw();
-                          //     break;
-                          //   case 'withdraw':
-                          //     reapply();
-                          //     break;
-                          //   default:
-                          //     break;
-                          // }
-                          Get.toNamed('/');
+                          switch (applicationStatus) {
+                            case 'apply':
+                              Get.toNamed('/apply', arguments: detailJob);
+                              break;
+                            case 'applied':
+                              withdraw();
+                              break;
+                            case 'withdraw':
+                              reapply();
+                              break;
+                            default:
+                              break;
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,

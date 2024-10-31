@@ -38,12 +38,12 @@ class _UploadCvState extends State<UploadCv> {
     }
   }
 
-  Future<void> _uploadPDF() async {
+  Future<int?> _uploadPDF() async {
     if (_pdfPath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng chọn file PDF')),
       );
-      return;
+      return null;
     }
 
     setState(() {
@@ -57,13 +57,14 @@ class _UploadCvState extends State<UploadCv> {
       DateTime time = DateTime.now();
       final pdfBase64 = base64Encode(bytes);
 
-      await Database().uploadCV(uid, nameCv, time, pdfBase64);
-
+      final cvId = await Database().uploadCV(uid, nameCv, time, pdfBase64);
       setState(() {
         _isLoading = false;
       });
 
       Get.back(result: true);
+      print(cvId);
+      return cvId;
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -72,6 +73,7 @@ class _UploadCvState extends State<UploadCv> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lỗi upload CV')),
       );
+      return null;
     }
   }
 

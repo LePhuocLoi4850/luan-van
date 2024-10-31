@@ -31,6 +31,7 @@ class _UpdateCvState extends State<UpdateCv> {
   @override
   void initState() {
     super.initState();
+
     _fetchEducation();
     _fetchExperience();
     _fetchCertificate();
@@ -95,6 +96,11 @@ class _UpdateCvState extends State<UpdateCv> {
     } catch (e) {
       print(e);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
