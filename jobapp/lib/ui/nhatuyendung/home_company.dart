@@ -96,24 +96,25 @@ class _HomeNTDState extends State<HomeNTD> {
                         child: Row(
                           children: [
                             Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  color: Colors.blue,
-                                ),
-                                child: ClipOval(
-                                  child: controller.companyModel.value.image !=
-                                          null
-                                      ? imageFromBase64String(controller
-                                          .companyModel.value.image
-                                          .toString())
-                                      : const Image(
-                                          image: AssetImage(
-                                              'assets/images/user.png'),
-                                          width: 60,
-                                          height: 60,
-                                          fit: BoxFit.cover,
-                                        ),
-                                )),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: Colors.blue,
+                              ),
+                              child: ClipOval(
+                                child:
+                                    controller.companyModel.value.image != null
+                                        ? imageFromBase64String(controller
+                                            .companyModel.value.image
+                                            .toString())
+                                        : const Image(
+                                            image: AssetImage(
+                                                'assets/images/user.png'),
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                          ),
+                              ),
+                            ),
                             SizedBox(
                               width: 200,
                               height: 70,

@@ -57,7 +57,6 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
   void fetchDetailCompany() async {
     try {
       _detailCompany = await Database().fetchUserDataByCid(cId);
-      print(_detailCompany);
     } catch (e) {
       print(e);
     }
@@ -244,27 +243,6 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Địa chỉ:  ',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[600]),
-                                      ),
-                                      Text(
-                                        _detailCompany['address'],
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
                                         'Số điện thoại:  ',
                                         style: TextStyle(
                                             fontSize: 16,
@@ -317,6 +295,31 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                         style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Địa chỉ:  ',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[600]),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          _detailCompany['address'],
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                            overflow: TextOverflow.visible,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),

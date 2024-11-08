@@ -157,14 +157,17 @@ class _ListJobState extends State<ListJob> {
                     child: Row(
                       children: <Widget>[
                         IconButton(
-                            onPressed: () {
-                              job['status'] == true
-                                  ? null
-                                  : _handleDeleteJob(
-                                      context,
-                                      'Direct and straightforward?',
-                                      job['jid'],
-                                    );
+                            onPressed: () async {
+                              if (job['status'] != true) {
+                                final result = await Get.toNamed('/editJob',
+                                    arguments: job['jid']);
+                                if (result != null) {
+                                  setState(() {
+                                    job['title'] = result['title'];
+                                    job['career'] = result['career'];
+                                  });
+                                }
+                              }
                             },
                             icon: Icon(
                               Icons.edit_square,

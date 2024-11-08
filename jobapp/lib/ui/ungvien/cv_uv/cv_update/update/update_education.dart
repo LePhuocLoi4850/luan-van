@@ -54,7 +54,7 @@ class _UpdateEducationState extends State<UpdateEducation> {
     String level = _levelController.text;
     String name = _nameController.text;
     String career = _careerController.text;
-    print(career);
+
     final DateFormat formatter = DateFormat('yyyy-M-d');
     DateTime timeFrom = formatter.parse(_startController.text);
     DateTime timeTo = formatter.parse(_endController.text);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jobapp/server/database.dart';
 
 import '../../../../auth/auth_controller.dart';
@@ -255,8 +256,9 @@ class _InsertCertificateState extends State<InsertCertificate> {
     if (pickedDate != null && pickedDate != _startDate) {
       setState(() {
         _startDate = pickedDate;
-        _startController.text =
-            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        // _startController.text =
+        //     "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        _startController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }
@@ -271,8 +273,9 @@ class _InsertCertificateState extends State<InsertCertificate> {
     if (pickedDate != null && pickedDate != _endDate) {
       setState(() {
         _endDate = pickedDate;
-        _endController.text =
-            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        // _endController.text =
+        //     "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        _endController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }

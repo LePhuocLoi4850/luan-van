@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jobapp/controller/user_controller.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
@@ -38,6 +39,7 @@ class _ProfileUVScreenState extends State<ProfileUVScreen> {
 
   Future<void> _logout() async {
     await controller.logout();
+    userController.clearFavorites();
   }
 
   @override
@@ -115,7 +117,6 @@ class _ProfileUVScreenState extends State<ProfileUVScreen> {
                           value: userController.isSwitchStatus.value,
                           onChanged: (value) {
                             userController.isSwitchStatus.value = value;
-                            print(userController.isSwitchStatus);
                           },
                         ),
                       ),
@@ -147,7 +148,6 @@ class _ProfileUVScreenState extends State<ProfileUVScreen> {
                           value: userController.isSwitchContact.value,
                           onChanged: (value) {
                             userController.isSwitchContact.value = value;
-                            print(userController.isSwitchContact);
                           },
                         ),
                       ),
@@ -167,63 +167,204 @@ class _ProfileUVScreenState extends State<ProfileUVScreen> {
                     'Quản lý tìm việc',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Container(
                     width: double.infinity,
                     height: 280,
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: 1.6,
-                      ),
-                      itemCount: item.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.blue[50],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.access_time_filled_sharp,
-                                  size: 35,
-                                  color: Colors.blue,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: 175,
+                              height: 125,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        item[index],
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                        maxLines: 2,
-                                      ),
+                                    const Icon(
+                                      Icons.access_time_filled_sharp,
+                                      size: 35,
+                                      color: Colors.blue,
                                     ),
-                                    const Text(
-                                      '10',
-                                      style: TextStyle(
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.w500),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Việc làm đã ứng tuyển',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500),
+                                            maxLines: 2,
+                                          ),
+                                        ),
+                                        const Text(
+                                          '10',
+                                          style: TextStyle(
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                            Container(
+                              width: 175,
+                              height: 125,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    FaIcon(
+                                      FontAwesomeIcons.solidHeart,
+                                      color: Colors.red,
+                                      size: 35,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Việc làm yêu thích',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500),
+                                            maxLines: 2,
+                                          ),
+                                        ),
+                                        Obx(() {
+                                          return Text(
+                                            '${userController.favoriteCount}',
+                                            style: TextStyle(
+                                                fontSize: 30,
+                                                fontWeight: FontWeight.w500),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: 175,
+                              height: 125,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time_filled_sharp,
+                                      size: 35,
+                                      color: Colors.blue,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Việc làm đã ứng tuyển',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500),
+                                            maxLines: 2,
+                                          ),
+                                        ),
+                                        const Text(
+                                          '10',
+                                          style: TextStyle(
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 175,
+                              height: 125,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time_filled_sharp,
+                                      size: 35,
+                                      color: Colors.blue,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Việc làm đã ứng tuyển',
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500),
+                                            maxLines: 2,
+                                          ),
+                                        ),
+                                        const Text(
+                                          '10',
+                                          style: TextStyle(
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                      ],
                     ),
-                  ),
+                  )
                 ],
               ),
             ),

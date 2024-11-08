@@ -81,7 +81,6 @@ class _SearchCompanyScreenState extends State<SearchCompanyScreen> {
                         textAlignVertical: TextAlignVertical.center,
                         textInputAction: TextInputAction.search,
                         onFieldSubmitted: (value) {
-                          print(_searchController.text);
                           setState(() {
                             _filterCompanyList();
                           });

@@ -11,10 +11,10 @@ class DatabaseConnection {
   Connection? _connection;
   Future<void> initialize() async {
     _connection = await Connection.open(Endpoint(
-      host: 'dpg-cs0cc4btq21c73eaagdg-a.oregon-postgres.render.com',
-      database: 'data_v5kg',
-      username: 'data_v5kg_user',
-      password: 'fEsjV53yDVhFwS74P5jQJ1exOpjFu72e',
+      host: 'dpg-csk4vilds78s7396idf0-a.oregon-postgres.render.com',
+      database: 'data_ozxl',
+      username: 'data_ozxl_user',
+      password: '754Vt0vjql1au4Nukoiopk8Jk4GdQdQz',
     ));
   }
 

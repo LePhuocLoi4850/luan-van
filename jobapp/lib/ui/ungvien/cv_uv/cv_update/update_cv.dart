@@ -214,28 +214,49 @@ class _UpdateCvState extends State<UpdateCv> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 15, right: 20),
-                        child: Container(
-                          width: double.infinity,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[400],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: TextButton(
-                            onPressed: () async {
-                              final result = await Get.toNamed('/updateName');
-                              if (result == true) {
-                                setState(() {});
-                              }
-                            },
-                            child: const Text(
-                              'Cập nhật thông tin cơ bản',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 310,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[400],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextButton(
+                                onPressed: () async {
+                                  final result =
+                                      await Get.toNamed('/updateName');
+                                  if (result == true) {
+                                    setState(() {});
+                                  }
+                                },
+                                child: Text(
+                                  'Cập nhật thông tin cơ bản',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[400],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: IconButton(
+                                  onPressed: () {
+                                    Get.toNamed('/cvProfileScreen');
+                                  },
+                                  icon: Icon(Icons.remove_red_eye)),
+                            )
+                          ],
                         ),
                       ),
                     ],

@@ -5,6 +5,23 @@ CREATE TABLE auth (
     pass VARCHAR(255) NOT NULL,           -- Mật khẩu đã băm, tối đa 255 ký tự, không cho phép NULL
     created_at TIMESTAMP DEFAULT NOW()    -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
 );
+CREATE TABLE favorites (
+  	uid INT,
+  	jid INT, 
+	cid INT,
+	title VARCHAR(255) NOT NULL,
+	nameC VARCHAR(255) NOT NULL,
+	addressC VARCHAR(255) NOT NULL,
+	experienceJ VARCHAR(255) NOT NULL,
+	salary_fromJ VARCHAR(255) NOT NULL,
+	salary_toJ VARCHAR(255) NOT NULL,
+	imageC TEXT,
+  	create_at TIMESTAMP,
+  FOREIGN KEY (uid) REFERENCES users(uid),
+  FOREIGN KEY (jid) REFERENCES job(jid),
+	FOREIGN KEY (cid) REFERENCES company(cid),
+  UNIQUE (uid, jid, cid)
+);
 CREATE TABLE cvprofile (
       cvp_id SERIAL PRIMARY KEY,              -- Khóa chính tự động tăng
     uid INT,                                 -- ID công việc (khóa ngoại đến bảng job)
@@ -124,7 +141,7 @@ CREATE TABLE job (
     salary_from VARCHAR(100),            -- Mức lương tối thiểu (String)
     salary_to VARCHAR(100),              -- Mức lương tối đa (String)
     experience VARCHAR(255),             -- Kinh nghiệm yêu cầu
-    time VARCHAR(255),                   -- Thời gian làm việc (ví dụ: toàn thời gian, bán thời gian)
+    working_time VARCHAR(255),                   -- Thời gian làm việc (ví dụ: toàn thời gian, bán thời gian)
     description TEXT,                    -- Mô tả công việc
     request TEXT,                        -- Yêu cầu công việc
     interest TEXT,                       -- Quyền lợi công việc
@@ -149,7 +166,10 @@ CREATE TABLE apply (
     salary_to VARCHAR(100),                  -- Mức lương tối đa
     apply_date TIMESTAMP DEFAULT NOW(),      -- Ngày ứng tuyển, mặc định là thời gian hiện tại
     status VARCHAR(50) DEFAULT 'Pending',    -- Trạng thái đơn ứng tuyển (Pending, Accepted, Rejected)
-    
+    imagec TEXT,
+    imageu TEXT,
+	cv_id int,
+	namecv VARCHAR(255),
     -- Ràng buộc khóa ngoại
     CONSTRAINT fk_job
       FOREIGN KEY (jid) 
@@ -164,7 +184,11 @@ CREATE TABLE apply (
     CONSTRAINT fk_company
       FOREIGN KEY (cid) 
       REFERENCES company (cid)
-      ON DELETE CASCADE                      -- Xóa công ty sẽ xóa các đơn ứng tuyển liên quan
+      ON DELETE CASCADE,                      -- Xóa công ty sẽ xóa các đơn ứng tuyển liên quan
+	CONSTRAINT fk_mycv
+      FOREIGN KEY (cv_id) 
+      REFERENCES mycv (cv_id)
+      ON DELETE CASCADE  
 );
 
 -- bảng củ

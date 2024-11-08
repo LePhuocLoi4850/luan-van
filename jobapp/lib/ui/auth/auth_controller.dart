@@ -107,7 +107,7 @@ class AuthController extends GetxController {
           experience: userData[12].toString(),
           createdAt: DateTime.parse(userData[13].toString()),
         );
-        print(userModel.value);
+
         print('qua 6');
 
         _saveAuthToken(authToken);
@@ -130,7 +130,7 @@ class AuthController extends GetxController {
         final companyData = results.single;
         final companyId = int.parse(companyData.first.toString());
         final authToken = _createAuthToken(companyId.toString());
-        print(companyData[6].toString());
+
         companyModel.value = CompanyModel(
           id: companyId,
           name: companyData[1].toString(),
@@ -342,7 +342,7 @@ class AuthController extends GetxController {
         salaryFrom: 0,
         salaryTo: 0,
         image: image,
-        experience: '',
+        experience: 'update',
         createdAt: createdAt,
       );
 
@@ -402,7 +402,7 @@ class AuthController extends GetxController {
 
       saveCompanyData(companyModel.value);
 
-      Get.offAllNamed('/homeNTD');
+      Get.offAllNamed('/companyScreen');
     } catch (e) {
       print('Lỗi khi thêm dữ liệu: $e');
       Get.snackbar(

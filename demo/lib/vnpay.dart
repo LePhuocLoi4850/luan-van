@@ -14,15 +14,14 @@ class _VNPayTestPageState extends State<VNPayTestPage> {
   String transactionStatus = '';
   String message = '';
 
-  // Các tham số thanh toán (thay thế bằng thông tin thực tế của bạn)
-  final String vnpTmnCode = 'YOUR_VNPAY_TMN_CODE'; // Mã merchant
-  final String vnpHashSecret = 'YOUR_VNPAY_HASH_SECRET'; // Khóa bí mật
-  final String vnpReturnUrl = 'YOUR_RETURN_URL'; // URL trả về
-
+  final String vnpTmnCode = '4EUDD9OP';
+  final String vnpHashSecret = '2NN2SRGO9KKZ46UW5FCPDTYIQF0WPGDA';
+  final String vnpReturnUrl =
+      'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
   Future<void> _makePayment() async {
     try {
       // Tạo URL thanh toán
-      final paymentUrl = VNPAYFlutter.instance.generatePaymentUrl(
+      final paymentUrl = await VNPAYFlutter.instance.generatePaymentUrl(
         url: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
         version: '2.1.0',
         tmnCode: vnpTmnCode,
@@ -30,13 +29,12 @@ class _VNPayTestPageState extends State<VNPayTestPage> {
         orderInfo: 'Test thanh toán VNPAY',
         amount: 10000, // Số tiền thanh toán (đơn vị VND)
         returnUrl: vnpReturnUrl,
-        ipAdress: '192.168.1.1', // Thay thế bằng IP của thiết bị
+        ipAdress: '10.0.2.2',
         vnpayHashKey: vnpHashSecret,
         vnPayHashType: VNPayHashType.HMACSHA512,
         vnpayExpireDate: DateTime.now().add(const Duration(minutes: 15)),
       );
 
-      // Gọi hàm thanh toán
       final result = await VNPAYFlutter.instance.show(
         paymentUrl: paymentUrl,
         onPaymentSuccess: (params) {
@@ -54,8 +52,6 @@ class _VNPayTestPageState extends State<VNPayTestPage> {
           });
         },
       );
-
-      // In kết quả
     } catch (e) {
       // Xử lý lỗi
       print('Error: $e');
@@ -65,7 +61,6 @@ class _VNPayTestPageState extends State<VNPayTestPage> {
     }
   }
 
-  // Hàm chuyển đổi mã response code sang trạng thái giao dịch
   String _getTransactionStatus(String responseCode) {
     switch (responseCode) {
       case '00':

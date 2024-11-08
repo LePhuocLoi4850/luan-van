@@ -6,11 +6,147 @@ class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
 
+  //favorites
+
+  Future<void> addFavorites(
+      int uid,
+      int jid,
+      int cid,
+      String title,
+      String nameC,
+      String addressC,
+      String experienceJ,
+      String salaryFromJ,
+      String salaryToJ,
+      String image,
+      DateTime createAt) async {
+    try {
+      await conn!.execute(Sql.named('''
+      INSERT INTO favorites (uid, jid,cid, title, nameC, addressC, experienceJ, salary_fromJ, salary_toJ,imageC, create_at) VALUES (@uid, @jid,@cid, @title, @nameC, @addressC, @experienceJ, @salary_fromJ, @salary_toJ,@imageC, @create_at)
+'''), parameters: {
+        'uid': uid,
+        'jid': jid,
+        'cid': cid,
+        'title': title,
+        'nameC': nameC,
+        'addressC': addressC,
+        'experienceJ': experienceJ,
+        'salary_fromJ': salaryFromJ,
+        'salary_toJ': salaryToJ,
+        'create_at': createAt,
+        'imageC': image
+      });
+      print('favorites thành công');
+    } catch (e) {
+      print('thêm favorite thất bại: $e');
+    }
+  }
+
+  Future<void> removeFavorites(int uid, int jid) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM favorites WHERE uid = @uid AND jid = @jid
+'''), parameters: {'uid': uid, 'jid': jid});
+      print('remove favorites thành công');
+    } catch (e) {
+      print('remove favorite thất bại: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllJobFavoriteForUid(int uid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM favorites WHERE uid = @uid
+'''), parameters: {'uid': uid});
+      return result.map((row) {
+        return {
+          'uid': row[0],
+          'jid': row[1],
+          'cid': row[2],
+          'title': row[3],
+          'nameC': row[4],
+          'address': row[5],
+          'experience': row[6],
+          'salaryFrom': row[7],
+          'salaryTo': row[8],
+          'image': row[9],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch all favorites error: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllFavoriteForUid(int uid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM favorites WHERE uid = @uid
+'''), parameters: {'uid': uid});
+      return result.map((row) {
+        return {
+          'uid': row[0],
+          'jid': row[1],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch all favorites error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchUserDataForUid(int uId) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM users WHERE uid=@uid
+'''), parameters: {'uid': uId});
+      final row = result.first;
+      return {
+        'uid': row[0],
+        'email': row[1],
+        'name': row[2],
+        'career': row[3],
+        'phone': row[4],
+        'gender': row[5],
+        'birthday': row[6],
+        'address': row[7],
+        'description': row[8],
+        'salary_from': row[9],
+        'salary_to': row[10],
+        'image': row[11],
+        'experience': row[12],
+        'create_at': row[13],
+      };
+    } catch (e) {
+      print('fetch userData error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchCvUploadForCvId(int cvId) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM mycv WHERE cv_id = @cv_id
+'''), parameters: {'cv_id': cvId});
+      final row = result.first;
+      return {
+        'cv_id': row[0],
+        'uid': row[1],
+        'name': row[2],
+        'time': row[3],
+        'pdf': row[4],
+      };
+    } catch (e) {
+      print('fetch cvUpload lỗi: $e');
+      rethrow;
+    }
+  }
+
   Future<int?> uploadCV(
       int uid, String nameCv, DateTime time, String pdfBase) async {
     try {
       final result = await conn!.execute(Sql.named('''
-      INSERT INTO mycv (uid, nameCv, time, pdf) VALUES (@uid, @nameCv, @time, @pdf) 
+      INSERT INTO mycv (uid, nameCv, time, pdf) VALUES (@uid, @nameCv, @time, @pdf) RETURNING cv_id
 '''), parameters: {
         'uid': uid,
         'nameCv': nameCv,
@@ -18,6 +154,7 @@ class Database {
         'pdf': pdfBase,
       });
       if (result.isNotEmpty) {
+        print('Upload CV  thành công');
         return result.first.toColumnMap()['cv_id'];
       } else {
         return null;
@@ -71,7 +208,7 @@ class Database {
         SELECT cid FROM company WHERE email = @email
       '''), parameters: {'email': email});
       int value = int.parse(result!.first[0].toString());
-      print(value);
+
       return value;
     } catch (e) {
       print('Error checking for existing email: $e');
@@ -263,7 +400,7 @@ class Database {
       String nameC, String status) async {
     try {
       final result = await conn!.execute(Sql.named('''
-   SELECT u.uid, u.name, u.career, u.birthday, u.gender, u.address, u.image, a.title, a.status, a.jid
+   SELECT u.uid, u.name, u.career, u.birthday, u.gender, u.address, u.image, a.title, a.status, a.jid, a.cv_id, a.nameCv
       FROM users u 
       JOIN apply a ON u.uid = a.uid
       WHERE a.nameC = @nameC AND a.status = @status
@@ -280,6 +417,8 @@ class Database {
           'title': row[7],
           'status': row[8],
           'jid': row[9],
+          'cv_id': row[10],
+          'nameCv': row[11],
         };
       }).toList();
 
@@ -458,6 +597,38 @@ class Database {
     }
   }
 
+  Future<Map<String, dynamic>> fetchJobForJid(int jid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+  SELECT * FROM job WHERE jid = @jid
+    '''), parameters: {
+        'jid': jid,
+      });
+      final row = result.first;
+      return {
+        'jid': row[0],
+        'cid': row[1],
+        'title': row[2],
+        'career': row[3],
+        'type': row[4],
+        'quantity': row[5],
+        'gender': row[6],
+        'salary_from': row[7],
+        'salary_to': row[8],
+        'experience': row[9],
+        'workingTime': row[10],
+        'description': row[11],
+        'request': row[12],
+        'interest': row[13],
+        'expirationDate': row[14],
+        'status': row[15],
+      };
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
   Future<List<String>> selectAllNameJob() async {
     try {
       final result = await conn?.execute(Sql.named('''
@@ -510,6 +681,46 @@ VALUES (@cid, @title, @career, @type, @quantity, @gender, @salary_from, @salary_
       print('Post job nice');
     } catch (e) {
       print('error job: $e');
+    }
+  }
+
+  Future<void> updateJob(
+      int jid,
+      String title,
+      String career,
+      String type,
+      int quantity,
+      String gender,
+      String salaryFrom,
+      String salaryTo,
+      String experience,
+      String workingTime,
+      String description,
+      String request,
+      String interest,
+      DateTime expirationDate) async {
+    try {
+      await conn!.execute(Sql.named('''
+UPDATE job SET title = @title, career=@career, type =@type, quantity = @quantity, gender = @gender, salary_from = @salary_from, salary_to = @salary_to, experience = @experience, working_time=@working_time, description=@description, request=@request, interest=@interest, expiration_date=@expiration_date WHERE jid = @jid'''),
+          parameters: {
+            'jid': jid,
+            'title': title,
+            'career': career,
+            'type': type,
+            'quantity': quantity,
+            'gender': gender,
+            'salary_from': salaryFrom,
+            'salary_to': salaryTo,
+            'experience': experience,
+            'working_time': workingTime,
+            'description': description,
+            'request': request,
+            'interest': interest,
+            'expiration_date': expirationDate,
+          });
+      print('update job thành công');
+    } catch (e) {
+      print('update job error: $e');
     }
   }
 
@@ -677,9 +888,9 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
         'description': description,
         'career': career,
       });
-      print('thêm học vấn thành công');
+      print('cập nhật học vấn thành công');
     } catch (e) {
-      print('lỗi cập nhật education: $e');
+      print('lỗi cập nhật học vấn: $e');
     }
   }
 
@@ -996,10 +1207,10 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
             'uid': row[1],
             'level': row[2],
             'name': row[3],
-            'time_from': row[4],
-            'time_to': row[5],
-            'description': row[6],
-            'career': row[7],
+            'career': row[4],
+            'time_from': row[5],
+            'time_to': row[6],
+            'description': row[7],
           };
         }).toList();
       }
@@ -1233,7 +1444,7 @@ ORDER BY u.uid,
       });
       print('xóa cvUpload thành công');
     } catch (e) {
-      print('xóa cvUpload thất bại');
+      print('xóa cvUpload thất bại: $e');
     }
   }
 

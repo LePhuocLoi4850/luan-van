@@ -1,8 +1,10 @@
 import 'package:demo/home.dart';
 import 'package:demo/update.dart';
+import 'package:demo/vn.dart';
 import 'package:flutter/material.dart';
 
 import 'email.dart';
+import 'vnpay.dart';
 
 class CompanyScreen extends StatefulWidget {
   const CompanyScreen({super.key});
@@ -26,7 +28,7 @@ class _CompanyScreenState extends State<CompanyScreen> {
       body: IndexedStack(
         index: _selectedIndex,
         children: const [
-          MessengerWebView(),
+          Example(),
           MessengerWebView(),
           Email(),
           MessengerWebView(),

@@ -88,7 +88,7 @@ class AuthService {
 '''), parameters: {
         'email': email,
       });
-      print(emailResults);
+
       if (emailResults!.isEmpty) {
         Fluttertoast.showToast(
           msg: "địa chỉ email không tồn tại",
@@ -104,7 +104,7 @@ class AuthService {
 '''), parameters: {
         'email': email,
       });
-      print(passResults);
+
       if (pass != passResults?.single.single as String) {
         Fluttertoast.showToast(
           msg: "Mật khẩu không đúng",

@@ -401,22 +401,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Địa chỉ',
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                      Text(
-                                        controller.companyModel.value.address
-                                            .toString(),
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
+                                  SizedBox(
+                                    width: 290,
+                                    height: 70,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Địa chỉ',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            controller
+                                                .companyModel.value.address
+                                                .toString(),
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   )
                                 ],
                               ),
@@ -471,7 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _takePhotoGallery() async {
     print('chọn ảnh');
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    print(controller.companyModel.value.id);
+
     int id = int.parse(controller.companyModel.value.id.toString());
     if (pickedFile != null) {
       setState(() {
@@ -479,7 +488,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       List<int> imageBytes = File(_image!.path).readAsBytesSync();
       base64String = base64Encode(imageBytes);
-      print(base64String);
     }
 
     try {

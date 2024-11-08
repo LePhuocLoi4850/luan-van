@@ -77,7 +77,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
     }
     _editForm.currentState!.save();
 
-    final email = controller.email;
+    final email = controller.companyModel.value.email;
     final cid = await Database().selectIdCompanyForEmail(email!);
     final title = _titleController.text;
     final career = _careerController.text;
@@ -200,7 +200,6 @@ class _PostJobScreenState extends State<PostJobScreen> {
                                 selectedCareer = filteredCareers[index];
                                 _careerController.text =
                                     filteredCareers[index].name;
-                                print(_careerController.text);
                               });
                               Navigator.of(context).pop();
                             },
@@ -861,7 +860,6 @@ class _PostJobScreenState extends State<PostJobScreen> {
       onChanged: (value) {
         setState(() {
           _loaiController.text = value!;
-          print(_loaiController.text);
         });
       },
       decoration: InputDecoration(

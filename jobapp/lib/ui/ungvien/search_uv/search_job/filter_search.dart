@@ -70,7 +70,7 @@ class _FilterSearchState extends State<FilterSearch> {
     _addressController.text = data['address'];
     _experienceController.text = data['experience'];
     _salaryController.text = data['salary'];
-    print(_salaryController.text);
+
     _careerController.text = data['career'];
     _typeController.text = data['type'];
     setState(() {});
@@ -105,7 +105,6 @@ class _FilterSearchState extends State<FilterSearch> {
             matchesSalary &&
             matchesType;
       }).toList();
-      print(_job);
     });
   }
 

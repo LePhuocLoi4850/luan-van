@@ -31,7 +31,7 @@ class _JobOfCompanyState extends State<JobOfCompany> {
     }
     try {
       _allJob = await Database().fetchAllJobForCid(cId, false);
-      print(_allJob);
+
       if (mounted) {
         setState(() {
           isLoading = false;

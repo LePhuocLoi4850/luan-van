@@ -31,9 +31,8 @@ class _ManagementUvState extends State<ManagementUv>
   void _fetchData() async {
     String nameC = controller.companyModel.value.name.toString();
 
-    print(nameC);
     try {
-      appliedUsers = await Database().fetchAllJobApplied(nameC, 'đã ứng tuyển');
+      appliedUsers = await Database().fetchAllJobApplied(nameC, 'applied');
       receivedUsers = await Database().fetchAllJobApplied(nameC, 'approved');
       refusedUsers = await Database().fetchAllJobApplied(nameC, 'rejected');
       cancelledUsers = await Database().fetchAllJobApplied(nameC, 'cancelled');
@@ -103,6 +102,8 @@ class _ManagementUvState extends State<ManagementUv>
           'title': user['title'],
           'status': user['status'],
           'jid': user['jid'],
+          'cv_id': user['cv_id'],
+          'nameCv': user['nameCv'],
         };
         return Container(
           width: 390,

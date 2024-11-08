@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../controller/cv_storage.dart';
+import '../../../../models/cv.dart';
 import '../../../../server/database.dart';
 import '../../../auth/auth_controller.dart';
 
@@ -17,6 +19,8 @@ class UploadCv extends StatefulWidget {
 
 class _UploadCvState extends State<UploadCv> {
   final AuthController controller = Get.find<AuthController>();
+  final cvStorageController = Get.find<CvStorageController>();
+
   String? _pdfPath;
   int? _fileSize;
   String? fileSizeKB;
@@ -30,7 +34,7 @@ class _UploadCvState extends State<UploadCv> {
 
     if (result != null) {
       setState(() {
-        _pdfPath = result.files.single.path;
+        _pdfPath = result.files.single.path!;
         _fileSize = result.files.single.size;
 
         fileSizeKB = (_fileSize! / 1024).toStringAsFixed(2);
@@ -58,12 +62,20 @@ class _UploadCvState extends State<UploadCv> {
       final pdfBase64 = base64Encode(bytes);
 
       final cvId = await Database().uploadCV(uid, nameCv, time, pdfBase64);
+      Map<String, dynamic> cv = {
+        'cv_id': cvId,
+        'nameCv': nameCv,
+        'pdf': pdfBase64,
+        'time': time.toIso8601String(),
+      };
+      cvStorageController.addCv(CV.fromMap(cv));
+
       setState(() {
         _isLoading = false;
       });
 
       Get.back(result: true);
-      print(cvId);
+
       return cvId;
     } catch (e) {
       setState(() {
@@ -175,7 +187,6 @@ class _UploadCvState extends State<UploadCv> {
                               IconButton(
                                 onPressed: () {
                                   _deleteFilePath();
-                                  print(_pdfPath);
                                 },
                                 icon: Icon(Icons.clear),
                               ),

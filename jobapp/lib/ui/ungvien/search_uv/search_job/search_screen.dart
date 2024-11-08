@@ -81,7 +81,6 @@ class _SearchScreenState extends State<SearchScreen> {
                           Get.toNamed('/searchDetail', arguments: {
                             'searchText': _searchController.text
                           });
-                          print(_searchController.text);
                         },
                         autofocus: true,
                         focusNode: _focusNode,
@@ -148,9 +147,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             itemCount: hotSearch.length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
-                                onTap: () {
-                                  print(hotSearch[index]);
-                                },
+                                onTap: () {},
                                 child: ListTile(
                                   title: Column(
                                     crossAxisAlignment:

@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../../../controller/user_controller.dart';
+import '../../../models/favorites.dart';
+import '../../../server/database.dart';
+import '../../auth/auth_controller.dart';
+
 class JobGirdTitleVertical extends StatefulWidget {
   final List<Map<String, dynamic>> allJobs;
 
@@ -14,8 +19,32 @@ class JobGirdTitleVertical extends StatefulWidget {
 }
 
 class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
+  AuthController controller = Get.find<AuthController>();
+  final UserController userController = Get.find<UserController>();
   bool isFavorite = false;
   String salary = '';
+  List<Map<String, dynamic>> _allFavorite = [];
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    int uid = controller.userModel.value.id!;
+    try {
+      _allFavorite = await Database().fetchAllFavoriteForUid(uid);
+      print(_allFavorite);
+      userController.clearFavorites();
+      for (var favorite in _allFavorite) {
+        userController.favoriteJobs.add(Favorite.fromMap(favorite));
+      }
+      userController.favoriteCount.value = userController.favoriteJobs.length;
+    } catch (e) {
+      print('lỗi khi fetch favorites: $e');
+    }
+  }
+
   Image imageFromBase64String(String base64String) {
     if (base64String.isEmpty || base64String == 'null') {
       return const Image(
@@ -53,6 +82,8 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
         itemBuilder: (context, index) {
           final job = widget.allJobs[index];
           salary = '${job['salaryFrom']} - ${job['salaryTo']} Triệu';
+          int lastCommaIndex = job['address'].lastIndexOf(",");
+          final address = job['address'].substring(lastCommaIndex + 1).trim();
           return GestureDetector(
             onTap: () async {
               Get.toNamed('/jobDetailScreen',
@@ -85,46 +116,73 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '${job['title']}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 20),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                            child: Obx(() {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          '${job['title']}',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 20),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          isFavorite = !isFavorite;
-                                        });
-                                      },
-                                      icon: FaIcon(isFavorite
-                                          ? FontAwesomeIcons.solidHeart
-                                          : FontAwesomeIcons.heart),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  job['nameC'],
-                                  style: const TextStyle(
-                                      fontSize: 17,
-                                      color:
-                                          Color.fromARGB(255, 124, 124, 124)),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ],
-                            ),
+                                      IconButton(
+                                        onPressed: () {
+                                          if (userController.favoriteJobs.any(
+                                              (favorite) =>
+                                                  favorite.jid == job['jid'])) {
+                                            // Kiểm tra jobId trong list favoriteJobs
+                                            userController.removeFavoriteJob(
+                                                controller.userModel.value.id!,
+                                                job['jid']);
+                                          } else {
+                                            userController.addFavoriteJob(
+                                                controller.userModel.value.id!,
+                                                job['jid'],
+                                                job['cid'],
+                                                job['title'],
+                                                job['name'],
+                                                job['address'],
+                                                job['experience'],
+                                                job['salaryFrom'],
+                                                job['salaryTo'],
+                                                job['image'],
+                                                DateTime.now());
+                                          }
+                                          setState(() {});
+                                        },
+                                        icon: FaIcon(
+                                          userController.favoriteJobs.any(
+                                                  (favorite) =>
+                                                      favorite.jid ==
+                                                      job['jid']) // Kiểm tra jobId
+                                              ? FontAwesomeIcons.solidHeart
+                                              : FontAwesomeIcons.heart,
+                                          color: Colors.red,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Text(
+                                    job['name'],
+                                    style: const TextStyle(
+                                        fontSize: 17,
+                                        color:
+                                            Color.fromARGB(255, 124, 124, 124)),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ],
+                              );
+                            }),
                           ),
                         ],
                       ),
@@ -139,7 +197,7 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
                               child: Padding(
                                 padding: const EdgeInsets.all(7.0),
                                 child: Text(
-                                  job['address'],
+                                  address,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w500),
                                 ),

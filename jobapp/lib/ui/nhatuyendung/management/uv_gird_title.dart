@@ -64,7 +64,10 @@ class _UVGirdTitleState extends State<UVGirdTitle> {
           'uid': widget.girdUV['uid'],
           'status': widget.girdUV['status'],
           'jid': widget.girdUV['jid'],
+          'cv_id': widget.girdUV['cv_id'],
+          'nameCv': widget.girdUV['nameCv']
         };
+
         final result = await Get.toNamed('/uvDetail', arguments: data);
         if (result == 'accepted' || result == 'rejected') {
           widget.onStatusChanged();
@@ -87,7 +90,7 @@ class _UVGirdTitleState extends State<UVGirdTitle> {
                     ),
                     child: ClipOval(
                       child: imageFromBase64String(
-                        controller.base64.toString(),
+                        widget.girdUV['image'],
                       ),
                     ),
                   ),

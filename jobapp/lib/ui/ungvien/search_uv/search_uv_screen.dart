@@ -41,7 +41,6 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
   void _fetchJobCareer() async {
     String career = await Database()
         .selectCareerUserForEmail(controller.userModel.value.email!);
-    print(career.toString());
 
     try {
       _jobCareer = await Database().fetchJobForCareer(career);
@@ -92,7 +91,6 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
                             onTap: () {
                               _focusNode.unfocus();
                               Get.toNamed('/searchScreen');
-                              print('search');
                             },
                             child: Container(
                               height: 60,
@@ -183,23 +181,29 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
-                            SingleChildScrollView(
-                              child: SizedBox(
-                                height: 415,
-                                child: Container(
-                                  color: Colors.white,
-                                  child: GestureDetector(
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        child: JobGirdTitleVertical(
-                                          allJobs: _jobCareer,
-                                        )),
+                            _jobCareer == []
+                                ? Center(
+                                    child:
+                                        Text('Hiện tại không có công việc nào'),
+                                  )
+                                : SingleChildScrollView(
+                                    child: SizedBox(
+                                      height: 415,
+                                      child: Container(
+                                        color: Colors.white,
+                                        child: GestureDetector(
+                                          child: Container(
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15)),
+                                              child: JobGirdTitleVertical(
+                                                allJobs: _jobCareer,
+                                              )),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       )

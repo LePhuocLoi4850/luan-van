@@ -45,7 +45,7 @@ class _MyCVScreenState extends State<MyCVScreen> {
               padding: const EdgeInsets.all(15.0),
               child: Container(
                 width: 400,
-                height: 210,
+                height: 270,
                 decoration: BoxDecoration(
                     color: Color.fromARGB(255, 255, 255, 255),
                     borderRadius: BorderRadius.circular(15),
@@ -56,6 +56,32 @@ class _MyCVScreenState extends State<MyCVScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
+                      GestureDetector(
+                        onTap: () {
+                          Get.toNamed('/favoritesScreen');
+                        },
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: FaIcon(
+                                FontAwesomeIcons.solidHeart,
+                                color: Colors.red,
+                              ),
+                            ),
+                            const Text(
+                              'Việc làm yêu thích',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(),
                       GestureDetector(
                         onTap: () {
                           Get.toNamed('/jobPending');

@@ -26,11 +26,14 @@ import 'ui/auth/update_profile_company.dart';
 import 'ui/auth/update_profile_user.dart';
 import 'ui/nhatuyendung/company_detail_screen.dart';
 import 'ui/nhatuyendung/company_gird_title.dart';
+import 'ui/nhatuyendung/edit_job.dart';
 import 'ui/nhatuyendung/home_company.dart';
 import 'ui/nhatuyendung/management/uv_detail.dart';
 import 'ui/nhatuyendung/profile_ntd/profile_screen.dart';
 import 'ui/nhatuyendung/profile_ntd/profile_update.dart';
 import 'ui/nhatuyendung/screen_company.dart';
+
+import 'ui/ungvien/home_uv/cv_profile_screen.dart';
 import 'ui/ungvien/home_uv/job_of_company.dart';
 import 'ui/nhatuyendung/search/search_uv.dart';
 import 'ui/nhatuyendung/search/user_detail_screen.dart';
@@ -45,6 +48,7 @@ import 'ui/ungvien/cv_uv/cv_update/update/update_experience.dart';
 import 'ui/ungvien/cv_uv/cv_update/update/update_name.dart';
 import 'ui/ungvien/cv_uv/cv_update/update/update_skill.dart';
 import 'ui/ungvien/home_uv/home_uv_screen.dart';
+import 'ui/ungvien/mycv/favorites_screen.dart';
 import 'ui/ungvien/mycv/job_approved.dart';
 import 'ui/ungvien/mycv/job_rejected.dart';
 import 'ui/ungvien/screen_uv.dart';
@@ -92,6 +96,7 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/updateCompany', page: () => const UpdateProfileCompany()),
     GetPage(name: '/postJob', page: () => const PostJobScreen()),
     GetPage(name: '/listJob', page: () => const ListJob()),
+    GetPage(name: '/editJob', page: () => const EditJob()),
     GetPage(name: '/jobDetailScreen', page: () => const JobDetailScreen()),
     GetPage(name: '/jobOfCompany', page: () => const JobOfCompany()),
     GetPage(name: '/companyGirdTitle', page: () => const CompanyGirdTitle()),
@@ -127,6 +132,8 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/insertSkill', page: () => const InsertSkill()),
     GetPage(name: '/apply', page: () => const Apply()),
     GetPage(name: '/notificationApply', page: () => const NotificationApply()),
+    GetPage(name: '/cvProfileScreen', page: () => const CvProfileScreen()),
+    GetPage(name: '/favoritesScreen', page: () => const FavoritesScreen()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,

@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print('qua2');
 
         final role = await Database().checkForExistingRole(email);
-        print(role);
+
         if (role != 'null') {
           final authLogin = await controller.login(email, pass, role);
           if (authLogin == null) {
@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           print('User chưa chọn role');
           final name = await controller.checkForExistingName(email);
-          print(name);
+
           controller.name = name;
           controller.email = email;
           if (!mounted) return;

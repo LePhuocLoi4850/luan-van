@@ -99,8 +99,9 @@ class _UpdateInformationState extends State<UpdateInformation> {
     if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
         _selectedDate = pickedDate;
-        _birthdayController.text =
-            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        // _birthdayController.text =
+        //     "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        _birthdayController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }
@@ -228,7 +229,6 @@ class _UpdateInformationState extends State<UpdateInformation> {
                                   setState(() {
                                     _selectGender = newValue;
                                     _genderController.text = newValue ?? '';
-                                    print(_genderController.text);
                                   });
                                 },
                               ),
@@ -554,7 +554,6 @@ class _UpdateInformationState extends State<UpdateInformation> {
   }
 
   List<String> experience = [
-    'Tất cả',
     'Sắp đi làm',
     'Dưới 1 năm',
     '1 năm',
@@ -563,7 +562,6 @@ class _UpdateInformationState extends State<UpdateInformation> {
     '4 năm',
     '5 năm',
     'Trên 5 năm',
-    'Không yêu cầu'
   ];
   final Map<String, String> _gender = {
     'Nam': 'Nam',

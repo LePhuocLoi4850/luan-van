@@ -22,7 +22,10 @@ class _JobGirdState extends State<JobGird> {
 
   void _fetchAllJobs() async {
     _allJobs = await Database().fetchAllJob(false);
-    setState(() {});
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -143,12 +146,62 @@ class _JobGirdState extends State<JobGird> {
                   ],
                 ),
               ),
-              Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                  child: JobGirdTitle(
-                    allJobs: _allJobs,
-                  )),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                    child: _allJobs == []
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(color: Colors.blue),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Image(
+                                          image: AssetImage(
+                                              'assets/images/error.gif')),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(5.0),
+                                      child: Text(
+                                        'Đã xảy ra lỗi',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: Colors.blue),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Text(
+                                        'Không tìm thấy việc làm phù hợp với bạn!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[400]),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : JobGirdTitle(
+                            allJobs: _allJobs,
+                          )),
+              ),
               const Padding(
                 padding: EdgeInsets.only(left: 10, top: 10, bottom: 5),
                 child: Row(
@@ -167,12 +220,62 @@ class _JobGirdState extends State<JobGird> {
                   ],
                 ),
               ),
-              Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                  child: JobGirdTitle(
-                    allJobs: _allJobs,
-                  )),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                    child: _allJobs == []
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(color: Colors.blue),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Image(
+                                          image: AssetImage(
+                                              'assets/images/error.gif')),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(5.0),
+                                      child: Text(
+                                        'Đã xảy ra lỗi',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: Colors.blue),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Text(
+                                        'Không tìm thấy việc làm phù hợp với bạn!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[400]),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : JobGirdTitle(
+                            allJobs: _allJobs,
+                          )),
+              ),
               const Padding(
                 padding: EdgeInsets.only(left: 10, top: 10, bottom: 5),
                 child: Row(
@@ -191,12 +294,62 @@ class _JobGirdState extends State<JobGird> {
                   ],
                 ),
               ),
-              Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                  child: JobGirdTitle(
-                    allJobs: _allJobs,
-                  )),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                    child: _allJobs == []
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(color: Colors.blue),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Image(
+                                          image: AssetImage(
+                                              'assets/images/error.gif')),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.all(5.0),
+                                      child: Text(
+                                        'Đã xảy ra lỗi',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: Colors.blue),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Text(
+                                        'Không tìm thấy việc làm phù hợp với bạn!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[400]),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : JobGirdTitle(
+                            allJobs: _allJobs,
+                          )),
+              ),
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: SizedBox(

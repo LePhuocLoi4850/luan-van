@@ -42,8 +42,7 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
 
   void _updateAddressController() {
     _addressController.text =
-        "${_selectedCity ?? ''} - ${_selectedDistrict ?? ''}".trim();
-    print(_addressController.text);
+        "${_selectedCity ?? ''}${_selectedDistrict ?? ''}".trim();
   }
 
   Future<void> _handleUpdateUser() async {
@@ -412,7 +411,6 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
                                   setState(() {
                                     _selectGender = newValue;
                                     _gioitinhController.text = newValue ?? '';
-                                    print(_gioitinhController.text);
                                   });
                                 },
                               ),

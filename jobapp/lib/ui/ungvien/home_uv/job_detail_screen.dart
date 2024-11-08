@@ -25,6 +25,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   int jId = Get.arguments['jid'];
   int cId = Get.arguments['cid'];
   bool isLoading = true;
+  String? address;
   final ScrollController _scrollController = ScrollController();
   // bool _showAppBarTitle = false;
   bool isFavorite = false;
@@ -87,12 +88,13 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
         });
       }
       detailJob = await Database().fetchJobForId(jId);
+      int lastCommaIndex = detailJob['address'].lastIndexOf(",");
+      address = detailJob['address'].substring(lastCommaIndex + 1).trim();
       if (detailJob.isNotEmpty) {
         int uid = controller.userModel.value.id!;
 
         applicationStatus = await Database().checkApplicationStatus(jId, uid);
         fetchJobForCareer();
-        print(applicationStatus);
       } else {
         print('No job found with this ID.');
       }
@@ -108,30 +110,6 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
       }
     }
   }
-
-  // void apply() async {
-  //   int uid = controller.userModel.value.id!;
-  //   String status = 'applied';
-  //   int jid = jId;
-  //   int cid = cId;
-  //   String nameU = controller.userModel.value.name.toString();
-  //   String title = detailJob['title'];
-  //   String nameC = detailJob['name'];
-  //   String address = detailJob['address'];
-  //   String experience = detailJob['experience'];
-  //   String salaryFrom = detailJob['salaryFrom'];
-  //   String salaryTo = detailJob['salaryTo'];
-  //   String image = detailJob['image'];
-  //   DateTime applyDate = DateTime.now();
-
-  //   try {
-  //     await Database().apply(jid, uid, cid, nameU, title, nameC, address,
-  //         experience, salaryFrom, salaryTo, applyDate, status, image);
-  //     print('ứng tuyển thành công');
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
 
   void withdraw() async {
     int uid = controller.userModel.value.id!;
@@ -300,7 +278,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                             buildColumnDetail(
                                               icon: Icons.share_location_sharp,
                                               label: 'Địa điểm',
-                                              value: detailJob['address'] ?? '',
+                                              value: address ?? '',
                                             ),
                                             buildDivider(),
                                             buildColumnDetail(
@@ -615,25 +593,14 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Row(
-                                        children: [
-                                          const Text(
-                                            '- ',
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w100),
-                                          ),
-                                          Text(
-                                            detailJob['address'],
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.grey[700],
-                                            ),
-                                          ),
-                                        ],
+                                    Text(
+                                      detailJob['address'],
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[700],
                                       ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(5.0),

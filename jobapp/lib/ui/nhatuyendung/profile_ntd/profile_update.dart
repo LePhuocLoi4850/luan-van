@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jobapp/server/database.dart';
 
 import '../../../models/career.dart';
+import '../../../models/wards_data.dart';
 import '../../auth/auth_controller.dart';
 
 class ProfileUpdate extends StatefulWidget {
@@ -17,9 +18,13 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   final AuthController controller = Get.find<AuthController>();
 
   String? _selectedCity;
+  String? _selectedDistrict;
+  String? _selectedWard;
+  String? _houseNumberStreet;
   Career? selectedCareer;
   CareerManager careerManager = CareerManager();
   String? _selectScale;
+  String? address;
   bool isLoading = false;
   final Map<String, String> _scale = {
     'Dưới 50 nhân viên': 'Dưới 50 nhân viên',
@@ -27,123 +32,39 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
     '100 - 500 nhân viên': '100 - 500 nhân viên',
     'Trên 500 nhân viên': 'Trên 500 nhân viên',
   };
-  final Map<String, List<String>> _districts = {
-    'Hà Nội': [
-      'Quận Ba Đình',
-      'Quận Hoàn Kiếm',
-      'Quận Hai Bà Trưng',
-      'Quận Đống Đa',
-      'Quận Cầu Giấy',
-      'Quận Tây Hồ',
-      'Quận Thanh Xuân',
-      'Quận Hoàng Mai',
-      'Quận Long Biên',
-      'Quận Bắc Từ Liêm',
-      'Quận Nam Từ Liêm',
-      'Huyện Thanh Trì',
-      'Huyện Gia Lâm',
-      'Huyện Đông Anh',
-      'Huyện Sóc Sơn',
-      'Huyện Hoài Đức',
-      'Huyện Quốc Oai',
-      'Huyện Thanh Oai',
-      'Huyện Thường Tín',
-      'Huyện Phú Xuyên',
-      'Huyện Ba Vì',
-      'Huyện Phúc Thọ',
-      'Huyện Chương Mỹ',
-      'Huyện Đan Phượng',
-      'Huyện Mỹ Đức',
-      'Huyện Thạch Thất',
-      'Huyện Ứng Hòa',
-      'Thị xã Sơn Tây'
-    ],
-    'Hồ Chí Minh': [
-      'Quận 1',
-      'Quận 3',
-      'Quận 4',
-      'Quận 5',
-      'Quận 6',
-      'Quận 7',
-      'Quận 8',
-      'Quận 10',
-      'Quận 11',
-      'Quận 12',
-      'Quận Bình Thạnh',
-      'Quận Tân Bình',
-      'Quận Tân Phú',
-      'Quận Phú Nhuận',
-      'Quận Gò Vấp',
-      'Quận Bình Tân',
-      'Quận Thủ Đức',
-      'Huyện Nhà Bè',
-      'Huyện Hóc Môn',
-      'Huyện Củ Chi',
-      'Huyện Bình Chánh',
-      'Huyện Cần Giờ'
-    ],
-    'Đà Nẵng': [
-      'Quận Hải Châu',
-      'Quận Thanh Khê',
-      'Quận Sơn Trà',
-      'Quận Ngũ Hành Sơn',
-      'Quận Liên Chiểu',
-      'Quận Cẩm Lệ',
-      'Huyện Hòa Vang',
-      'Huyện Hoàng Sa'
-    ],
-    'Hải Phòng': [
-      'Quận Hồng Bàng',
-      'Quận Lê Chân',
-      'Quận Ngô Quyền',
-      'Quận Kiến An',
-      'Quận Hải An',
-      'Quận Đồ Sơn',
-      'Quận Dương Kinh',
-      'Huyện An Dương',
-      'Huyện An Lão',
-      'Huyện Kiến Thụy',
-      'Huyện Tiên Lãng',
-      'Huyện Vĩnh Bảo',
-      'Huyện Thủy Nguyên',
-      'Huyện Cát Hải',
-      'Huyện Bạch Long Vĩ'
-    ],
-    'Cần Thơ': [
-      'Quận Ninh Kiều',
-      'Quận Bình Thủy',
-      'Quận Cái Răng',
-      'Quận Ô Môn',
-      'Quận Thốt Nốt',
-      'Huyện Phong Điền',
-      'Huyện Thới Lai',
-      'Huyện Cờ Đỏ',
-      'Huyện Vĩnh Thạnh'
-    ],
-    'Bà Rịa - Vũng Tàu': [
-      'Thành phố Vũng Tàu',
-      'Thành phố Bà Rịa',
-      'Huyện Châu Đức',
-      'Huyện Đất Đỏ',
-      'Huyện Long Điền',
-      'Huyện Tân Thành',
-      'Huyện Xuyên Mộc',
-      'Huyện Côn Đảo'
-    ],
-  };
 
   late TextEditingController _searchController;
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _careerController;
   late TextEditingController _phoneController;
-  late TextEditingController _cityController;
   late TextEditingController _scaleController;
   late TextEditingController _descriptionController;
+  late TextEditingController _houseNumberStreetController;
+
   @override
   void initState() {
     super.initState();
-
+    address = controller.companyModel.value.address;
+    List<String> parts = address!.split(", ");
+    for (var part in parts) {
+      if (part.contains("Phường")) {
+        _selectedWard = part;
+      } else if (part.contains("Xã")) {
+        _selectedWard = part;
+      } else if (part.contains("Thị")) {
+        _selectedWard = part;
+      } else if (part.contains("Quận")) {
+        _selectedDistrict = part;
+      } else if (part.contains("Huyện")) {
+        _selectedDistrict = part;
+      } else {
+        _selectedCity = part;
+      }
+    }
+    _houseNumberStreetController =
+        TextEditingController(text: address!.split(",")[0]);
+    _houseNumberStreet = _houseNumberStreetController.text;
     _nameController =
         TextEditingController(text: controller.companyModel.value.name);
     _emailController =
@@ -152,9 +73,6 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         TextEditingController(text: controller.companyModel.value.phone);
     _careerController =
         TextEditingController(text: controller.companyModel.value.career);
-    _cityController =
-        TextEditingController(text: controller.companyModel.value.address);
-    _selectedCity = _cityController.text;
     _scaleController =
         TextEditingController(text: controller.companyModel.value.scale);
     _selectScale = _scaleController.text;
@@ -181,7 +99,8 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
     int phone = int.parse(_phoneController.text);
     String scale = _selectScale.toString();
     String career = _careerController.text;
-    String address = _selectedCity.toString();
+    String address =
+        '$_houseNumberStreet, $_selectedWard, $_selectedDistrict, $_selectedCity';
     String description = _descriptionController.text;
     try {
       await Database().updateInformationCompany(
@@ -467,8 +386,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                       GestureDetector(
                         onTap: () {
                           _showCareerBottomSheet(context, () {
-                            setState(
-                                () {}); // Cập nhật lại widget cha khi có thay đổi
+                            setState(() {});
                           });
                         },
                         child: Container(
@@ -523,28 +441,133 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.grey[800],
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.grey[800],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            hint: const Text('Chọn Tỉnh/Thành phố'),
+                            value: _selectedCity,
+                            items: wardsData.keys.map((String city) {
+                              return DropdownMenuItem<String>(
+                                value: city,
+                                child: Text(city),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedCity = newValue;
+                                _selectedDistrict = null;
+                                _selectedWard = null;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng chọn Tỉnh/Thành phố';
+                              }
+                              return null;
+                            },
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        value: _selectedCity,
-                        items: _districts.keys.map((String city) {
-                          return DropdownMenuItem<String>(
-                            value: city,
-                            child: Text(city),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedCity = newValue;
-                          });
-                        },
+                          if (_selectedCity != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, top: 20),
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                hint: const Text('Chọn Quận/Huyện'),
+                                value: _selectedDistrict,
+                                items: wardsData[_selectedCity]!.entries.map(
+                                    (MapEntry<String, List<String>> entry) {
+                                  return DropdownMenuItem<String>(
+                                    value: entry.key,
+                                    child: Text(entry.key),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    _selectedDistrict = newValue;
+                                    _selectedWard = null;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Vui lòng chọn Quận/Huyện';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          if (_selectedDistrict != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, top: 20),
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                hint: const Text('Chọn Phường/Xã'),
+                                value: _selectedWard,
+                                items: wardsData[_selectedCity]![
+                                        _selectedDistrict]!
+                                    .map((String ward) {
+                                  return DropdownMenuItem<String>(
+                                    value: ward,
+                                    child: Text(ward),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    _selectedWard = newValue;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Vui lòng chọn Xã/Phường';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          if (_selectedWard != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, top: 20),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: 'Nhập số nhà và tên đường',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                controller: _houseNumberStreetController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _houseNumberStreet = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Vui lòng nhập số nhà và tên đường';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -567,7 +590,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                         maxLines: 5,
                         minLines: 5,
                         decoration: InputDecoration(
-                          alignLabelWithHint: true, // Đặt label ở góc trên trái
+                          alignLabelWithHint: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),

@@ -1,6 +1,7 @@
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jobapp/server/database.dart';
 
 import '../../../../../models/career.dart';
@@ -70,10 +71,13 @@ class _InsertEducationState extends State<InsertEducation> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Cấp bậc' , style: TextStyle(
+                    child: Text(
+                      'Cấp bậc',
+                      style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
-                          fontWeight: FontWeight.bold),),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -127,10 +131,13 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Tên trường học',  style: TextStyle(
+                    child: Text(
+                      'Tên trường học',
+                      style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
-                          fontWeight: FontWeight.bold),),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextFormField(
                     decoration: InputDecoration(
@@ -162,10 +169,13 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Ngành nghề',  style: TextStyle(
+                    child: Text(
+                      'Ngành nghề',
+                      style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
-                          fontWeight: FontWeight.bold),),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -205,10 +215,13 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Thời gian học tập',  style: TextStyle(
+                    child: Text(
+                      'Thời gian học tập',
+                      style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
-                          fontWeight: FontWeight.bold),),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -264,10 +277,13 @@ class _InsertEducationState extends State<InsertEducation> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Mô tả chi tiết',  style: TextStyle(
+                    child: Text(
+                      'Mô tả chi tiết',
+                      style: TextStyle(
                           fontSize: 18,
                           color: Colors.black,
-                          fontWeight: FontWeight.bold),),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   TextField(
                     decoration: InputDecoration(
@@ -334,8 +350,9 @@ class _InsertEducationState extends State<InsertEducation> {
     if (pickedDate != null && pickedDate != _startDate) {
       setState(() {
         _startDate = pickedDate;
-        _startController.text =
-            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        // _startController.text =
+        //     "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        _startController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }
@@ -350,8 +367,9 @@ class _InsertEducationState extends State<InsertEducation> {
     if (pickedDate != null && pickedDate != _endDate) {
       setState(() {
         _endDate = pickedDate;
-        _endController.text =
-            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        // _endController.text =
+        //     "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        _endController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }

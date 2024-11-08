@@ -28,11 +28,13 @@ class _ApplyState extends State<Apply> {
   final _emailController = TextEditingController();
   // final _phoneController = TextEditingController();
   int? _selectedCvIndex;
-  final _formKey = GlobalKey<FormState>();
   int? _groupValue = 1;
+  int? _groupValue1;
+
+  final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> detailJob = {};
   bool isLoading = false;
-
+  bool isCVProfile = false;
   @override
   void initState() {
     super.initState();
@@ -122,76 +124,167 @@ class _ApplyState extends State<Apply> {
   void _showCvBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[200],
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, setState) {
-          return SingleChildScrollView(
+          return FractionallySizedBox(
+            heightFactor: 0.6,
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Text(
-                    'CV từ thư viện của tôi',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      color: Colors.white),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      'CV từ thư viện của tôi',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
                 Container(
-                  height: 600,
-                  color: Colors.grey[200],
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: ListView.builder(
-                      itemCount: cvStorageController.cvData.length,
-                      itemBuilder: (context, index) {
-                        final cv = cvStorageController.cvData[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 5),
-                          child: Container(
-                            height: 70,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Radio<int>(
-                                  value: index,
-                                  groupValue: _selectedCvIndex,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedCvIndex = value;
-                                    });
-                                    this.setState(() {
-                                      _selectedCvIndex = value;
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(cv.nameCv),
-                                      Text(
-                                        'Cập nhật lần cuối: ${DateTime.parse(cv.time.toString()).year}/${DateTime.parse(cv.time.toString()).month}/${DateTime.parse(cv.time.toString()).day}',
-                                      ),
-                                    ],
+                  color: Colors.transparent,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: Text(
+                          'CV ĐÃ TẢI LÊN',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[500],
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: cvStorageController.cvData.length,
+                        itemBuilder: (context, index) {
+                          final cv = cvStorageController.cvData[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 5),
+                            child: Container(
+                              height: 70,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Radio<int>(
+                                    value: index,
+                                    groupValue: _selectedCvIndex,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedCvIndex = value;
+                                        _groupValue1 = null;
+                                      });
+                                      this.setState(() {
+                                        _selectedCvIndex = value;
+                                        isCVProfile = false;
+                                      });
+                                      Navigator.pop(context);
+                                    },
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: Text('Xem'),
-                                ),
-                              ],
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(cv.nameCv),
+                                        Text(
+                                          'Cập nhật lần cuối: ${DateTime.parse(cv.time.toString()).year}/${DateTime.parse(cv.time.toString()).month}/${DateTime.parse(cv.time.toString()).day}',
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text('Xem'),
+                                  ),
+                                ],
+                              ),
                             ),
+                          );
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: Text(
+                          'CV Profile',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey[500],
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 5),
+                        child: Container(
+                          height: 70,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        );
-                      },
-                    ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Radio(
+                                value: 1,
+                                groupValue: _groupValue1,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _groupValue1 = value;
+                                    _selectedCvIndex = null;
+                                  });
+                                  this.setState(() {
+                                    isCVProfile = true;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('CV Profile'),
+                                    Text(
+                                      'Cập nhật lần cuối: ${DateTime.parse(controller.userModel.value.createdAt.toString()).year}/${DateTime.parse(controller.userModel.value.createdAt.toString()).month}/${DateTime.parse(controller.userModel.value.createdAt.toString()).day}',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Get.toNamed('/cvProfileScreen');
+                                },
+                                child: Text('Xem'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -240,7 +333,7 @@ class _ApplyState extends State<Apply> {
                               onTap: () {
                                 _showCvBottomSheet(context);
                               },
-                              child: _selectedCvIndex != null
+                              child: isCVProfile
                                   ? Container(
                                       width: 350,
                                       height: _groupValue == 1 ? 70 : 0,
@@ -263,30 +356,114 @@ class _ApplyState extends State<Apply> {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                Text(cvStorageController
-                                                    .cvData[_selectedCvIndex!]
-                                                    .nameCv),
                                                 Text(
-                                                  'Cập nhật lần cuối: ${DateTime.parse(cvStorageController.cvData[_selectedCvIndex!].time.toString()).year}/${DateTime.parse(cvStorageController.cvData[_selectedCvIndex!].time.toString()).month}/${DateTime.parse(cvStorageController.cvData[_selectedCvIndex!].time.toString()).day}',
+                                                  'CV Profile',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Text(
+                                                  'Cập nhật lần cuối: ${DateTime.parse(controller.userModel.value.createdAt.toString()).year}/${DateTime.parse(controller.userModel.value.createdAt.toString()).month}/${DateTime.parse(controller.userModel.value.createdAt.toString()).day}',
+                                                  style: TextStyle(
+                                                      color: Colors.grey[500]),
                                                 ),
                                               ],
                                             ),
                                             Icon(
-                                                Icons.keyboard_arrow_down_sharp)
+                                              Icons.keyboard_arrow_down_sharp,
+                                              size: 30,
+                                              color: Colors.grey[500],
+                                            )
                                           ],
                                         ),
                                       ),
                                     )
-                                  : Container(
-                                      width: 350,
-                                      height: _groupValue == 1 ? 70 : 0,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: const Color.fromARGB(
-                                                255, 201, 201, 201)),
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Text('Hãy chọn CV của bạn')),
+                                  : _selectedCvIndex != null
+                                      ? Container(
+                                          width: 350,
+                                          height: _groupValue == 1 ? 70 : 0,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: const Color.fromARGB(
+                                                    255, 201, 201, 201)),
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      cvStorageController
+                                                          .cvData[
+                                                              _selectedCvIndex!]
+                                                          .nameCv,
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    Text(
+                                                      'Cập nhật lần cuối: ${DateTime.parse(cvStorageController.cvData[_selectedCvIndex!].time.toString()).year}/${DateTime.parse(cvStorageController.cvData[_selectedCvIndex!].time.toString()).month}/${DateTime.parse(cvStorageController.cvData[_selectedCvIndex!].time.toString()).day}',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Colors.grey[500]),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Icon(
+                                                  Icons
+                                                      .keyboard_arrow_down_sharp,
+                                                  size: 30,
+                                                  color: Colors.grey[500],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 5.0),
+                                          child: Container(
+                                            width: 350,
+                                            height: _groupValue == 1 ? 70 : 0,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.blue, width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.download_rounded,
+                                                  size: 30,
+                                                  color: Colors.blue,
+                                                ),
+                                                Text(
+                                                  'Hãy chọn CV của bạn',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                             ),
                             SizedBox(
                               width: 350,

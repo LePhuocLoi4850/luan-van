@@ -35,7 +35,7 @@ class _CompanyGirdTitleState extends State<CompanyGirdTitle> {
     }
     try {
       _allCompany = await Database().fetchAllCompany();
-      print(_allCompany);
+
       if (mounted) {
         setState(() {
           isLoading = false;

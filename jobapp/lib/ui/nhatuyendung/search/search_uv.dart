@@ -46,7 +46,7 @@ class _SearchUvScreenState extends State<SearchUvScreen> {
     setState(() {
       _fetchAllUsers();
       String career = removeDiacritics(_careerController.text.toLowerCase());
-      print(career);
+
       String experience =
           removeDiacritics(_experienceController.text.toLowerCase());
 
@@ -66,7 +66,6 @@ class _SearchUvScreenState extends State<SearchUvScreen> {
         bool matchesSalary = (_salaryFrom == null ||
                 int.parse(item['salaryFrom']) <= _salaryTo!) &&
             (_salaryTo == null || int.parse(item['salaryTo']) >= _salaryFrom!);
-        print('$_salaryFrom và $_salaryTo');
 
         bool matchesAddress = address.isEmpty ||
             removeDiacritics(item['address'].toLowerCase()).contains(address);
@@ -85,7 +84,6 @@ class _SearchUvScreenState extends State<SearchUvScreen> {
       }).toList();
       setState(() {
         _allUsers = filteredUsers;
-        print(_allUsers);
       });
     });
   }
@@ -94,7 +92,6 @@ class _SearchUvScreenState extends State<SearchUvScreen> {
     try {
       _originalUsers = await Database().fetchAllUsers();
       _allUsers = List.from(_originalUsers);
-      print(_originalUsers);
     } catch (e) {
       print(e);
     }
