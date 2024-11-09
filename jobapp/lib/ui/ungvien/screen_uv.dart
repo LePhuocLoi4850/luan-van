@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jobapp/controller/favorites_controller.dart';
 import 'package:jobapp/controller/user_controller.dart';
 import 'package:jobapp/ui/ungvien/cv_uv/cv_screen.dart';
 import 'package:jobapp/ui/ungvien/home_uv/home_uv_screen.dart';
@@ -19,6 +20,7 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   UserController userController = Get.put(UserController());
   CvStorageController cvStorageController = Get.put(CvStorageController());
+  FavoritesController favoritesController = Get.put(FavoritesController());
 
   int _selectedIndex = 0;
 

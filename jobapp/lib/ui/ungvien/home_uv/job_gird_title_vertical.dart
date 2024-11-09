@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jobapp/controller/favorites_controller.dart';
 
 import '../../../controller/user_controller.dart';
+
 import '../../../models/favorites.dart';
 import '../../../server/database.dart';
 import '../../auth/auth_controller.dart';
@@ -21,29 +23,28 @@ class JobGirdTitleVertical extends StatefulWidget {
 class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
   AuthController controller = Get.find<AuthController>();
   final UserController userController = Get.find<UserController>();
-  bool isFavorite = false;
+  final FavoritesController favoritesController =
+      Get.find<FavoritesController>();
   String salary = '';
-  List<Map<String, dynamic>> _allFavorite = [];
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
   }
 
-  Future<void> _loadFavorites() async {
-    int uid = controller.userModel.value.id!;
-    try {
-      _allFavorite = await Database().fetchAllFavoriteForUid(uid);
-      print(_allFavorite);
-      userController.clearFavorites();
-      for (var favorite in _allFavorite) {
-        userController.favoriteJobs.add(Favorite.fromMap(favorite));
-      }
-      userController.favoriteCount.value = userController.favoriteJobs.length;
-    } catch (e) {
-      print('lỗi khi fetch favorites: $e');
-    }
-  }
+  // Future<void> _loadFavorites() async {
+  //   int uid = controller.userModel.value.id!;
+  //   try {
+  //     _allFavorite = await Database().fetchAllFavoriteForUid(uid);
+  //     print(_allFavorite);
+  //     userController.clearFavorites();
+  //     for (var favorite in _allFavorite) {
+  //       userController.favoriteJobs.add(Favorite.fromMap(favorite));
+  //     }
+  //     userController.favoriteCount.value = userController.favoriteJobs.length;
+  //   } catch (e) {
+  //     print('lỗi khi fetch favorites: $e');
+  //   }
+  // }
 
   Image imageFromBase64String(String base64String) {
     if (base64String.isEmpty || base64String == 'null') {
@@ -84,6 +85,7 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
           salary = '${job['salaryFrom']} - ${job['salaryTo']} Triệu';
           int lastCommaIndex = job['address'].lastIndexOf(",");
           final address = job['address'].substring(lastCommaIndex + 1).trim();
+
           return GestureDetector(
             onTap: () async {
               Get.toNamed('/jobDetailScreen',
@@ -116,74 +118,89 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Obx(() {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          '${job['title']}',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 20),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                  Expanded(
+                                    child: Text(
+                                      '${job['title']}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 20),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Obx(() {
+                                    bool isFavorite = favoritesController
+                                        .favoritesData
+                                        .any((favorite) =>
+                                            favorite.jid == job['jid'] &&
+                                            favorite.uid ==
+                                                controller.userModel.value.id);
+                                    return IconButton(
+                                      onPressed: () async {
+                                        if (isFavorite) {
+                                          await Database().removeFavorites(
+                                              controller.userModel.value.id!,
+                                              job['jid']);
+                                          favoritesController.removeFavorites(
+                                            controller.userModel.value.id!,
+                                            job['jid'],
+                                          );
+                                        } else {
+                                          await Database().addFavorites(
+                                              controller.userModel.value.id!,
+                                              job['jid'],
+                                              job['cid'],
+                                              job['title'],
+                                              job['nameC'],
+                                              job['address'],
+                                              job['experience'],
+                                              job['salaryFrom'],
+                                              job['salaryTo'],
+                                              job['image'],
+                                              DateTime.now());
+                                          favoritesController.addFavorites(
+                                              Favorite(
+                                                  uid: controller
+                                                      .userModel.value.id!,
+                                                  jid: job['jid'],
+                                                  cid: job['cid'],
+                                                  title: job['title'],
+                                                  nameC: job['nameC'],
+                                                  address: job['address'],
+                                                  experience: job['experience'],
+                                                  salaryFrom: job['salaryFrom'],
+                                                  salaryTo: job['salaryTo'],
+                                                  image: job['image'],
+                                                  createAt: DateTime.now()));
+                                        }
+                                      },
+                                      icon: FaIcon(
+                                        FontAwesomeIcons.solidHeart,
+                                        color: isFavorite
+                                            ? Colors.red
+                                            : Colors.grey,
                                       ),
-                                      IconButton(
-                                        onPressed: () {
-                                          if (userController.favoriteJobs.any(
-                                              (favorite) =>
-                                                  favorite.jid == job['jid'])) {
-                                            // Kiểm tra jobId trong list favoriteJobs
-                                            userController.removeFavoriteJob(
-                                                controller.userModel.value.id!,
-                                                job['jid']);
-                                          } else {
-                                            userController.addFavoriteJob(
-                                                controller.userModel.value.id!,
-                                                job['jid'],
-                                                job['cid'],
-                                                job['title'],
-                                                job['name'],
-                                                job['address'],
-                                                job['experience'],
-                                                job['salaryFrom'],
-                                                job['salaryTo'],
-                                                job['image'],
-                                                DateTime.now());
-                                          }
-                                          setState(() {});
-                                        },
-                                        icon: FaIcon(
-                                          userController.favoriteJobs.any(
-                                                  (favorite) =>
-                                                      favorite.jid ==
-                                                      job['jid']) // Kiểm tra jobId
-                                              ? FontAwesomeIcons.solidHeart
-                                              : FontAwesomeIcons.heart,
-                                          color: Colors.red,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  Text(
-                                    job['name'],
-                                    style: const TextStyle(
-                                        fontSize: 17,
-                                        color:
-                                            Color.fromARGB(255, 124, 124, 124)),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
+                                    );
+                                  })
                                 ],
-                              );
-                            }),
-                          ),
+                              ),
+                              Text(
+                                job['nameC'],
+                                style: const TextStyle(
+                                    fontSize: 17,
+                                    color: Color.fromARGB(255, 124, 124, 124)),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ],
+                          )),
                         ],
                       ),
                       Padding(

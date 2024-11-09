@@ -287,7 +287,7 @@ class Database {
       return result.map((row) {
         return {
           'cid': row[0],
-          'name': row[1],
+          'nameC': row[1],
           'address': row[2],
           'image': row[3],
           'jid': row[4],

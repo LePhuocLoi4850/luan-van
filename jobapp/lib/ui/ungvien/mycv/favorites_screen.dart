@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:get/get.dart';
+import 'dart:convert';
 
-import '../../../controller/user_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:jobapp/controller/favorites_controller.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jobapp/ui/auth/auth_controller.dart';
+
 import '../../../server/database.dart';
-import '../../auth/auth_controller.dart';
-import '../home_uv/job_gird_title_vertical.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -16,60 +17,211 @@ class FavoritesScreen extends StatefulWidget {
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
   final AuthController controller = Get.find<AuthController>();
-  final UserController userController = Get.find<UserController>();
-
-  List<Map<String, dynamic>> _allJobs = [];
-  bool isLoading = true;
-  @override
-  void initState() {
-    super.initState();
-    _fetchAllJobs();
-  }
-
-  void _fetchAllJobs() async {
-    if (mounted) {
-      setState(() {
-        isLoading = true;
-      });
-    }
-
-    int uid = controller.userModel.value.id!;
-    _allJobs = await Database().fetchAllJobFavoriteForUid(uid);
-    setState(() {});
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
+  final FavoritesController favoritesController =
+      Get.find<FavoritesController>();
+  String salary = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: Text('Công việc yêu thích'),
+        title: const Text("Favorite Jobs"),
+        centerTitle: true,
       ),
-      body: isLoading
-          ? const Center(
-              child: SpinKitChasingDots(
-                color: Colors.blue,
-                size: 50.0,
-              ),
-            )
-          : SingleChildScrollView(
-              child: SizedBox(
-                height: 415,
-                child: GestureDetector(
-                  child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: JobGirdTitleVertical(
-                        allJobs: _allJobs,
-                      )),
+      body: Obx(() {
+        if (favoritesController.favoritesData.isEmpty) {
+          return const Center(
+            child: Text("No favorites added."),
+          );
+        }
+
+        return ListView.builder(
+          scrollDirection: Axis.vertical,
+          physics: const ClampingScrollPhysics(),
+          itemCount: favoritesController.favoritesData.length,
+          itemBuilder: (context, index) {
+            final job = favoritesController.favoritesData[index];
+            salary = '${job.salaryFrom} - ${job.salaryTo} Triệu';
+            int lastCommaIndex = job.address.lastIndexOf(",");
+            final address = job.address.substring(lastCommaIndex + 1).trim();
+
+            return GestureDetector(
+              onTap: () async {
+                Get.toNamed('/jobDetailScreen',
+                    arguments: {'jid': job.jid, 'cid': job.cid});
+              },
+              child: Card(
+                elevation: 0.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 142, 201, 248),
+                      ),
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: imageFromBase64String(job.image)),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                                child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        job.title,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 20),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        await Database().removeFavorites(
+                                            controller.userModel.value.id!,
+                                            job.jid);
+                                        favoritesController.removeFavorites(
+                                          controller.userModel.value.id!,
+                                          job.jid,
+                                        );
+                                      },
+                                      icon: FaIcon(FontAwesomeIcons.solidHeart,
+                                          color: Colors.red),
+                                    )
+                                  ],
+                                ),
+                                Text(
+                                  job.nameC,
+                                  style: const TextStyle(
+                                      fontSize: 17,
+                                      color:
+                                          Color.fromARGB(255, 124, 124, 124)),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ],
+                            )),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 85.0, top: 5),
+                          child: Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(7.0),
+                                  child: Text(
+                                    address,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(7.0),
+                                  child: Text(
+                                    job.experience,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 85.0, top: 5),
+                          child: Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(7.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.attach_money_outlined,
+                                        size: 18,
+                                        color: Colors.blue,
+                                      ),
+                                      Text(
+                                        salary,
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            );
+          },
+        );
+      }),
     );
+  }
+
+  Image imageFromBase64String(String base64String) {
+    if (base64String.isEmpty || base64String == 'null') {
+      return const Image(
+        image: AssetImage('assets/images/user.png'),
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+      );
+    }
+
+    try {
+      return Image.memory(
+        base64Decode(base64String),
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+      );
+    } catch (e) {
+      print('Error decoding Base64 image: $e');
+      return const Image(
+        image: AssetImage('assets/images/user.png'),
+        fit: BoxFit.cover,
+      );
+    }
   }
 }

@@ -39,7 +39,7 @@ class _ProfileUVScreenState extends State<ProfileUVScreen> {
 
   Future<void> _logout() async {
     await controller.logout();
-    userController.clearFavorites();
+    // userController.clearFavorites();
   }
 
   @override
@@ -251,14 +251,12 @@ class _ProfileUVScreenState extends State<ProfileUVScreen> {
                                             maxLines: 2,
                                           ),
                                         ),
-                                        Obx(() {
-                                          return Text(
-                                            '${userController.favoriteCount}',
-                                            style: TextStyle(
-                                                fontSize: 30,
-                                                fontWeight: FontWeight.w500),
-                                          );
-                                        }),
+                                        Text(
+                                          '${userController.favoriteCount}',
+                                          style: TextStyle(
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.w500),
+                                        )
                                       ],
                                     ),
                                   ],

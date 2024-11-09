@@ -3,11 +3,11 @@ class Favorite {
   final int jid;
   final int cid;
   final String title;
-  final String name;
+  final String nameC;
   final String address;
-  final String experienceJ;
-  final String salaryFromJ;
-  final String salaryToJ;
+  final String experience;
+  final String salaryFrom;
+  final String salaryTo;
   final String image;
   final DateTime createAt;
 
@@ -16,11 +16,11 @@ class Favorite {
     required this.jid,
     required this.cid,
     required this.title,
-    required this.name,
+    required this.nameC,
     required this.address,
-    required this.experienceJ,
-    required this.salaryFromJ,
-    required this.salaryToJ,
+    required this.experience,
+    required this.salaryFrom,
+    required this.salaryTo,
     required this.image,
     required this.createAt,
   });
@@ -31,11 +31,11 @@ class Favorite {
       jid: map['jid'] as int,
       cid: map['cid'] as int,
       title: map['title'] as String,
-      name: map['name'] as String,
+      nameC: map['nameC'] as String,
       address: map['address'] as String,
-      experienceJ: map['experienceJ'] as String,
-      salaryFromJ: map['salaryFromJ'] as String,
-      salaryToJ: map['salaryToJ'] as String,
+      experience: map['experience'] as String,
+      salaryFrom: map['salaryFrom'] as String,
+      salaryTo: map['salaryTo'] as String,
       image: map['image'] as String,
       createAt: DateTime.parse(map['create_at'] as String),
     );
@@ -47,11 +47,11 @@ class Favorite {
       'jid': jid,
       'cid': cid,
       'title': title,
-      'name': name,
+      'nameC': nameC,
       'address': address,
-      'experienceJ': experienceJ,
-      'salaryFromJ': salaryFromJ,
-      'salaryToJ': salaryToJ,
+      'experience': experience,
+      'salaryFrom': salaryFrom,
+      'salaryTo': salaryTo,
       'image': image,
       'create_at': createAt.toIso8601String(),
     };
