@@ -7,7 +7,9 @@ import 'package:get/get.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
+import '../../../controller/favorites_controller.dart';
 import '../../../controller/user_controller.dart';
+import '../../../models/favorites.dart';
 
 class JobDetailScreen extends StatefulWidget {
   const JobDetailScreen({super.key});
@@ -19,6 +21,8 @@ class JobDetailScreen extends StatefulWidget {
 class _JobDetailScreenState extends State<JobDetailScreen> {
   AuthController controller = Get.find<AuthController>();
   final UserController userController = Get.find<UserController>();
+  final FavoritesController favoritesController =
+      Get.find<FavoritesController>();
 
   Map<String, dynamic> detailJob = {};
   List<Map<String, dynamic>> _allJobCareer = [];
@@ -643,6 +647,11 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                     delegate: SliverChildBuilderDelegate(
                                       (context, index) {
                                         final job = _allJobCareer[index];
+                                        int lastCommaIndex =
+                                            job['address'].lastIndexOf(",");
+                                        final address = job['address']
+                                            .substring(lastCommaIndex + 1)
+                                            .trim();
                                         return Padding(
                                           padding: const EdgeInsets.all(10.0),
                                           child: Container(
@@ -707,26 +716,71 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                                                             .ellipsis,
                                                                   ),
                                                                 ),
-                                                                IconButton(
-                                                                  onPressed:
-                                                                      () {
-                                                                    WidgetsBinding
-                                                                        .instance
-                                                                        .addPostFrameCallback(
-                                                                            (_) {
-                                                                      setState(
-                                                                          () {
-                                                                        isFavorite =
-                                                                            !isFavorite;
-                                                                      });
-                                                                    });
-                                                                  },
-                                                                  icon: FaIcon(isFavorite
-                                                                      ? FontAwesomeIcons
-                                                                          .solidHeart
-                                                                      : FontAwesomeIcons
-                                                                          .heart),
-                                                                ),
+                                                                Obx(() {
+                                                                  bool isFavorite = favoritesController.favoritesData.any((favorite) =>
+                                                                      favorite.jid ==
+                                                                          job[
+                                                                              'jid'] &&
+                                                                      favorite.uid ==
+                                                                          controller
+                                                                              .userModel
+                                                                              .value
+                                                                              .id);
+                                                                  return IconButton(
+                                                                    onPressed:
+                                                                        () async {
+                                                                      if (isFavorite) {
+                                                                        await Database().removeFavorites(
+                                                                            controller.userModel.value.id!,
+                                                                            job['jid']);
+                                                                        favoritesController
+                                                                            .removeFavorites(
+                                                                          controller
+                                                                              .userModel
+                                                                              .value
+                                                                              .id!,
+                                                                          job['jid'],
+                                                                        );
+                                                                      } else {
+                                                                        await Database().addFavorites(
+                                                                            controller.userModel.value.id!,
+                                                                            job['jid'],
+                                                                            job['cid'],
+                                                                            job['title'],
+                                                                            job['nameC'],
+                                                                            job['address'],
+                                                                            job['experience'],
+                                                                            job['salaryFrom'],
+                                                                            job['salaryTo'],
+                                                                            job['image'],
+                                                                            DateTime.now());
+                                                                        favoritesController.addFavorites(Favorite(
+                                                                            uid:
+                                                                                controller.userModel.value.id!,
+                                                                            jid: job['jid'],
+                                                                            cid: job['cid'],
+                                                                            title: job['title'],
+                                                                            nameC: job['nameC'],
+                                                                            address: job['address'],
+                                                                            experience: job['experience'],
+                                                                            salaryFrom: job['salaryFrom'],
+                                                                            salaryTo: job['salaryTo'],
+                                                                            image: job['image'],
+                                                                            createAt: DateTime.now()));
+                                                                      }
+                                                                    },
+                                                                    icon:
+                                                                        FaIcon(
+                                                                      FontAwesomeIcons
+                                                                          .solidHeart,
+                                                                      color: isFavorite
+                                                                          ? Colors
+                                                                              .red
+                                                                          : Colors
+                                                                              .grey,
+                                                                    ),
+                                                                  );
+                                                                })
                                                               ],
                                                             ),
                                                             Text(
@@ -768,7 +822,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                                                 const EdgeInsets
                                                                     .all(7.0),
                                                             child: Text(
-                                                              job['address'],
+                                                              address,
                                                               style: const TextStyle(
                                                                   fontWeight:
                                                                       FontWeight

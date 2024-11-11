@@ -142,6 +142,18 @@ class Database {
     }
   }
 
+  Future<dynamic> fetchPdfForCvId(int cvId) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT pdf FROM mycv WHERE cv_id = @cv_id
+'''), parameters: {'cv_id': cvId});
+      return result.first[0].toString();
+    } catch (e) {
+      print('fetch cvUpload lỗi: $e');
+      return;
+    }
+  }
+
   Future<int?> uploadCV(
       int uid, String nameCv, DateTime time, String pdfBase) async {
     try {
@@ -212,6 +224,20 @@ class Database {
       return value;
     } catch (e) {
       print('Error checking for existing email: $e');
+      return;
+    }
+  }
+
+  Future<dynamic> selectEmailCompanyForCid(int cid) async {
+    try {
+      final result = await conn?.execute(Sql.named('''
+        SELECT email FROM company WHERE cid = @cid
+      '''), parameters: {'cid': cid});
+      String value = result!.first[0].toString();
+
+      return value;
+    } catch (e) {
+      print('Error checking for existing cid: $e');
       return;
     }
   }
@@ -522,7 +548,7 @@ class Database {
         'image': row[11],
         'experience': row[12],
         'create_at': row[13],
-        'education': row[14],
+        'education': row[14] ?? 'chưa cập nhật',
       };
     } catch (e) {
       print(e);
@@ -1171,19 +1197,23 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
   }
 
   // Update Application in Status
-  Future<void> updateApplicantStatus(
-      int jid, int uid, String status, String nameC) async {
+  Future<void> updateApplicantStatus(int jid, int uid, String status,
+      String nameC, String evaluate, String comment, String reason) async {
     try {
       await conn!.execute(
         Sql.named(
-            '''UPDATE apply SET status = @status WHERE jid = @jid AND uid = @uid AND nameC = @nameC '''),
+            '''UPDATE apply SET status = @status,evaluate = @evaluate, comment = @comment, reason = @reason  WHERE jid = @jid AND uid = @uid AND nameC = @nameC '''),
         parameters: {
           'jid': jid,
           'uid': uid,
           'status': status,
           'nameC': nameC,
+          'evaluate': evaluate,
+          'comment': comment,
+          'reason': reason,
         },
       );
+      print('update status thành công');
     } catch (e) {
       print(e);
     }
@@ -1460,6 +1490,25 @@ ORDER BY u.uid,
       print('Đổi tên cv upload thành công');
     } catch (e) {
       print('Lỗi cập nhật tên cv upload');
+    }
+  }
+
+  // count company
+
+  Future<int> countJobForCid(int cid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+    SELECT COUNT(*) FROM job WHERE cid=@cid
+'''), parameters: {'cid': cid});
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('đếm job thất bại: $e');
+      rethrow;
     }
   }
 }

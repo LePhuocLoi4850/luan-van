@@ -2,6 +2,7 @@ import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jobapp/controller/company_controller.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
 import '../../models/career.dart';
@@ -16,6 +17,7 @@ class PostJobScreen extends StatefulWidget {
 
 class _PostJobScreenState extends State<PostJobScreen> {
   AuthController controller = Get.find<AuthController>();
+  CompanyController companyController = Get.find<CompanyController>();
   final _titleController = TextEditingController();
   final _loaiController = TextEditingController();
   final _soluongController = TextEditingController();
@@ -111,16 +113,13 @@ class _PostJobScreenState extends State<PostJobScreen> {
         interest,
         expirationDate,
       );
+      companyController.addCountJob();
       print('post job nice');
       Get.offNamed('/listJob');
     } catch (e) {
       print('post job error: $e');
       return;
     }
-  }
-
-  void _fillFormWithTestData() {
-    _titleController.text = 'Job Title';
   }
 
   Future<void> _selectDate(BuildContext context) async {

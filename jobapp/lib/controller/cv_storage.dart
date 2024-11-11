@@ -1,35 +1,3 @@
-// import 'package:get/get.dart';
-
-// import '../models/cv.dart';
-// import '../models/cv_storage.dart';
-
-// class CvStorageController extends GetxController {
-//   final _cvStorage = CvStorage();
-
-//   List<CV> get cvData {
-//     return _cvStorage.cvData.map((map) => CV.fromMap(map)).toList();
-//   }
-
-//   void addCv(CV cv) {
-//     _cvStorage.addCv(cv.toMap());
-//     update();
-//   }
-
-//   void removeCv(int cvId) {
-//     _cvStorage.removeCv(cvId);
-//     update();
-//   }
-
-//   void updateCvName(int cvId, String newName) {
-//     _cvStorage.updateCvName(cvId, newName);
-//     update();
-//   }
-
-//   void clearCvData() {
-//     _cvStorage.clearCvData();
-//     update();
-//   }
-// }
 import 'package:get/get.dart';
 
 import '../models/cv.dart';

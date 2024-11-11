@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 // import 'package:intl/intl.dart';
 
 import '../../auth/auth_controller.dart';
@@ -56,6 +57,22 @@ class _UVGirdTitleState extends State<UVGirdTitle> {
     }
   }
 
+  int calculateAge(String birthDateString) {
+    DateTime birthDate = DateFormat('yyyy-MM-dd').parse(birthDateString);
+
+    DateTime currentDate = DateTime.now();
+
+    int age = currentDate.year - birthDate.year;
+
+    if (currentDate.month < birthDate.month ||
+        (currentDate.month == birthDate.month &&
+            currentDate.day < birthDate.day)) {
+      age--;
+    }
+
+    return age;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -65,7 +82,11 @@ class _UVGirdTitleState extends State<UVGirdTitle> {
           'status': widget.girdUV['status'],
           'jid': widget.girdUV['jid'],
           'cv_id': widget.girdUV['cv_id'],
-          'nameCv': widget.girdUV['nameCv']
+          'nameCv': widget.girdUV['nameCv'],
+          'email': widget.girdUV['email'],
+          'phone': widget.girdUV['phone'],
+          'title': widget.girdUV['title'],
+          'age': calculateAge(widget.girdUV['birthday'].toString()).toString(),
         };
 
         final result = await Get.toNamed('/uvDetail', arguments: data);
@@ -112,16 +133,6 @@ class _UVGirdTitleState extends State<UVGirdTitle> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isFavorite = !isFavorite;
-                              });
-                            },
-                            icon: FaIcon(isFavorite
-                                ? FontAwesomeIcons.solidHeart
-                                : FontAwesomeIcons.heart),
-                          ),
                         ],
                       ),
                       Row(
@@ -131,10 +142,11 @@ class _UVGirdTitleState extends State<UVGirdTitle> {
                             color: Colors.amber,
                             size: 23,
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.only(left: 5.0, top: 3),
                             child: Text(
-                              '20',
+                              calculateAge(widget.girdUV['birthday'].toString())
+                                  .toString(),
                               style: TextStyle(
                                   fontSize: 17,
                                   color: Color.fromARGB(255, 158, 155, 145)),

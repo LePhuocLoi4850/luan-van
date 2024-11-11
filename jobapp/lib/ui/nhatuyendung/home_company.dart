@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jobapp/controller/company_controller.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
 import 'category.dart';
@@ -15,6 +16,7 @@ class HomeNTD extends StatefulWidget {
 
 class _HomeNTDState extends State<HomeNTD> {
   final AuthController controller = Get.find<AuthController>();
+  final CompanyController companyController = Get.find<CompanyController>();
   @override
   void initState() {
     super.initState();
@@ -198,7 +200,7 @@ class _HomeNTDState extends State<HomeNTD> {
                         color: const Color.fromARGB(255, 216, 216, 216),
                         width: 3),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
@@ -219,12 +221,14 @@ class _HomeNTDState extends State<HomeNTD> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  Text(
-                                    '0',
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold),
-                                  )
+                                  Obx(() {
+                                    return Text(
+                                      companyController.countPostJob.toString(),
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold),
+                                    );
+                                  })
                                 ],
                               ),
                               Divider(),

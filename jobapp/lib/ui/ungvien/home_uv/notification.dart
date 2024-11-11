@@ -13,27 +13,70 @@ class _NotificationApplyState extends State<NotificationApply> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thông báo ứng tuyển'),
+        title: Text(
+          'Thông báo ứng tuyển',
+          style: TextStyle(
+              fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+        centerTitle: true,
       ),
       body: Container(
-        color: Colors.blue,
+        color: Colors.white10,
         child: Column(
           children: [
-            Text('Ứng tuyển thành công'),
-            Row(
-              children: [
-                TextButton(
-                    onPressed: () {
-                      Get.offAllNamed('/homeScreen',
-                          arguments: {'selectedIndex': 1});
-                    },
-                    child: Text('đến trang quản lí việc làm')),
-                TextButton(
-                    onPressed: () {
-                      Get.offAllNamed('/homeScreen');
-                    },
-                    child: Text('Về trang chủ'))
-              ],
+            Image(
+              image: AssetImage('assets/images/cheering.png'),
+              width: 400,
+              height: 400,
+              fit: BoxFit.cover,
+            ),
+            Text(
+              'Ứng tuyển thành công',
+              style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 240,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: TextButton(
+                        onPressed: () {
+                          Get.offAllNamed('/homeScreen',
+                              arguments: {'selectedIndex': 1});
+                        },
+                        child: Text('đến trang quản lí việc làm',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white))),
+                  ),
+                  Container(
+                    width: 140,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: TextButton(
+                        onPressed: () {
+                          Get.offAllNamed('/homeScreen');
+                        },
+                        child: Text('Về trang chủ',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white))),
+                  )
+                ],
+              ),
             )
           ],
         ),

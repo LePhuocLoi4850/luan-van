@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jobapp/controller/calender_controller.dart';
+import 'package:jobapp/controller/company_controller.dart';
 import 'package:jobapp/controller/user_controller.dart';
+import 'package:jobapp/ui/auth/auth_controller.dart';
 import 'package:jobapp/ui/nhatuyendung/search/search_uv.dart';
 
 import 'home_company.dart';
@@ -14,9 +17,18 @@ class CompanyScreen extends StatefulWidget {
 }
 
 class _CompanyScreenState extends State<CompanyScreen> {
+  AuthController controller = Get.put(AuthController());
   UserController userController = Get.put(UserController());
+  CompanyController companyController = Get.put(CompanyController());
+  CalenderController calenderController = Get.put(CalenderController());
 
   int _selectedIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    companyController.countJob(controller.companyModel.value.id!);
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
