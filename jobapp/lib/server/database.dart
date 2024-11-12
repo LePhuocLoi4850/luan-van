@@ -6,6 +6,64 @@ class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
 
+//count
+
+  Future<int> countJobs() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT COUNT(jid) 
+      FROM job
+    '''));
+
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('Đếm job thất bại: $e');
+      rethrow;
+    }
+  }
+
+  Future<int> countUser() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT COUNT(uid) 
+      FROM users
+    '''));
+
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('Đếm users thất bại: $e');
+      rethrow;
+    }
+  }
+
+  Future<int> countCompany() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT COUNT(cid) 
+      FROM company
+    '''));
+
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('Đếm company thất bại: $e');
+      rethrow;
+    }
+  }
   //favorites
 
   Future<void> addFavorites(
@@ -1338,7 +1396,7 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
   Future<List<Map<String, dynamic>>> fetchAllUsers() async {
     try {
       final result = await conn!.execute(Sql.named('''
-     SELECT DISTINCT ON (u.uid) u.*, e.level AS education 
+     SELECT DISTINCT ON (u.uid) u.*, e.level AS education
 FROM users u 
 LEFT JOIN education e ON u.uid = e.uid 
 ORDER BY u.uid, 

@@ -10,6 +10,7 @@ class UserController extends GetxController {
   var isSwitchContact = false.obs;
   var isSwitchDetail = false.obs;
   var isSwitchMore = false.obs;
+  var isScroll = false.obs;
   var favoriteCount = 0.obs;
 
   var user = Rxn<UserModel>();

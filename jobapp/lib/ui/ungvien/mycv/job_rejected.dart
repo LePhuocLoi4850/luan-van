@@ -59,16 +59,15 @@ class _JobRejectedState extends State<JobRejected> {
             )
           : SingleChildScrollView(
               child: SizedBox(
-                height: 415,
-                child: Container(
-                  child: GestureDetector(
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15)),
-                        child: JobGirdTitleVertical(
-                          allJobs: _allJobs,
-                        )),
-                  ),
+                height: 780,
+                child: GestureDetector(
+                  child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15)),
+                      child: JobGirdTitleVertical(
+                        allJobs: _allJobs,
+                      )),
                 ),
               ),
             ),

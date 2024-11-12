@@ -30,7 +30,7 @@ class _JobApprovedState extends State<JobApproved> {
         isLoading = true;
       });
     }
-    String status = 'accepted';
+    String status = 'approved';
     int uid = controller.userModel.value.id!;
     _allJobs = await Database().fetchAllApplyForStatus(uid, status);
     setState(() {});
@@ -57,16 +57,15 @@ class _JobApprovedState extends State<JobApproved> {
             )
           : SingleChildScrollView(
               child: SizedBox(
-                height: 415,
-                child: Container(
-                  child: GestureDetector(
-                    child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15)),
-                        child: JobGirdTitleVertical(
-                          allJobs: _allJobs,
-                        )),
-                  ),
+                height: 780,
+                child: GestureDetector(
+                  child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15)),
+                      child: JobGirdTitleVertical(
+                        allJobs: _allJobs,
+                      )),
                 ),
               ),
             ),

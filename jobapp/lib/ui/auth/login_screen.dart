@@ -44,8 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
         print('qua2');
 
         final role = await Database().checkForExistingRole(email);
+        if (role == 'admin') {
+          controller.saveRoleAdmin(role);
+          controller.saveAdminLoginStatus(true);
 
-        if (role != 'null') {
+          Get.offAllNamed('adminScreen');
+        } else if (role != 'null') {
           final authLogin = await controller.login(email, pass, role);
           if (authLogin == null) {
             print('Đăng nhập thất bại do chưa cập nhật thông tin');

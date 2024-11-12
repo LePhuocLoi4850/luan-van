@@ -1078,12 +1078,12 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               case 'apply':
                                 return 'Ứng tuyển';
                               case 'applied':
-                                return 'Hủy ứng tuyển';
+                                return 'Đang chờ duyệt';
                               case 'reapply':
                                 return 'Hủy ứng tuyển';
                               case 'withdraw':
-                                return 'Ứng tuyển lại';
-                              case 'accepted':
+                                return 'Ứng tuyển';
+                              case 'approved':
                                 return 'Đã nhận việc';
                               default:
                                 return applicationStatus;

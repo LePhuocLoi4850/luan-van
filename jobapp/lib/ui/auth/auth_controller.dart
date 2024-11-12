@@ -30,6 +30,11 @@ class AuthController extends GetxController {
     await prefs.setBool('loginStatus', isLoggedIn);
   }
 
+  Future<void> saveAdminLoginStatus(bool isLoggedIn) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('loginStatus', isLoggedIn);
+  }
+
   Future<void> loadSaveLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final loginStatus = prefs.getBool('loginStatus') ?? false;
@@ -50,6 +55,8 @@ class AuthController extends GetxController {
           final companyMap = jsonDecode(companyJson);
           companyModel.value = CompanyModel.fromJson(companyMap);
         }
+      } else if (role == 'admin') {
+        print('admin');
       }
     }
     isLoading.value = false;
@@ -426,6 +433,11 @@ class AuthController extends GetxController {
   }
 
   Future<void> _saveRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userRole', role);
+  }
+
+  Future<void> saveRoleAdmin(String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userRole', role);
   }

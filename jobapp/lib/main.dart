@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'provider/provider.dart';
 import 'server/database_connection.dart';
 import 'share/splash_screen.dart';
+import 'ui/admin/home_screen.dart';
 import 'ui/auth/auth_controller.dart';
 import 'ui/auth/choose_role.dart';
 import 'ui/auth/update_profile_company.dart';
@@ -134,6 +135,7 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/notificationApply', page: () => const NotificationApply()),
     GetPage(name: '/cvProfileScreen', page: () => const CvProfileScreen()),
     GetPage(name: '/favoritesScreen', page: () => const FavoritesScreen()),
+    GetPage(name: '/adminScreen', page: () => const AdminScreen()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,
@@ -172,6 +174,8 @@ class _MyAppState extends State<MyApp> {
                         return const CompanyScreen();
                       case 'user':
                         return const UserScreen();
+                      case 'admin':
+                        return const AdminScreen();
                       default:
                         return const ChooseRole();
                     }
