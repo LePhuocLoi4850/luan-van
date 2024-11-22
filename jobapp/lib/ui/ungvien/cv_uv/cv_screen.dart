@@ -5,7 +5,7 @@ import 'package:jobapp/controller/user_controller.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
-import '../../../controller/cv_storage.dart';
+import '../../../controller/cv_storage_controller.dart';
 import '../../../models/cv.dart';
 import '../../../server/database.dart';
 

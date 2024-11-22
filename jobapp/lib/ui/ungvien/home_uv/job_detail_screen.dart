@@ -70,7 +70,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   void fetchJobForCareer() async {
     String career = detailJob['careerJ'];
     try {
-      _allJobCareer = await Database().fetchJobForCareer(career);
+      _allJobCareer = await Database().fetchAllJobForCareer(career);
     } catch (e) {
       print(e);
     }

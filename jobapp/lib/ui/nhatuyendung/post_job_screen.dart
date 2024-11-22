@@ -126,7 +126,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
+      firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (pickedDate != null && pickedDate != _selectedDate) {

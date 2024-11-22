@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jobapp/server/database.dart';
+import 'package:jobapp/ui/auth/auth_controller.dart';
 
 import 'job_gird_title.dart';
 
@@ -12,8 +13,11 @@ class JobGird extends StatefulWidget {
 }
 
 class _JobGirdState extends State<JobGird> {
+  final AuthController controller = Get.find<AuthController>();
   String inter = 'Thực tập';
   List<Map<String, dynamic>> _allJobs = [];
+  List<Map<String, dynamic>> _allJobForCareer = [];
+  List<Map<String, dynamic>> _allJobInter = [];
   @override
   void initState() {
     super.initState();
@@ -22,6 +26,9 @@ class _JobGirdState extends State<JobGird> {
 
   void _fetchAllJobs() async {
     _allJobs = await Database().fetchAllJob(false);
+    _allJobInter = await Database().fetchAllJobInter(false, 'Thực tập sinh');
+    _allJobForCareer = await Database()
+        .fetchAllJobForCareer(controller.userModel.value.career!);
 
     if (mounted) {
       setState(() {});
@@ -151,7 +158,7 @@ class _JobGirdState extends State<JobGird> {
                 child: Container(
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                    child: _allJobs == []
+                    child: _allJobForCareer == []
                         ? Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Container(
@@ -199,7 +206,7 @@ class _JobGirdState extends State<JobGird> {
                             ),
                           )
                         : JobGirdTitle(
-                            allJobs: _allJobs,
+                            allJobs: _allJobForCareer,
                           )),
               ),
               const Padding(
@@ -225,7 +232,7 @@ class _JobGirdState extends State<JobGird> {
                 child: Container(
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                    child: _allJobs == []
+                    child: _allJobInter == []
                         ? Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Container(
@@ -273,7 +280,7 @@ class _JobGirdState extends State<JobGird> {
                             ),
                           )
                         : JobGirdTitle(
-                            allJobs: _allJobs,
+                            allJobs: _allJobInter,
                           )),
               ),
               const Padding(

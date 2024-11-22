@@ -266,7 +266,7 @@ class _HomeNTDState extends State<HomeNTD> {
                                     ),
                                   ),
                                   Text(
-                                    '0',
+                                    companyController.countUserApply.toString(),
                                     style: TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold),

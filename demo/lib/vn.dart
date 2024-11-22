@@ -18,15 +18,20 @@ class _ExampleState extends State<Example> {
       });
       final paymentUrl = await VNPAYFlutter.instance.generatePaymentUrl(
         url: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
-        version: '1.0.3',
+        version: '2.0.1',
+        command: 'pay',
         tmnCode: '4EUDD9OP',
+        locale: 'vn',
+        currencyCode: 'VND',
         txnRef: DateTime.now().millisecondsSinceEpoch.toString(),
         orderInfo: 'Pay 30.000 VND',
         amount: 30000,
         returnUrl: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
         ipAdress: '10.0.2.2',
+        createAt: DateTime.now(),
         vnpayHashKey: '2NN2SRGO9KKZ46UW5FCPDTYIQF0WPGDA',
         vnPayHashType: VNPayHashType.HMACSHA512,
+        vnpayOrderType: 'other',
         vnpayExpireDate: DateTime.now().add(const Duration(hours: 1)),
       );
 

@@ -43,7 +43,7 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
         .selectCareerUserForEmail(controller.userModel.value.email!);
 
     try {
-      _jobCareer = await Database().fetchJobForCareer(career);
+      _jobCareer = await Database().fetchAllJobForCareer(career);
       setState(() {});
     } catch (e) {
       print('select error job for career: $e');
@@ -124,90 +124,81 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
                   height: 15,
                 ),
                 Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Tìm kiếm hàng đầu',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              width: 380,
-                              height: 192,
-                              child: GridView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 10.0,
-                                  mainAxisSpacing: 8.0,
-                                  childAspectRatio: 7,
-                                ),
-                                itemCount: items.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                      color: Colors.transparent,
-                                      child: RichText(
-                                          text: TextSpan(
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black),
-                                              children: [
-                                            TextSpan(
-                                                text: '${index + 1} ',
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18)),
-                                            TextSpan(text: '${items[index]}')
-                                          ])));
-                                },
-                              ),
-                            ),
-                          ],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Tìm kiếm hàng đầu',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Việc làm phù hợp',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                        SizedBox(
+                          width: 380,
+                          height: 192,
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10.0,
+                              mainAxisSpacing: 8.0,
+                              childAspectRatio: 7,
                             ),
-                            _jobCareer == []
-                                ? Center(
-                                    child:
-                                        Text('Hiện tại không có công việc nào'),
-                                  )
-                                : SingleChildScrollView(
-                                    child: SizedBox(
-                                      height: 415,
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                  color: Colors.transparent,
+                                  child: RichText(
+                                      text: TextSpan(
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black),
+                                          children: [
+                                        TextSpan(
+                                            text: '${index + 1} ',
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18)),
+                                        TextSpan(text: '${items[index]}')
+                                      ])));
+                            },
+                          ),
+                        ),
+                        const Text(
+                          'Việc làm phù hợp',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        _jobCareer.isEmpty
+                            ? Center(
+                                child: Text('Hiện tại không có công việc nào'),
+                              )
+                            : Container(
+                                color: Colors.white,
+                                child: ListView.builder(
+                                  shrinkWrap:
+                                      true, // Để giới hạn chiều cao theo dữ liệu
+                                  physics:
+                                      NeverScrollableScrollPhysics(), // Ngăn việc cuộn bên trong nếu không cần thiết
+                                  itemCount: _jobCareer.length,
+                                  itemBuilder: (context, index) {
+                                    return GestureDetector(
                                       child: Container(
-                                        color: Colors.white,
-                                        child: GestureDetector(
-                                          child: Container(
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                              child: JobGirdTitleVertical(
-                                                allJobs: _jobCareer,
-                                              )),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                        ),
+                                        child: JobGirdTitleVertical(
+                                          allJobs: [_jobCareer[index]],
                                         ),
                                       ),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      )
-                    ],
+                                    );
+                                  },
+                                ),
+                              )
+                      ],
+                    ),
                   ),
                 )
               ],

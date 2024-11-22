@@ -18,11 +18,12 @@ class CalenderController extends GetxController {
     _calenderData.removeWhere((cld) => cld.cldId == cldId);
   }
 
-  void updateCldName(int cldId, String newName) {
-    _calenderManager.updateCldName(cldId, newName);
+  void updateCld(int cldId, Calender updatedCalender) {
     final index = _calenderData.indexWhere((cld) => cld.cldId == cldId);
     if (index != -1) {
-      _calenderData[index] = _calenderData[index].copyWith(name: newName);
+      _calenderData[index] = updatedCalender;
+    } else {
+      print("Không tìm thấy Calender với cldId: $cldId");
     }
   }
 

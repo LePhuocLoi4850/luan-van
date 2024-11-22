@@ -5,6 +5,15 @@ CREATE TABLE auth (
     pass VARCHAR(255) NOT NULL,           -- Mật khẩu đã băm, tối đa 255 ký tự, không cho phép NULL
     created_at TIMESTAMP DEFAULT NOW()    -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
 );
+CREATE TABLE calender (
+    cld_id SERIAL PRIMARY KEY , -- Khóa chính
+    cid INT,                               -- Khóa ngoại
+    name VARCHAR(255) NOT NULL,            -- Tên
+    time VARCHAR(255) NOT NULL,                -- Thời gian
+    address VARCHAR(255) NOT NULL,         -- Địa chỉ
+    create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời điểm tạo
+    FOREIGN KEY (cid) REFERENCES company(cid) -- Thay another_table bằng tên bảng có khóa chính cid
+);
 CREATE TABLE favorites (
   	uid INT,
   	jid INT, 

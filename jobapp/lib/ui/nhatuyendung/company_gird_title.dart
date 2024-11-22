@@ -50,7 +50,7 @@ class _CompanyGirdTitleState extends State<CompanyGirdTitle> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Top công ty'),
+        title: Text('Danh sách công ty'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),

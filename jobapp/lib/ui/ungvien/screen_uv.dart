@@ -8,7 +8,7 @@ import 'package:jobapp/ui/ungvien/mycv/mycv_screen.dart';
 import 'package:jobapp/ui/ungvien/profile_uv/profile_uv_screen.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_uv_screen.dart';
 
-import '../../controller/cv_storage.dart';
+import '../../controller/cv_storage_controller.dart';
 
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:jobapp/controller/calender_controller.dart';
+import 'package:jobapp/models/calender.dart';
+import 'package:jobapp/models/wards_data.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -21,10 +23,13 @@ class _UvDetailState extends State<UvDetail> {
   final _commentController = TextEditingController();
   final addressController = TextEditingController();
   final timeController = TextEditingController();
+  final _dayController = TextEditingController();
+  late TextEditingController _houseNumberStreetController;
   Map<String, dynamic> userData = {};
   Map<String, dynamic> data = {};
   Map<String, dynamic> contact = {};
   bool isLoadContact = false;
+  TimeOfDay? time;
   late int uid;
   late int jid;
   late int cvId;
@@ -38,11 +43,22 @@ class _UvDetailState extends State<UvDetail> {
   bool _isChecked2 = false;
   bool isSubmit = false;
   int? _selectedCvIndex;
+  String? _selectedCity;
+  String? _selectedDistrict;
+  String? _selectedWard;
+  DateTime? _selectedDate;
+  String? _houseNumberStreet;
+  TimeOfDay? selectedTime;
+  TimePickerEntryMode entryMode = TimePickerEntryMode.dial;
+  Orientation? orientation;
+  TextDirection textDirection = TextDirection.ltr;
+  MaterialTapTargetSize tapTargetSize = MaterialTapTargetSize.padded;
+  bool use24HourTime = false;
   final String service_id = "service_r199mx5";
   final String template_applied = "template_16wojjr";
   final String template_rejected = "template_n1narzo";
   final String user_id = "lJfz7eGLdrRrnAL79";
-
+  String? nameCalender;
   @override
   void initState() {
     super.initState();
@@ -61,8 +77,9 @@ class _UvDetailState extends State<UvDetail> {
   void _fetchUserData() async {
     try {
       userData = await Database().fetchUserForId(uid);
+      _fetchCalender();
     } catch (e) {
-      print(e);
+      print('fetchUserData error: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -70,6 +87,45 @@ class _UvDetailState extends State<UvDetail> {
         });
       }
     }
+  }
+
+  void _fetchCalender() async {
+    int cid = controller.companyModel.value.id!;
+    print(cid);
+    try {
+      final calenderData = await Database().fetchAllCalenderForCid(cid);
+      print(calenderData);
+      calenderController.clearCldData();
+      for (final calenderMap in calenderData) {
+        final cld = Calender.fromMap(calenderMap);
+        calenderController.addCld(cld);
+      }
+    } catch (e) {
+      print('lỗi fetch calender: $e');
+    }
+  }
+
+  TimeOfDay parseTimeOfDay(String timeString) {
+    // Parse the input string and convert to TimeOfDay
+    final format = RegExp(r'^(\d{1,2}):(\d{2})\s?(AM|PM)$');
+    final match = format.firstMatch(timeString);
+
+    if (match == null) {
+      throw FormatException('Invalid time format: $timeString');
+    }
+
+    final hour = int.parse(match.group(1)!); // Get the hour
+    final minute = int.parse(match.group(2)!); // Get the minutes
+    final period = match.group(3)!; // Get AM/PM
+
+    // Convert hour to 24-hour format if needed
+    final adjustedHour = (period == 'PM' && hour != 12)
+        ? hour + 12
+        : (period == 'AM' && hour == 12)
+            ? 0
+            : hour;
+
+    return TimeOfDay(hour: adjustedHour, minute: minute);
   }
 
   Future<void> fetchContact() async {
@@ -264,6 +320,22 @@ class _UvDetailState extends State<UvDetail> {
     }
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null && pickedDate != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedDate;
+        _dayController.text =
+            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+      });
+    }
+  }
+
 // button left
   String _getRejectButtonText(String status) {
     switch (status) {
@@ -327,72 +399,61 @@ class _UvDetailState extends State<UvDetail> {
         title: Text(title),
         centerTitle: true,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Card(
-                    elevation: 0.0,
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        ClipOval(
-                                          child: imageFromBase64String(
-                                            userData['image'],
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 30,
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              userData['name'],
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 22),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Card(
+                      elevation: 0.0,
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          ClipOval(
+                                            child: imageFromBase64String(
+                                              userData['image'],
                                             ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Tuổi: $age',
-                                                  style: const TextStyle(
-                                                      fontSize: 20,
-                                                      color: Colors.black),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                const SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 5),
-                                                  child: Text(
-                                                    'Giới tính: ${userData['gender']}',
+                                          ),
+                                          const SizedBox(
+                                            width: 30,
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                userData['name'],
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 22),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Tuổi: $age',
                                                     style: const TextStyle(
                                                         fontSize: 20,
                                                         color: Colors.black),
@@ -400,437 +461,465 @@ class _UvDetailState extends State<UvDetail> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),
+                                                  const SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 5),
+                                                    child: Text(
+                                                      'Giới tính: ${userData['gender']}',
+                                                      style: const TextStyle(
+                                                          fontSize: 20,
+                                                          color: Colors.black),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              margin: const EdgeInsets.all(8),
+                              height: 1,
+                              width: 360,
+                              color: const Color.fromARGB(255, 143, 143, 143),
+                            ),
+                            const SizedBox(height: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'THÔNG TIN LIÊN HỆ',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                isLoadContact
+                                    ? Container(
+                                        width: double.infinity,
+                                        height: 100,
+                                        padding: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: Colors.blue,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Icon(
+                                                    Icons.email,
+                                                    size: 30,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  contact['email'],
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Icon(
+                                                    Icons.phone,
+                                                    size: 30,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  contact['phone'],
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
                                                 ),
                                               ],
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            height: 1,
-                            width: 360,
-                            color: const Color.fromARGB(255, 143, 143, 143),
-                          ),
-                          const SizedBox(height: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'THÔNG TIN LIÊN HỆ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              isLoadContact
-                                  ? Container(
-                                      width: double.infinity,
-                                      height: 100,
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                          color: Colors.blue,
+                                      )
+                                    : Container(
+                                        width: double.infinity,
+                                        height: 100,
+                                        padding: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border.all(
+                                            color: Colors.blue,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
                                         ),
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(5.0),
-                                                child: Icon(
-                                                  Icons.email,
-                                                  size: 30,
-                                                  color: Colors.blue,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Icon(
+                                                    Icons.email,
+                                                    size: 30,
+                                                    color: Colors.blue,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                contact['email'],
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(5.0),
-                                                child: Icon(
-                                                  Icons.phone,
-                                                  size: 30,
-                                                  color: Colors.blue,
+                                                Text(
+                                                  '[userData[email]]',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
                                                 ),
-                                              ),
-                                              Text(
-                                                contact['phone'],
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Container(
-                                      width: double.infinity,
-                                      height: 100,
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                          color: Colors.blue,
-                                        ),
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(5.0),
-                                                child: Icon(
-                                                  Icons.email,
-                                                  size: 30,
-                                                  color: Colors.blue,
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Icon(
+                                                    Icons.phone,
+                                                    size: 30,
+                                                    color: Colors.blue,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                '[userData[email]]',
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(5.0),
-                                                child: Icon(
-                                                  Icons.phone,
-                                                  size: 30,
-                                                  color: Colors.blue,
+                                                Text(
+                                                  '[userData[phone]]',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold),
                                                 ),
-                                              ),
-                                              Text(
-                                                '[userData[phone]]',
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0, vertical: 15),
-                                child: isLoadContact
-                                    ? null
-                                    : ElevatedButton(
-                                        onPressed: () {
-                                          fetchContact();
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blueAccent,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Xem thông tin liên hệ ứng viên',
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 22),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 0, bottom: 10),
-                            height: 1,
-                            width: 360,
-                            color: const Color.fromARGB(255, 143, 143, 143),
-                          ),
-                          const Text(
-                            'CV ỨNG TUYỂN',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            height: 70,
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 255, 226, 230),
-                                border: Border.all(color: Colors.red),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.insert_drive_file,
-                                  size: 30,
-                                  color: Colors.red[400],
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    nameCv,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    fetchPdf();
-                                  },
-                                  child: Text(
-                                    'Xem',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0, vertical: 15),
+                                  child: isLoadContact
+                                      ? null
+                                      : ElevatedButton(
+                                          onPressed: () {
+                                            fetchContact();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.blueAccent,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Xem thông tin liên hệ ứng viên',
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 22),
+                                          ),
+                                        ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            height: 1,
-                            width: 360,
-                            color: const Color.fromARGB(255, 143, 143, 143),
-                          ),
-                          (status == 'approved' || status == 'rejected')
-                              ? SizedBox(
-                                  width: 20,
-                                )
-                              : Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Đánh giá CV',
+                            Container(
+                              margin: const EdgeInsets.only(top: 0, bottom: 10),
+                              height: 1,
+                              width: 360,
+                              color: const Color.fromARGB(255, 143, 143, 143),
+                            ),
+                            const Text(
+                              'CV ỨNG TUYỂN',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              height: 70,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(255, 255, 226, 230),
+                                  border: Border.all(color: Colors.red),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.insert_drive_file,
+                                    size: 30,
+                                    color: Colors.red[400],
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      nameCv,
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
+                                          fontSize: 16,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                              'Thực hiện đánh giá để tối ưu chiến dịch tuyển dụng của bạn',
-                                              style: TextStyle(fontSize: 16)),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Container(
-                                                height: 50,
-                                                width: 170,
-                                                decoration: BoxDecoration(
-                                                    color: const Color.fromARGB(
-                                                        255, 64, 205, 68),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Row(
-                                                  children: [
-                                                    Checkbox(
-                                                      value: _isChecked1,
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          _isChecked1 = value!;
-                                                          _isChecked2 = false;
-                                                        });
-                                                      },
-                                                    ),
-                                                    Text(
-                                                      'Phù hợp',
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.white),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Container(
-                                                height: 50,
-                                                width: 170,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.red[100],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Row(
-                                                  children: [
-                                                    Checkbox(
-                                                      value: _isChecked2,
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          _isChecked2 = value!;
-                                                          _isChecked1 = false;
-                                                        });
-                                                      },
-                                                    ),
-                                                    Text(
-                                                      'Không phù hợp',
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.red),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          if (_isChecked1 || _isChecked2)
-                                            Container(
-                                              width: 350,
-                                              height: 225,
-                                              decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      color: Colors.black)),
-                                              child: Column(
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      fetchPdf();
+                                    },
+                                    child: Text(
+                                      'Xem',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              margin: const EdgeInsets.all(8),
+                              height: 1,
+                              width: 360,
+                              color: const Color.fromARGB(255, 143, 143, 143),
+                            ),
+                            (status == 'approved' || status == 'rejected')
+                                ? SizedBox(
+                                    width: 20,
+                                  )
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Đánh giá CV',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                                'Thực hiện đánh giá để tối ưu chiến dịch tuyển dụng của bạn',
+                                                style: TextStyle(fontSize: 16)),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  height: 50,
+                                                  width: 170,
+                                                  decoration: BoxDecoration(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255, 64, 205, 68),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Row(
                                                     children: [
-                                                      Container(
-                                                          width: 150,
-                                                          height: 50,
-                                                          decoration: BoxDecoration(
-                                                              border: BorderDirectional(
-                                                                  bottom: BorderSide(
-                                                                      color: Colors
-                                                                          .black),
-                                                                  end: BorderSide(
-                                                                      color: Colors
-                                                                          .black))),
-                                                          child: Center(
-                                                              child: Text(
-                                                            'Trạng thái',
-                                                            style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Colors
-                                                                  .grey[600],
-                                                            ),
-                                                          ))),
-                                                      Container(
-                                                        width: 197,
-                                                        height: 50,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                border:
-                                                                    BorderDirectional(
-                                                          bottom: BorderSide(
-                                                              color:
-                                                                  Colors.black),
-                                                        )),
-                                                        child: Center(
-                                                          child: Text(
-                                                            _isChecked1
-                                                                ? 'Phù hợp'
-                                                                : 'Không phù hợp',
-                                                            style: TextStyle(
-                                                              fontSize: 18,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Colors
-                                                                  .yellow[700],
-                                                            ),
-                                                          ),
-                                                        ),
+                                                      Checkbox(
+                                                        value: _isChecked1,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _isChecked1 =
+                                                                value!;
+                                                            _isChecked2 = false;
+                                                          });
+                                                        },
+                                                      ),
+                                                      Text(
+                                                        'Phù hợp',
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                     ],
                                                   ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: TextField(
-                                                      controller:
-                                                          _commentController,
-                                                      maxLines: 5,
-                                                      maxLength: 255,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        hintText:
-                                                            'Nhập nhận xét...',
+                                                ),
+                                                Container(
+                                                  height: 50,
+                                                  width: 170,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.red[100],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10)),
+                                                  child: Row(
+                                                    children: [
+                                                      Checkbox(
+                                                        value: _isChecked2,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            _isChecked2 =
+                                                                value!;
+                                                            _isChecked1 = false;
+                                                          });
+                                                        },
+                                                      ),
+                                                      Text(
+                                                        'Không phù hợp',
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            color: Colors.red),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            if (_isChecked1 || _isChecked2)
+                                              Container(
+                                                width: 350,
+                                                height: 225,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: Colors.black)),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Container(
+                                                            width: 150,
+                                                            height: 50,
+                                                            decoration: BoxDecoration(
+                                                                border: BorderDirectional(
+                                                                    bottom: BorderSide(
+                                                                        color: Colors
+                                                                            .black),
+                                                                    end: BorderSide(
+                                                                        color: Colors
+                                                                            .black))),
+                                                            child: Center(
+                                                                child: Text(
+                                                              'Trạng thái',
+                                                              style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                    .grey[600],
+                                                              ),
+                                                            ))),
+                                                        Container(
+                                                          width: 197,
+                                                          height: 50,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                  border:
+                                                                      BorderDirectional(
+                                                            bottom: BorderSide(
+                                                                color: Colors
+                                                                    .black),
+                                                          )),
+                                                          child: Center(
+                                                            child: Text(
+                                                              _isChecked1
+                                                                  ? 'Phù hợp'
+                                                                  : 'Không phù hợp',
+                                                              style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: Colors
+                                                                        .yellow[
+                                                                    700],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: TextField(
+                                                        controller:
+                                                            _commentController,
+                                                        maxLines: 5,
+                                                        maxLength: 255,
+                                                        autofocus: false,
+                                                        decoration:
+                                                            const InputDecoration(
+                                                          hintText:
+                                                              'Nhập nhận xét...',
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
+                                            const SizedBox(
+                                              height: 10,
                                             ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                        ],
+                                    ],
+                                  ),
+                          ],
+                        ),
                       ),
                     ),
+            ),
+            if (isSubmit)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
                   ),
-          ),
-          if (isSubmit)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: CircularProgressIndicator(),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: PreferredSize(
         preferredSize: const Size.fromHeight(200),
@@ -887,67 +976,445 @@ class _UvDetailState extends State<UvDetail> {
                         await showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                              insetPadding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              title: const Text('Lên lịch phỏng vấn'),
-                              content: SizedBox(
-                                width: 400,
-                                height: 300,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    TextField(
-                                      controller: addressController,
-                                      maxLines: 2,
-                                      maxLength: 255,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Địa điểm phỏng vấn',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    TextField(
-                                      controller: timeController,
-                                      maxLines: 1,
-                                      maxLength: 255,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Thời gian phỏng vấn',
-                                        border: OutlineInputBorder(),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: TextButton(
-                                        onPressed: () {
-                                          _showCvBottomSheet(context);
-                                        },
-                                        child: Text('Mẫu lịch phỏng vấn'),
-                                      ),
-                                    ),
-                                  ],
+                            return StatefulBuilder(
+                                builder: (context, setState) {
+                              return AlertDialog(
+                                insetPadding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                contentPadding:
+                                    const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
                                 ),
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Hủy'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
+                                title: const Text('Lên lịch phỏng vấn'),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: _selectedCvIndex == null
+                                            ? SizedBox.shrink()
+                                            : Row(
+                                                children: [
+                                                  Text(
+                                                    'Tên mẫu:',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(nameCalender!)
+                                                ],
+                                              ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Padding(
+                                                padding: EdgeInsets.all(5.0),
+                                                child: Text(
+                                                  'Ngày',
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 160,
+                                                child: TextFormField(
+                                                  readOnly: true,
+                                                  onTap: () =>
+                                                      _selectDate(context),
+                                                  decoration: InputDecoration(
+                                                    prefixIcon: Icon(
+                                                      Icons.date_range_outlined,
+                                                      color: Colors.grey[800],
+                                                    ),
+                                                    hintText: '0000-00-00',
+                                                    hintStyle:
+                                                        TextStyle(fontSize: 18),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                  ),
+                                                  controller: _dayController,
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            width: 12,
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Padding(
+                                                padding: EdgeInsets.all(5.0),
+                                                child: Text(
+                                                  'Giờ',
+                                                  style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(0.0),
+                                                child: ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    elevation: 0,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          color: Colors.grey),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                    minimumSize:
+                                                        const Size(100, 58),
+                                                    padding: EdgeInsets.all(10),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.timelapse_rounded,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Center(
+                                                        child:
+                                                            selectedTime != null
+                                                                ? Text(
+                                                                    selectedTime!
+                                                                        .format(
+                                                                            context),
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            20,
+                                                                        fontWeight:
+                                                                            FontWeight.w500),
+                                                                  )
+                                                                : Text(
+                                                                    '00:00 PM',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            20,
+                                                                        color: Colors
+                                                                            .black54),
+                                                                  ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  onPressed: () async {
+                                                    time = await showTimePicker(
+                                                      context: context,
+                                                      initialTime:
+                                                          selectedTime ??
+                                                              TimeOfDay.now(),
+                                                      initialEntryMode:
+                                                          entryMode,
+                                                      orientation: orientation,
+                                                      builder:
+                                                          (BuildContext context,
+                                                              Widget? child) {
+                                                        return Theme(
+                                                          data:
+                                                              Theme.of(context)
+                                                                  .copyWith(
+                                                            materialTapTargetSize:
+                                                                tapTargetSize,
+                                                          ),
+                                                          child: Directionality(
+                                                            textDirection:
+                                                                textDirection,
+                                                            child: MediaQuery(
+                                                              data: MediaQuery.of(
+                                                                      context)
+                                                                  .copyWith(
+                                                                alwaysUse24HourFormat:
+                                                                    use24HourTime,
+                                                              ),
+                                                              child: child!,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
+                                                    setState(() {
+                                                      selectedTime = time;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
+                                          )
+                                        ],
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.all(5.0),
+                                        child: Text(
+                                          'Địa điểm',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          DropdownButtonFormField<String>(
+                                            decoration: InputDecoration(
+                                              prefixIcon: Icon(
+                                                Icons.location_on_outlined,
+                                                color: Colors.grey[800],
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            hint: const Text(
+                                                'Chọn Tỉnh/Thành phố'),
+                                            value: _selectedCity,
+                                            items: wardsData.keys
+                                                .map((String city) {
+                                              return DropdownMenuItem<String>(
+                                                value: city,
+                                                child: Text(city),
+                                              );
+                                            }).toList(),
+                                            onChanged: (newValue) {
+                                              setState(() {
+                                                _selectedCity = newValue;
+                                                _selectedDistrict = null;
+                                                _selectedWard = null;
+                                              });
+                                            },
+                                            validator: (value) {
+                                              if (value == null ||
+                                                  value.isEmpty) {
+                                                return 'Vui lòng chọn Tỉnh/Thành phố';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                          if (_selectedCity != null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20.0, top: 20),
+                                              child: DropdownButtonFormField<
+                                                  String>(
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ),
+                                                hint: const Text(
+                                                    'Chọn Quận/Huyện'),
+                                                value: _selectedDistrict,
+                                                items: wardsData[_selectedCity]!
+                                                    .entries
+                                                    .map((MapEntry<String,
+                                                            List<String>>
+                                                        entry) {
+                                                  return DropdownMenuItem<
+                                                      String>(
+                                                    value: entry.key,
+                                                    child: Text(entry.key),
+                                                  );
+                                                }).toList(),
+                                                onChanged: (newValue) {
+                                                  setState(() {
+                                                    _selectedDistrict =
+                                                        newValue;
+                                                    _selectedWard = null;
+                                                  });
+                                                },
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Vui lòng chọn Quận/Huyện';
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                            ),
+                                          if (_selectedDistrict != null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20.0, top: 20),
+                                              child: DropdownButtonFormField<
+                                                  String>(
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ),
+                                                hint: const Text(
+                                                    'Chọn Phường/Xã'),
+                                                value: _selectedWard,
+                                                items:
+                                                    wardsData[_selectedCity]![
+                                                            _selectedDistrict]!
+                                                        .map((String ward) {
+                                                  return DropdownMenuItem<
+                                                      String>(
+                                                    value: ward,
+                                                    child: Text(ward),
+                                                  );
+                                                }).toList(),
+                                                onChanged: (newValue) {
+                                                  setState(() {
+                                                    _selectedWard = newValue;
+                                                  });
+                                                },
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Vui lòng chọn Xã/Phường';
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                            ),
+                                          if (_selectedWard != null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20.0, top: 20),
+                                              child: TextFormField(
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      'Nhập số nhà và tên đường',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ),
+                                                controller:
+                                                    _houseNumberStreetController,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    _houseNumberStreet = value;
+                                                  });
+                                                },
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Vui lòng nhập số nhà và tên đường';
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            _showCalenderBottomSheet(context,
+                                                (int? index,
+                                                    String? name,
+                                                    String? day,
+                                                    String? hours,
+                                                    String? location) {
+                                              setState(() {
+                                                _houseNumberStreetController =
+                                                    TextEditingController(
+                                                  text: (location ?? '')
+                                                      .split(",")[0],
+                                                );
+                                                _selectedCvIndex = index;
+                                                nameCalender = name;
+                                                _dayController.text = day!;
+                                                selectedTime =
+                                                    parseTimeOfDay(hours!);
+                                                List<String> parts =
+                                                    location?.split(", ") ?? [];
+                                                for (var part in parts) {
+                                                  if (part.contains("Phường")) {
+                                                    _selectedWard = part;
+                                                  } else if (part
+                                                      .contains("Xã")) {
+                                                    _selectedWard = part;
+                                                  } else if (part
+                                                      .contains("Thị")) {
+                                                    _selectedWard = part;
+                                                  } else if (part
+                                                      .contains("Quận")) {
+                                                    _selectedDistrict = part;
+                                                  } else if (part
+                                                      .contains("Huyện")) {
+                                                    _selectedDistrict = part;
+                                                  } else {
+                                                    _selectedCity = part;
+                                                  }
+                                                }
+                                              });
+                                            });
+                                          },
+                                          child: Text('Mẫu lịch phỏng vấn'),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                TextButton(
-                                  child: const Text('Gửi'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    _handleSubmitRight();
-                                  },
-                                ),
-                              ],
-                            );
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Hủy'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Gửi'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      _handleSubmitRight();
+                                    },
+                                  ),
+                                ],
+                              );
+                            });
                           },
                         );
                       },
@@ -975,7 +1442,29 @@ class _UvDetailState extends State<UvDetail> {
     );
   }
 
-  void _showCvBottomSheet(BuildContext context) {
+  void resetDialogState() {
+    setState(() {
+      _selectedCity = null;
+      _selectedDistrict = null;
+      _selectedWard = null;
+      _houseNumberStreetController.clear();
+    });
+  }
+
+  void _showCalenderBottomSheet(BuildContext context,
+      Function(int?, String?, String?, String?, String?) onSelected) {
+    String? extractBeforeM(String input) {
+      final regex = RegExp(r'.*?M');
+      final match = regex.firstMatch(input);
+      return match?.group(0);
+    }
+
+    String? extractAfterM(String input) {
+      final regex = RegExp(r'(?<=M\s).*');
+      final match = regex.firstMatch(input);
+      return match?.group(0);
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1039,7 +1528,7 @@ class _UvDetailState extends State<UvDetail> {
                                         child: ElevatedButton(
                                             onPressed: () async {
                                               final result = await Get.toNamed(
-                                                  '/uploadCV');
+                                                  '/calenderScreen');
                                               if (result == true) {
                                                 setState(() {});
                                               }
@@ -1093,16 +1582,24 @@ class _UvDetailState extends State<UvDetail> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Radio<int>(
-                                          value: index,
-                                          groupValue: _selectedCvIndex,
+                                        Checkbox(
+                                          value: _selectedCvIndex == index,
                                           onChanged: (value) {
-                                            setState(() {
-                                              _selectedCvIndex = value;
-                                            });
-                                            this.setState(() {
-                                              _selectedCvIndex = value;
-                                            });
+                                            if (value == true) {
+                                              final g = extractBeforeM(cv.time);
+                                              final d = extractAfterM(cv.time);
+                                              final a = cv.address;
+                                              onSelected(
+                                                  index, cv.name, d, g, a);
+                                            } else {
+                                              resetDialogState(); // Reset trạng thái khi bỏ chọn
+                                              onSelected(
+                                                  null,
+                                                  null,
+                                                  '0000-00-00',
+                                                  '00:00 PM',
+                                                  null);
+                                            }
                                             Navigator.pop(context);
                                           },
                                         ),
@@ -1114,14 +1611,27 @@ class _UvDetailState extends State<UvDetail> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               Text(cv.name),
-                                              Text(
-                                                'Cập nhật lần cuối: ${DateTime.parse(cv.time.toString()).year}/${DateTime.parse(cv.time.toString()).month}/${DateTime.parse(cv.time.toString()).day}',
-                                              ),
                                             ],
                                           ),
                                         ),
                                         TextButton(
-                                          onPressed: () {},
+                                          onPressed: () async {
+                                            Map<String, dynamic> data = {
+                                              'cld_id': cv.cldId,
+                                              'cid': cv.cid,
+                                              'name': cv.name,
+                                              'time': cv.time,
+                                              'address': cv.address,
+                                              'createAt': cv.createAt,
+                                              'note': cv.note,
+                                            };
+                                            final result = await Get.toNamed(
+                                                '/calenderDetail',
+                                                arguments: data);
+                                            if (result == true) {
+                                              setState(() {});
+                                            }
+                                          },
                                           child: Text('Xem'),
                                         ),
                                       ],
@@ -1130,6 +1640,35 @@ class _UvDetailState extends State<UvDetail> {
                                 );
                               },
                             ),
+                      if (calenderController.calenderData.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Center(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final result =
+                                    await Get.toNamed('/calenderScreen');
+                                if (result == true) {
+                                  setState(() {});
+                                }
+                              },
+                              icon: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                'Thêm lịch phỏng vấn mới',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

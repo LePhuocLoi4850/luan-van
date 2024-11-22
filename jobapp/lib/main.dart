@@ -4,6 +4,7 @@ import 'package:jobapp/provider/user_provider.dart';
 import 'package:jobapp/ui/auth/login_screen.dart';
 import 'package:jobapp/ui/auth/register_screen.dart';
 import 'package:jobapp/ui/nhatuyendung/list_job.dart';
+import 'package:jobapp/ui/nhatuyendung/management/calender_screen.dart';
 import 'package:jobapp/ui/nhatuyendung/management/management_uv.dart';
 import 'package:jobapp/ui/nhatuyendung/post_job_screen.dart';
 import 'package:jobapp/ui/ungvien/cv_uv/cv_update/update_cv.dart';
@@ -29,6 +30,7 @@ import 'ui/nhatuyendung/company_detail_screen.dart';
 import 'ui/nhatuyendung/company_gird_title.dart';
 import 'ui/nhatuyendung/edit_job.dart';
 import 'ui/nhatuyendung/home_company.dart';
+import 'ui/nhatuyendung/management/calender_detail.dart';
 import 'ui/nhatuyendung/management/uv_detail.dart';
 import 'ui/nhatuyendung/profile_ntd/profile_screen.dart';
 import 'ui/nhatuyendung/profile_ntd/profile_update.dart';
@@ -136,6 +138,8 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/cvProfileScreen', page: () => const CvProfileScreen()),
     GetPage(name: '/favoritesScreen', page: () => const FavoritesScreen()),
     GetPage(name: '/adminScreen', page: () => const AdminScreen()),
+    GetPage(name: '/calenderScreen', page: () => const CalenderScreen()),
+    GetPage(name: '/calenderDetail', page: () => const CalenderDetail()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,

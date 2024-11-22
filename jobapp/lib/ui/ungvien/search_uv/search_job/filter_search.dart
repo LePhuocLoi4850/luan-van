@@ -73,12 +73,38 @@ class _FilterSearchState extends State<FilterSearch> {
 
     _careerController.text = data['career'];
     _typeController.text = data['type'];
+    print('danh sach khi bắt đầu lọc: $_job');
+    print('title: $title');
+    print('address: ${_addressController.text}');
+    print('experience: ${_experienceController.text}');
+    print('salary: ${_salaryController.text}');
+    print('career: ${_careerController.text}');
+    print('type: ${_typeController.text}');
+
     setState(() {});
   }
 
+  void clearFiltersIfAllSelected() {
+    List<TextEditingController> controllers = [
+      _addressController,
+      _experienceController,
+      _salaryController,
+    ];
+
+    setState(() {
+      for (var controller in controllers) {
+        if (controller.text == 'Tất cả') {
+          controller.text = '';
+        }
+      }
+    });
+  }
+
   void searchJobs() {
+    clearFiltersIfAllSelected();
     setState(() {
       String address = removeDiacritics(_addressController.text.toLowerCase());
+      print(address);
       String career = removeDiacritics(_careerController.text.toLowerCase());
 
       String experience =
@@ -87,6 +113,7 @@ class _FilterSearchState extends State<FilterSearch> {
       _job = List.from(data['job']);
       _job = _job.where((item) {
         bool matChesAddress = address.isEmpty ||
+            address == 'Tất cả' ||
             removeDiacritics(item['address'].toLowerCase()).contains(address);
         bool matchesExperience = experience.isEmpty ||
             removeDiacritics(item['experience'].toLowerCase())
@@ -446,7 +473,7 @@ class _FilterSearchState extends State<FilterSearch> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'Profile',
+            'Lọc',
             style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -513,6 +540,8 @@ class _FilterSearchState extends State<FilterSearch> {
                           onPressed: () {
                             setState(() {
                               _addressController.clear();
+                              _addressController.text = '';
+                              print(_addressController.text);
                             });
                           },
                           child: IntrinsicWidth(
@@ -577,6 +606,7 @@ class _FilterSearchState extends State<FilterSearch> {
                           onPressed: () {
                             setState(() {
                               _experienceController.clear();
+                              _experienceController.text = '';
                             });
                           },
                           child: IntrinsicWidth(

@@ -110,7 +110,7 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
                               child: Row(
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.all(15.0),
+                                    padding: const EdgeInsets.all(10.0),
                                     child: ClipOval(
                                       child: Container(
                                         width: 150,

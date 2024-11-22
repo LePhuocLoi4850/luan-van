@@ -2,10 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import 'package:emailjs/emailjs.dart' as emailjs;
 import 'package:http/http.dart' as http;
 
-import '../../../controller/cv_storage.dart';
+import '../../../controller/cv_storage_controller.dart';
 import '../../../controller/user_controller.dart';
 import '../../../server/database.dart';
 import '../../auth/auth_controller.dart';
@@ -32,14 +31,19 @@ class _ApplyState extends State<Apply> {
   int? _groupValue = 1;
   int? _groupValue1;
   String? emailCompany;
+  String? address;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> detailJob = {};
   bool isLoading = false;
   bool isCVProfile = false;
+  String salary = '';
   @override
   void initState() {
     super.initState();
     detailJob = Get.arguments;
+    salary = '${detailJob['salaryFrom']} - ${detailJob['salaryTo']}';
+    int lastCommaIndex = detailJob['address'].lastIndexOf(",");
+    address = detailJob['address'].substring(lastCommaIndex + 1).trim();
     fetchEmailForCid();
   }
 
@@ -58,6 +62,12 @@ class _ApplyState extends State<Apply> {
               'company_name': detailJob['name'],
               'user_name': _nameController.text,
               'user_email': _emailController.text,
+              'title': detailJob['title'],
+              'salary': salary,
+              'address': address,
+              'day': 20,
+              'base64': detailJob['image'],
+              'base64Logo': detailJob['image'],
             },
           }));
       if (response.statusCode == 200) {

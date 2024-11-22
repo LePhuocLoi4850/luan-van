@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../controller/cv_storage.dart';
+import '../../../../controller/cv_storage_controller.dart';
 import '../../../../models/cv.dart';
 import '../../../../server/database.dart';
 import '../../../auth/auth_controller.dart';

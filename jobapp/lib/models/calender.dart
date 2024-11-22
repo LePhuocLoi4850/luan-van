@@ -3,26 +3,29 @@ class Calender {
   final int cid;
   final String name;
   final String address;
-  final DateTime date;
   final String time;
+  final DateTime createAt;
+  final String? note;
 
   Calender({
     required this.cldId,
     required this.cid,
     required this.name,
     required this.address,
-    required this.date,
     required this.time,
+    required this.createAt,
+    this.note,
   });
 
   factory Calender.fromMap(Map<String, dynamic> map) {
     return Calender(
-      cldId: map['cldId'] as int,
+      cldId: map['cld_id'] as int,
       cid: map['cid'] as int,
       name: map['name'] as String,
       address: map['address'] as String,
-      date: DateTime.parse(map['date'] as String),
-      time: map['name'] as String,
+      time: map['time'] as String,
+      createAt: map['createAt'],
+      note: map['note'] != null ? map['note'] as String : '',
     );
   }
 
@@ -32,26 +35,28 @@ class Calender {
       'cid': cid,
       'name': name,
       'address': address,
-      'date': date.toIso8601String(),
       'time': time,
+      'createAt': createAt.toIso8601String(),
+      'note': note,
     };
   }
 
-  Calender copyWith({
-    int? cldId,
-    int? cid,
-    String? name,
-    String? address,
-    DateTime? date,
-    String? time,
-  }) {
+  Calender copyWith(
+      {int? cldId,
+      int? cid,
+      String? name,
+      String? address,
+      String? time,
+      DateTime? createAt,
+      String? note}) {
     return Calender(
       cid: cid ?? this.cid,
       cldId: cldId ?? this.cldId,
       name: name ?? this.name,
       address: address ?? this.address,
-      date: date ?? this.date,
       time: time ?? this.time,
+      createAt: createAt ?? this.createAt,
+      note: note ?? this.note,
     );
   }
 }

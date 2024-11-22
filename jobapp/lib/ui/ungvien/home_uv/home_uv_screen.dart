@@ -7,7 +7,7 @@ import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 import 'package:jobapp/ui/ungvien/home_uv/Job_gird.dart';
 
-import '../../../controller/cv_storage.dart';
+import '../../../controller/cv_storage_controller.dart';
 import '../../../models/cv.dart';
 
 // Tắt overscroll indicator cho cả iOS và Android

@@ -421,9 +421,9 @@ class _AdminScreenState extends State<AdminScreen> {
                           ListView.builder(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemCount: userData.length,
+                              itemCount: companyData.length,
                               itemBuilder: (context, index) {
-                                final user = userData[index];
+                                final company = companyData[index];
                                 return SizedBox(
                                   width: double.infinity,
                                   height: 90,
@@ -436,7 +436,7 @@ class _AdminScreenState extends State<AdminScreen> {
                                             const EdgeInsets.only(right: 10),
                                         child: ClipOval(
                                           child: imageFromBase64String(
-                                              user['image']),
+                                              company['image']),
                                         ),
                                       ),
                                       Expanded(
@@ -447,7 +447,7 @@ class _AdminScreenState extends State<AdminScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              user['name'],
+                                              company['name'],
                                               style: TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.bold,
@@ -455,7 +455,7 @@ class _AdminScreenState extends State<AdminScreen> {
                                               ),
                                             ),
                                             Text(
-                                              user['career'],
+                                              company['career'],
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 color: Colors.white,
@@ -495,9 +495,9 @@ class _AdminScreenState extends State<AdminScreen> {
                           ListView.builder(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              itemCount: userData.length,
+                              itemCount: jobData.length,
                               itemBuilder: (context, index) {
-                                final user = userData[index];
+                                final job = jobData[index];
                                 return SizedBox(
                                   width: double.infinity,
                                   height: 90,
@@ -510,7 +510,7 @@ class _AdminScreenState extends State<AdminScreen> {
                                             const EdgeInsets.only(right: 10),
                                         child: ClipOval(
                                           child: imageFromBase64String(
-                                              user['image']),
+                                              job['image']),
                                         ),
                                       ),
                                       Expanded(
@@ -521,7 +521,7 @@ class _AdminScreenState extends State<AdminScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              user['name'],
+                                              job['title'],
                                               style: TextStyle(
                                                 fontSize: 22,
                                                 fontWeight: FontWeight.bold,
@@ -529,7 +529,7 @@ class _AdminScreenState extends State<AdminScreen> {
                                               ),
                                             ),
                                             Text(
-                                              user['career'],
+                                              job['careerJ'],
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 color: Colors.white,
@@ -551,24 +551,6 @@ class _AdminScreenState extends State<AdminScreen> {
                     ),
                   ),
                 ),
-                // if (_showFAB)
-                //   Positioned(
-                //     bottom: 16.0,
-                //     right: 16.0,
-                //     child: FloatingActionButton(
-                //       onPressed: () {
-                //         _userController.animateTo(
-                //           0,
-                //           duration: const Duration(milliseconds: 500),
-                //           curve: Curves.easeInOut,
-                //         );
-                //       },
-                //       child: const Icon(
-                //         Icons.arrow_upward,
-                //         color: Colors.red,
-                //       ),
-                //     ),
-                //   ),
               ],
             ),
             floatingActionButton: Obx(

@@ -18,6 +18,7 @@ class _SearchDetailState extends State<SearchDetail> {
   final AuthController controller = Get.find<AuthController>();
   List<Map<String, dynamic>> _allJob = [];
   List<Map<String, dynamic>> _job = [];
+  List<Map<String, dynamic>> _jobAll = [];
   List<Map<String, dynamic>> _jobSearch = [];
   bool isLoading = true;
   bool _isFiltered = true;
@@ -96,6 +97,10 @@ class _SearchDetailState extends State<SearchDetail> {
         return removeDiacritics(item['title'].toLowerCase())
             .contains(removeDiacritics(title.toLowerCase()));
       }).toList();
+      _jobAll = _allJob.where((item) {
+        return removeDiacritics(item['title'].toLowerCase())
+            .contains(removeDiacritics(title.toLowerCase()));
+      }).toList();
     });
   }
 
@@ -103,14 +108,11 @@ class _SearchDetailState extends State<SearchDetail> {
     setState(() {
       _isFiltered = false;
       salary == 'Tất cả'
-          ? _filterJobsByTitle(title!)
-          : _job = _job.where((item) {
-              return (_salaryFrom == null ||
-                      int.parse(item['salaryFrom']) <= _salaryTo!) &&
-                  (_salaryTo == null ||
-                      int.parse(item['salaryTo']) >= _salaryFrom!);
-            }).toList();
-      _applyFilters();
+          ? setState(() {
+              salary = '';
+              _applyFilters();
+            })
+          : _applyFilters();
     });
   }
 
@@ -119,12 +121,11 @@ class _SearchDetailState extends State<SearchDetail> {
       _isFiltered = false;
 
       experience == 'Tất cả'
-          ? _filterJobsByTitle(title!)
-          : _job = _job.where((item) {
-              return removeDiacritics(item['experience'].toLowerCase())
-                  .contains(removeDiacritics(experience.toLowerCase()));
-            }).toList();
-      _applyFilters();
+          ? setState(() {
+              experience = '';
+              _applyFilters();
+            })
+          : _applyFilters();
     });
   }
 
@@ -133,12 +134,11 @@ class _SearchDetailState extends State<SearchDetail> {
       _isFiltered = false;
 
       address == 'Tất cả'
-          ? _filterJobsByTitle(title!)
-          : _job = _job.where((item) {
-              return removeDiacritics(item['address'].toLowerCase())
-                  .contains(removeDiacritics(address.toLowerCase()));
-            }).toList();
-      _applyFilters();
+          ? setState(() {
+              address = '';
+              _applyFilters();
+            })
+          : _applyFilters();
     });
   }
 
@@ -168,6 +168,19 @@ class _SearchDetailState extends State<SearchDetail> {
       _job = _job.where((item) {
         return removeDiacritics(item['address'].toLowerCase())
             .contains(removeDiacritics(_addressController.text.toLowerCase()));
+      }).toList();
+    }
+
+    if (career != '') {
+      _job = _job.where((item) {
+        return removeDiacritics(item['careerJ'].toLowerCase())
+            .contains(removeDiacritics(career.toLowerCase()));
+      }).toList();
+    }
+    if (type != '') {
+      _job = _job.where((item) {
+        return removeDiacritics(item['type'].toLowerCase())
+            .contains(removeDiacritics(type.toLowerCase()));
       }).toList();
     }
   }
@@ -368,6 +381,22 @@ class _SearchDetailState extends State<SearchDetail> {
     );
   }
 
+  void clearFiltersIfAllSelected() {
+    List<TextEditingController> controllers = [
+      _addressController,
+      _experienceController,
+      _salaryController,
+    ];
+
+    setState(() {
+      for (var controller in controllers) {
+        if (controller.text == 'Tất cả') {
+          controller.text = '';
+        }
+      }
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -403,7 +432,8 @@ class _SearchDetailState extends State<SearchDetail> {
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5.0),
                         child: Text(
-                          _addressController.text == ''
+                          _addressController.text == '' ||
+                                  _addressController.text == 'Tất cả'
                               ? 'Khu vực'
                               : _addressController.text,
                           style: TextStyle(
@@ -462,7 +492,8 @@ class _SearchDetailState extends State<SearchDetail> {
           ),
           GestureDetector(
             onTap: () async {
-              _jobSearch = List.from(_job);
+              clearFiltersIfAllSelected();
+              _jobSearch = List.from(_jobAll);
               Map<String, dynamic> data = {
                 'job': _jobSearch,
                 'title': title,
@@ -483,6 +514,7 @@ class _SearchDetailState extends State<SearchDetail> {
                     _salaryController.text = result['salary'];
                     career = result['career'];
                     type = result['type'];
+                    print('công việc khi lọc: $_job');
                   },
                 );
               }

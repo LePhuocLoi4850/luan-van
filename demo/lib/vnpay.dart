@@ -20,14 +20,13 @@ class _VNPayTestPageState extends State<VNPayTestPage> {
       'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
   Future<void> _makePayment() async {
     try {
-      // Tạo URL thanh toán
       final paymentUrl = await VNPAYFlutter.instance.generatePaymentUrl(
         url: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
-        version: '2.1.0',
+        version: '1.0.3',
         tmnCode: vnpTmnCode,
         txnRef: DateTime.now().millisecondsSinceEpoch.toString(),
         orderInfo: 'Test thanh toán VNPAY',
-        amount: 10000, // Số tiền thanh toán (đơn vị VND)
+        amount: 20000,
         returnUrl: vnpReturnUrl,
         ipAdress: '10.0.2.2',
         vnpayHashKey: vnpHashSecret,

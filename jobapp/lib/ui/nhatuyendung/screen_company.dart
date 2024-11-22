@@ -43,10 +43,8 @@ class _CompanyScreenState extends State<CompanyScreen> {
         index: _selectedIndex,
         children: const [
           HomeNTD(),
-          HomeNTD(),
           SearchUvScreen(),
           ProfileScreen(),
-          HomeNTD(),
         ],
       ),
       floatingActionButton: ClipOval(
@@ -88,13 +86,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_month,
-              size: 30,
-            ),
-            label: 'MyCV',
-          ),
-          BottomNavigationBarItem(
             icon: SizedBox.shrink(),
             label: '',
           ),
@@ -104,13 +95,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
               size: 30,
             ),
             label: 'Hồ sơ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person,
-              size: 30,
-            ),
-            label: 'Profile',
           ),
         ],
       ),

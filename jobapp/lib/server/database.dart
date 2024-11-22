@@ -6,6 +6,120 @@ class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
 
+// add calender
+
+  Future<int?> insertCalender(int cid, String name, String time, String address,
+      DateTime createAt, String note) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      INSERT INTO calender (cid, name, time, address, create_at, note) 
+       VALUES (@cid, @name, @time, @address, @create_at, @note) RETURNING cld_id
+'''), parameters: {
+        'cid': cid,
+        'name': name,
+        'time': time,
+        'address': address,
+        'create_at': createAt,
+        'note': note,
+      });
+      if (result.isNotEmpty) {
+        print('thêm lịch phỏng vấn thành công');
+
+        return result.first.toColumnMap()['cld_id'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchCalenderForCldId(int cldId) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM calender WHERE cld_id=@cld_id
+'''), parameters: {'cld_id': cldId});
+      final row = result.first;
+      return {
+        'cld_id': row[0],
+        'cid': row[1],
+        'name': row[2],
+        'time': row[3],
+        'address': row[4],
+        'createAt': row[5],
+        'note': row[6],
+      };
+    } catch (e) {
+      print('fetch calender error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateCalender(
+    int cldId,
+    String name,
+    String time,
+    String address,
+    DateTime createAt,
+    String note,
+  ) async {
+    try {
+      await conn!.execute(Sql.named('''
+        UPDATE calender SET name = @name, time = @time, address = @address, create_at =  @create_at, note = @note  WHERE cld_id = @cld_id
+ '''), parameters: {
+        'cld_id': cldId,
+        'name': name,
+        'time': time,
+        'address': address,
+        'create_at': createAt,
+        'note': note,
+      });
+      print('cập nhật calender thành công');
+    } catch (e) {
+      print('lỗi cập nhật calender: $e');
+    }
+  }
+
+  Future<void> deleteCalender(int cldId) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM calender WHERE cld_id = @cld_id 
+'''), parameters: {
+        'cld_id': cldId,
+      });
+      print('xóa calender thành công');
+    } catch (e) {
+      print('xóa calender thất bại: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllCalenderForCid(int cid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM calender WHERE cid = @cid
+'''), parameters: {
+        'cid': cid,
+      });
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'cld_id': row[0],
+          'cid': row[1],
+          'name': row[2],
+          'time': row[3],
+          'address': row[4],
+          'createAt': row[5],
+          'note': row[6],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch all calender for cid lỗi: $e');
+      rethrow;
+    }
+  }
 //count
 
   Future<int> countJobs() async {
@@ -389,6 +503,38 @@ class Database {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchAllJobInter(
+    bool status,
+    String type,
+  ) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status AND type = @type
+    '''), parameters: {
+        'status': status,
+        'type': type,
+      });
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'nameC': row[1],
+          'address': row[2],
+          'image': row[3],
+          'jid': row[4],
+          'title': row[5],
+          'careerJ': row[6],
+          'salaryFrom': row[7],
+          'salaryTo': row[8],
+          'experience': row[9],
+          'expiration_date': row[10],
+        };
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAllJobSearch(bool status) async {
     try {
       final result = await conn!.execute(Sql.named('''
@@ -513,7 +659,7 @@ class Database {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchJobForCareer(String career) async {
+  Future<List<Map<String, dynamic>>> fetchAllJobForCareer(String career) async {
     try {
       final result = await conn!.execute(Sql.named('''
   SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE j.career = @career
@@ -921,7 +1067,7 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
     }
   }
 
-// save Education
+// add Education
 
   Future<void> insertEducation(
     int uid,
@@ -1557,6 +1703,23 @@ ORDER BY u.uid,
     try {
       final result = await conn!.execute(Sql.named('''
     SELECT COUNT(*) FROM job WHERE cid=@cid
+'''), parameters: {'cid': cid});
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('đếm job thất bại: $e');
+      rethrow;
+    }
+  }
+
+  Future<int> countUserForCid(int cid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+    SELECT COUNT(*) FROM apply WHERE cid=@cid
 '''), parameters: {'cid': cid});
       if (result.isNotEmpty) {
         var row = result.first;
