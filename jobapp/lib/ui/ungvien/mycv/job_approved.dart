@@ -46,7 +46,7 @@ class _JobApprovedState extends State<JobApproved> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text('Công việc đang chờ duyệt'),
+        title: Text('Công việc đã được duyệt'),
       ),
       body: isLoading
           ? const Center(

@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jobapp/server/database.dart';
 
+import '../../../controller/calender_controller.dart';
+import '../../../models/calender.dart';
 import '../../auth/auth_controller.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -17,10 +19,33 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final AuthController controller = Get.find<AuthController>();
+  CalenderController calenderController = Get.find<CalenderController>();
   File? _image;
   String? base64String;
   final ImagePicker _picker = ImagePicker();
   bool isExpanded = false;
+  List<Map<String, dynamic>> allCalender = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchCalender();
+  }
+
+  Future<void> fetchCalender() async {
+    int cid = controller.companyModel.value.id!;
+
+    try {
+      allCalender = await Database().fetchAllCalenderForCid(cid);
+
+      calenderController.clearCldData();
+      for (final calenderMap in allCalender) {
+        final cld = Calender.fromMap(calenderMap);
+        calenderController.addCld(cld);
+      }
+    } catch (e) {
+      print('lỗi fetch calender: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,9 +203,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Tab(
                     child: Container(
-                      width: 60, // Chiều rộng cho tab nhỏ
+                      width: 120, // Chiều rộng cho tab nhỏ
                       alignment: Alignment.center,
-                      child: const Text("Khác"),
+                      child: const Text("Lịch phỏng vấn"),
                     ),
                   ),
                 ],
@@ -434,12 +459,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.all(16.0),
-                        child: const Text(
-                          'Các thông tin khác...',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
+                          color: Colors.white,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(0.0),
+                          child: calenderController.calenderData.isEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0, vertical: 20),
+                                  child: Container(
+                                    height: 120,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Colors.grey),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              'Bạn chưa có mẫu lịch phỏng vấn',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 300,
+                                            child: ElevatedButton(
+                                                onPressed: () async {
+                                                  final result =
+                                                      await Get.toNamed(
+                                                          '/calenderScreen');
+                                                  if (result == true) {
+                                                    setState(() {});
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                ),
+                                                child: const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      color: Color.fromARGB(
+                                                          136, 0, 0, 0),
+                                                    ),
+                                                    Text(
+                                                      'Thêm mẫu lịch phỏng vấn',
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 16),
+                                                    ),
+                                                  ],
+                                                )),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount:
+                                      calenderController.calenderData.length,
+                                  itemBuilder: (context, index) {
+                                    final cld =
+                                        calenderController.calenderData[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10.0, vertical: 5),
+                                      child: Container(
+                                        height: 70,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20.0),
+                                              child: Text(cld.name),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                Map<String, dynamic> data = {
+                                                  'cld_id': cld.cldId,
+                                                  'cid': cld.cid,
+                                                  'name': cld.name,
+                                                  'time': cld.time,
+                                                  'address': cld.address,
+                                                  'createAt': cld.createAt,
+                                                  'note': cld.note,
+                                                };
+                                                final result =
+                                                    await Get.toNamed(
+                                                        '/calenderDetail',
+                                                        arguments: data);
+                                                if (result == true) {
+                                                  setState(() {});
+                                                }
+                                              },
+                                              child: Text('Xem'),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  })),
                     ],
                   ),
                 ),

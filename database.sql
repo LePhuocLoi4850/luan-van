@@ -5,6 +5,22 @@ CREATE TABLE auth (
     pass VARCHAR(255) NOT NULL,           -- Mật khẩu đã băm, tối đa 255 ký tự, không cho phép NULL
     created_at TIMESTAMP DEFAULT NOW()    -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
 );
+CREATE TABLE payment (
+    pay_id SERIAL PRIMARY KEY,
+    cid INT REFERENCES company(cid), -- Liên kết với bảng nhà tuyển dụng
+    sv_id INT REFERENCES service(sv_id), -- Liên kết với bảng dịch vụ
+    day_order TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    price VARCHAR(255) NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    pay VARCHAR(255),
+    payment_info JSONB
+);
+CREATE TABLE dich_vu (
+    id SERIAL PRIMARY KEY,
+    ten_goi VARCHAR(255) NOT NULL,
+    mo_ta TEXT,
+    gia VARCHAR(255) NOT NULL
+	);
 CREATE TABLE calender (
     cld_id SERIAL PRIMARY KEY , -- Khóa chính
     cid INT,                               -- Khóa ngoại

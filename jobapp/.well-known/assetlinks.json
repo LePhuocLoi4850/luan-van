@@ -1,0 +1,10 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.jobapp",
+      "sha256_cert_fingerprints": [
+        "DD:3D:49:A7:72:41:7E:BC:A3:0F:1B:12:0F:E2:90:13:2D:8F:22:E9:4F:41:5D:E6:DE:93:4E:67:2C:D0:3B:55"
+      ]
+    }
+  }]

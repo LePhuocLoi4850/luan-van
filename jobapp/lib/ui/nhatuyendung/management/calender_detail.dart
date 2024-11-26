@@ -22,7 +22,6 @@ class _CalenderDetailState extends State<CalenderDetail> {
   String? _selectedDistrict;
   String? _selectedWard;
   DateTime? _selectedDate;
-  String? _houseNumberStreet;
   String? address;
   String? time;
   String note = '';
@@ -512,9 +511,7 @@ class _CalenderDetailState extends State<CalenderDetail> {
                                 ),
                                 controller: _houseNumberStreetController,
                                 onChanged: (value) {
-                                  setState(() {
-                                    _houseNumberStreet = value;
-                                  });
+                                  setState(() {});
                                 },
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {

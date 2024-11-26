@@ -17,6 +17,7 @@ import 'package:jobapp/ui/ungvien/home_uv/notification.dart';
 import 'package:jobapp/ui/ungvien/mycv/job_pending.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_job/filter_search.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_job/search_screen.dart';
+import 'package:postgres/postgres.dart';
 import 'package:provider/provider.dart';
 import 'provider/provider.dart';
 import 'server/database_connection.dart';
@@ -36,6 +37,8 @@ import 'ui/nhatuyendung/profile_ntd/profile_screen.dart';
 import 'ui/nhatuyendung/profile_ntd/profile_update.dart';
 import 'ui/nhatuyendung/screen_company.dart';
 
+import 'ui/payment/momo.dart';
+import 'ui/payment/view_momo.dart';
 import 'ui/ungvien/home_uv/cv_profile_screen.dart';
 import 'ui/ungvien/home_uv/job_of_company.dart';
 import 'ui/nhatuyendung/search/search_uv.dart';
@@ -140,6 +143,8 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/adminScreen', page: () => const AdminScreen()),
     GetPage(name: '/calenderScreen', page: () => const CalenderScreen()),
     GetPage(name: '/calenderDetail', page: () => const CalenderDetail()),
+    GetPage(name: '/web', page: () => const Web()),
+    GetPage(name: '/momo', page: () => const Momo()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,

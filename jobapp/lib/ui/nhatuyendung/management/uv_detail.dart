@@ -24,6 +24,8 @@ class _UvDetailState extends State<UvDetail> {
   final addressController = TextEditingController();
   final timeController = TextEditingController();
   final _dayController = TextEditingController();
+  final _noteController = TextEditingController();
+
   late TextEditingController _houseNumberStreetController;
   Map<String, dynamic> userData = {};
   Map<String, dynamic> data = {};
@@ -39,15 +41,14 @@ class _UvDetailState extends State<UvDetail> {
   late String title;
   late String pdf;
   bool _isLoading = true;
-  bool _isChecked1 = false;
-  bool _isChecked2 = false;
   bool isSubmit = false;
+  bool _isCheckedAccept = false;
+  bool _isCheckedReject = false;
   int? _selectedCvIndex;
   String? _selectedCity;
   String? _selectedDistrict;
   String? _selectedWard;
   DateTime? _selectedDate;
-  String? _houseNumberStreet;
   TimeOfDay? selectedTime;
   TimePickerEntryMode entryMode = TimePickerEntryMode.dial;
   Orientation? orientation;
@@ -91,10 +92,10 @@ class _UvDetailState extends State<UvDetail> {
 
   void _fetchCalender() async {
     int cid = controller.companyModel.value.id!;
-    print(cid);
+
     try {
       final calenderData = await Database().fetchAllCalenderForCid(cid);
-      print(calenderData);
+
       calenderController.clearCldData();
       for (final calenderMap in calenderData) {
         final cld = Calender.fromMap(calenderMap);
@@ -103,6 +104,13 @@ class _UvDetailState extends State<UvDetail> {
     } catch (e) {
       print('lỗi fetch calender: $e');
     }
+  }
+
+  void _resetBothStates() {
+    setState(() {
+      _isCheckedAccept = false;
+      _isCheckedReject = false;
+    });
   }
 
   TimeOfDay parseTimeOfDay(String timeString) {
@@ -171,6 +179,9 @@ class _UvDetailState extends State<UvDetail> {
 
   Future<void> _sendEmailUserApplied() async {
     final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+    String address =
+        '${_houseNumberStreetController.text}, $_selectedWard, $_selectedDistrict, $_selectedCity';
+    String time = selectedTime!.format(context);
     try {
       final response = await http.post(url,
           headers: {
@@ -184,8 +195,8 @@ class _UvDetailState extends State<UvDetail> {
               'company_name': controller.companyModel.value.name,
               'user_name': userData['name'],
               'user_email': userData['email'],
-              'address': addressController.text,
-              'time': timeController.text
+              'address': address,
+              'time': time,
             },
           }));
       if (response.statusCode == 200) {
@@ -231,12 +242,45 @@ class _UvDetailState extends State<UvDetail> {
     }
   }
 
+  Future<bool> _onSubmit() async {
+    if (_dayController.text.isEmpty || selectedTime == null) {
+      _showErrorMessage('Vui lòng chọn ngày và giờ trước khi gửi.');
+      return false; // Trả về false nếu không hợp lệ
+    }
+    if (_selectedCity == null) {
+      _showErrorMessage('Vui lòng chọn Tỉnh/Thành phố');
+      return false;
+    }
+    if (_selectedDistrict == null) {
+      _showErrorMessage('Vui lòng chọn Quận/Huyện');
+      return false;
+    }
+    if (_selectedWard == null) {
+      _showErrorMessage('Vui lòng chọn Xã/Phường');
+      return false;
+    }
+    if (_houseNumberStreetController.text.isEmpty) {
+      _showErrorMessage('Vui lòng nhập số nhà và tên đường');
+      return false;
+    }
+
+    // Nếu tất cả hợp lệ
+    return true;
+  }
+
+  void _showErrorMessage(String message) {
+    Get.snackbar('Lỗi', message,
+        backgroundColor: Colors.red, colorText: Colors.white);
+    return;
+  }
+
   void _handleSubmitRight() async {
     setState(() {
       isSubmit = true;
     });
+
     String nameC = controller.companyModel.value.name!;
-    String evaluate = _isChecked1 ? 'Phù hợp' : 'Không phù hợp';
+    String evaluate = _isCheckedAccept ? 'Phù hợp' : 'Không phù hợp';
     String comment = _commentController.text;
     try {
       switch (status) {
@@ -268,7 +312,7 @@ class _UvDetailState extends State<UvDetail> {
 
   // void _handleSubmit() async {
   //   String nameC = controller.companyModel.value.name!;
-  //   String evaluate = _isChecked1 ? 'Phù hợp' : 'Không phù hợp';
+  //   String evaluate = _isCheckedAccept ? 'Phù hợp' : 'Không phù hợp';
   //   String comment = _commentController.text;
   //   try {
   //     switch (status) {
@@ -756,12 +800,18 @@ class _UvDetailState extends State<UvDetail> {
                                                   child: Row(
                                                     children: [
                                                       Checkbox(
-                                                        value: _isChecked1,
+                                                        value: _isCheckedAccept,
                                                         onChanged: (value) {
                                                           setState(() {
-                                                            _isChecked1 =
+                                                            _isCheckedAccept =
                                                                 value!;
-                                                            _isChecked2 = false;
+                                                            if (value)
+                                                              _isCheckedReject =
+                                                                  false;
+                                                            if (!_isCheckedAccept &&
+                                                                !_isCheckedReject) {
+                                                              _resetBothStates();
+                                                            }
                                                           });
                                                         },
                                                       ),
@@ -786,12 +836,18 @@ class _UvDetailState extends State<UvDetail> {
                                                   child: Row(
                                                     children: [
                                                       Checkbox(
-                                                        value: _isChecked2,
+                                                        value: _isCheckedReject,
                                                         onChanged: (value) {
                                                           setState(() {
-                                                            _isChecked2 =
+                                                            _isCheckedReject =
                                                                 value!;
-                                                            _isChecked1 = false;
+                                                            if (value)
+                                                              _isCheckedAccept =
+                                                                  false;
+                                                            if (!_isCheckedAccept &&
+                                                                !_isCheckedReject) {
+                                                              _resetBothStates();
+                                                            }
                                                           });
                                                         },
                                                       ),
@@ -809,7 +865,8 @@ class _UvDetailState extends State<UvDetail> {
                                             const SizedBox(
                                               height: 10,
                                             ),
-                                            if (_isChecked1 || _isChecked2)
+                                            if (_isCheckedAccept ||
+                                                _isCheckedReject)
                                               Container(
                                                 width: 350,
                                                 height: 225,
@@ -859,7 +916,7 @@ class _UvDetailState extends State<UvDetail> {
                                                           )),
                                                           child: Center(
                                                             child: Text(
-                                                              _isChecked1
+                                                              _isCheckedAccept
                                                                   ? 'Phù hợp'
                                                                   : 'Không phù hợp',
                                                               style: TextStyle(
@@ -933,10 +990,26 @@ class _UvDetailState extends State<UvDetail> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // _handleSubmit();
-                        Get.back(result: 'rejected');
-                      },
+                      onPressed: _isCheckedAccept
+                          ? null
+                          : () async {
+                              if (!_isCheckedAccept && !_isCheckedReject) {
+                                Get.snackbar('Lỗi', 'Vui lòng chọn đánh giá!',
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white);
+                                return;
+                              }
+
+                              String comment = _commentController.text;
+
+                              if (comment.isEmpty) {
+                                Get.snackbar('Lỗi', 'Vui lòng nhập nhận xét!',
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white);
+                                return;
+                              }
+                              Get.back(result: 'rejected');
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _getRejectButtonColor(status),
                         shape: RoundedRectangleBorder(
@@ -957,467 +1030,567 @@ class _UvDetailState extends State<UvDetail> {
                   ),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        if (!_isChecked1 && !_isChecked2) {
-                          Get.snackbar('Lỗi', 'Vui lòng chọn đánh giá!',
-                              backgroundColor: Colors.red,
-                              colorText: Colors.white);
-                          return;
-                        }
+                      onPressed: _isCheckedReject
+                          ? null
+                          : () async {
+                              if (!_isCheckedAccept && !_isCheckedReject) {
+                                Get.snackbar('Lỗi', 'Vui lòng chọn đánh giá!',
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white);
+                                return;
+                              }
 
-                        String comment = _commentController.text;
+                              String comment = _commentController.text;
 
-                        if (comment.isEmpty) {
-                          Get.snackbar('Lỗi', 'Vui lòng nhập nhận xét!',
-                              backgroundColor: Colors.red,
-                              colorText: Colors.white);
-                          return;
-                        }
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                                builder: (context, setState) {
-                              return AlertDialog(
-                                insetPadding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                contentPadding:
-                                    const EdgeInsets.fromLTRB(24, 20, 24, 0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                title: const Text('Lên lịch phỏng vấn'),
-                                content: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: _selectedCvIndex == null
-                                            ? SizedBox.shrink()
-                                            : Row(
-                                                children: [
-                                                  Text(
-                                                    'Tên mẫu:',
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.black,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Text(nameCalender!)
-                                                ],
-                                              ),
+                              if (comment.isEmpty) {
+                                Get.snackbar('Lỗi', 'Vui lòng nhập nhận xét!',
+                                    backgroundColor: Colors.red,
+                                    colorText: Colors.white);
+                                return;
+                              }
+                              await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return StatefulBuilder(
+                                      builder: (context, setState) {
+                                    return AlertDialog(
+                                      insetPadding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      contentPadding: const EdgeInsets.fromLTRB(
+                                          24, 20, 24, 0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
                                       ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Padding(
-                                                padding: EdgeInsets.all(5.0),
-                                                child: Text(
-                                                  'Ngày',
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                      title: const Text('Lên lịch phỏng vấn'),
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: _selectedCvIndex == null
+                                                  ? SizedBox.shrink()
+                                                  : Row(
+                                                      children: [
+                                                        Text(
+                                                          'Tên mẫu:',
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              color:
+                                                                  Colors.black,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                        Text(nameCalender!)
+                                                      ],
+                                                    ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(5.0),
+                                                      child: Text(
+                                                        'Ngày',
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 160,
+                                                      child: TextFormField(
+                                                        readOnly: true,
+                                                        onTap: () =>
+                                                            _selectDate(
+                                                                context),
+                                                        decoration:
+                                                            InputDecoration(
+                                                          prefixIcon: Icon(
+                                                            Icons
+                                                                .date_range_outlined,
+                                                            color: Colors
+                                                                .grey[800],
+                                                          ),
+                                                          hintText:
+                                                              '0000-00-00',
+                                                          hintStyle: TextStyle(
+                                                              fontSize: 18),
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                        ),
+                                                        controller:
+                                                            _dayController,
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                        ),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
+                                                const SizedBox(
+                                                  width: 12,
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(5.0),
+                                                      child: Text(
+                                                        'Giờ',
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              0.0),
+                                                      child: ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          elevation: 0,
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            side: BorderSide(
+                                                                color: Colors
+                                                                    .grey),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                          minimumSize:
+                                                              const Size(
+                                                                  100, 58),
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  10),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .timelapse_rounded,
+                                                              color: Colors
+                                                                  .grey[800],
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Center(
+                                                              child:
+                                                                  selectedTime !=
+                                                                          null
+                                                                      ? Text(
+                                                                          selectedTime!
+                                                                              .format(context),
+                                                                          style: TextStyle(
+                                                                              fontSize: 20,
+                                                                              fontWeight: FontWeight.w500),
+                                                                        )
+                                                                      : Text(
+                                                                          '00:00 PM',
+                                                                          style: TextStyle(
+                                                                              fontSize: 20,
+                                                                              color: Colors.black54),
+                                                                        ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        onPressed: () async {
+                                                          time =
+                                                              await showTimePicker(
+                                                            context: context,
+                                                            initialTime:
+                                                                selectedTime ??
+                                                                    TimeOfDay
+                                                                        .now(),
+                                                            initialEntryMode:
+                                                                entryMode,
+                                                            orientation:
+                                                                orientation,
+                                                            builder:
+                                                                (BuildContext
+                                                                        context,
+                                                                    Widget?
+                                                                        child) {
+                                                              return Theme(
+                                                                data: Theme.of(
+                                                                        context)
+                                                                    .copyWith(
+                                                                  materialTapTargetSize:
+                                                                      tapTargetSize,
+                                                                ),
+                                                                child:
+                                                                    Directionality(
+                                                                  textDirection:
+                                                                      textDirection,
+                                                                  child:
+                                                                      MediaQuery(
+                                                                    data: MediaQuery.of(
+                                                                            context)
+                                                                        .copyWith(
+                                                                      alwaysUse24HourFormat:
+                                                                          use24HourTime,
+                                                                    ),
+                                                                    child:
+                                                                        child!,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
+                                                          );
+                                                          setState(() {
+                                                            selectedTime = time;
+                                                          });
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                )
+                                              ],
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.all(5.0),
+                                              child: Text(
+                                                'Địa điểm',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
-                                              SizedBox(
-                                                width: 160,
-                                                child: TextFormField(
-                                                  readOnly: true,
-                                                  onTap: () =>
-                                                      _selectDate(context),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                DropdownButtonFormField<String>(
                                                   decoration: InputDecoration(
                                                     prefixIcon: Icon(
-                                                      Icons.date_range_outlined,
+                                                      Icons
+                                                          .location_on_outlined,
                                                       color: Colors.grey[800],
                                                     ),
-                                                    hintText: '0000-00-00',
-                                                    hintStyle:
-                                                        TextStyle(fontSize: 18),
                                                     border: OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10),
                                                     ),
                                                   ),
-                                                  controller: _dayController,
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            width: 12,
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const Padding(
-                                                padding: EdgeInsets.all(5.0),
-                                                child: Text(
-                                                  'Giờ',
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(0.0),
-                                                child: ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    elevation: 0,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      side: BorderSide(
-                                                          color: Colors.grey),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                    minimumSize:
-                                                        const Size(100, 58),
-                                                    padding: EdgeInsets.all(10),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.timelapse_rounded,
-                                                        color: Colors.grey[800],
-                                                      ),
-                                                      const SizedBox(
-                                                        width: 10,
-                                                      ),
-                                                      Center(
-                                                        child:
-                                                            selectedTime != null
-                                                                ? Text(
-                                                                    selectedTime!
-                                                                        .format(
-                                                                            context),
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            20,
-                                                                        fontWeight:
-                                                                            FontWeight.w500),
-                                                                  )
-                                                                : Text(
-                                                                    '00:00 PM',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            20,
-                                                                        color: Colors
-                                                                            .black54),
-                                                                  ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  onPressed: () async {
-                                                    time = await showTimePicker(
-                                                      context: context,
-                                                      initialTime:
-                                                          selectedTime ??
-                                                              TimeOfDay.now(),
-                                                      initialEntryMode:
-                                                          entryMode,
-                                                      orientation: orientation,
-                                                      builder:
-                                                          (BuildContext context,
-                                                              Widget? child) {
-                                                        return Theme(
-                                                          data:
-                                                              Theme.of(context)
-                                                                  .copyWith(
-                                                            materialTapTargetSize:
-                                                                tapTargetSize,
-                                                          ),
-                                                          child: Directionality(
-                                                            textDirection:
-                                                                textDirection,
-                                                            child: MediaQuery(
-                                                              data: MediaQuery.of(
-                                                                      context)
-                                                                  .copyWith(
-                                                                alwaysUse24HourFormat:
-                                                                    use24HourTime,
-                                                              ),
-                                                              child: child!,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
+                                                  hint: const Text(
+                                                      'Chọn Tỉnh/Thành phố'),
+                                                  value: _selectedCity,
+                                                  items: wardsData.keys
+                                                      .map((String city) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: city,
+                                                      child: Text(city),
                                                     );
+                                                  }).toList(),
+                                                  onChanged: (newValue) {
                                                     setState(() {
-                                                      selectedTime = time;
+                                                      _selectedCity = newValue;
+                                                      _selectedDistrict = null;
+                                                      _selectedWard = null;
                                                     });
                                                   },
+                                                  validator: (value) {
+                                                    if (value == null ||
+                                                        value.isEmpty) {
+                                                      return 'Vui lòng chọn Tỉnh/Thành phố';
+                                                    }
+                                                    return null;
+                                                  },
                                                 ),
+                                                if (_selectedCity != null)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 20.0,
+                                                            top: 20),
+                                                    child:
+                                                        DropdownButtonFormField<
+                                                            String>(
+                                                      decoration:
+                                                          InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                      ),
+                                                      hint: const Text(
+                                                          'Chọn Quận/Huyện'),
+                                                      value: _selectedDistrict,
+                                                      items: wardsData[
+                                                              _selectedCity]!
+                                                          .entries
+                                                          .map((MapEntry<String,
+                                                                  List<String>>
+                                                              entry) {
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: entry.key,
+                                                          child:
+                                                              Text(entry.key),
+                                                        );
+                                                      }).toList(),
+                                                      onChanged: (newValue) {
+                                                        setState(() {
+                                                          _selectedDistrict =
+                                                              newValue;
+                                                          _selectedWard = null;
+                                                        });
+                                                      },
+                                                      validator: (value) {
+                                                        if (value == null ||
+                                                            value.isEmpty) {
+                                                          return 'Vui lòng chọn Quận/Huyện';
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ),
+                                                if (_selectedDistrict != null)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 20.0,
+                                                            top: 20),
+                                                    child:
+                                                        DropdownButtonFormField<
+                                                            String>(
+                                                      decoration:
+                                                          InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                      ),
+                                                      hint: const Text(
+                                                          'Chọn Phường/Xã'),
+                                                      value: _selectedWard,
+                                                      items: wardsData[
+                                                                  _selectedCity]![
+                                                              _selectedDistrict]!
+                                                          .map((String ward) {
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: ward,
+                                                          child: Text(ward),
+                                                        );
+                                                      }).toList(),
+                                                      onChanged: (newValue) {
+                                                        setState(() {
+                                                          _selectedWard =
+                                                              newValue;
+                                                        });
+                                                      },
+                                                      validator: (value) {
+                                                        if (value == null ||
+                                                            value.isEmpty) {
+                                                          return 'Vui lòng chọn Xã/Phường';
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ),
+                                                if (_selectedWard != null)
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 20.0,
+                                                            top: 20),
+                                                    child: TextFormField(
+                                                      decoration:
+                                                          InputDecoration(
+                                                        hintText:
+                                                            'Nhập số nhà và tên đường',
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                      ),
+                                                      controller:
+                                                          _houseNumberStreetController,
+                                                      onChanged: (value) {
+                                                        setState(() {});
+                                                      },
+                                                      validator: (value) {
+                                                        if (value == null ||
+                                                            value.isEmpty) {
+                                                          return 'Vui lòng nhập số nhà và tên đường';
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.all(5.0),
+                                              child: Text(
+                                                'Ghi chú',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            width: 10,
-                                          )
-                                        ],
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.all(5.0),
-                                        child: Text(
-                                          'Địa điểm',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
+                                            ),
+                                            TextFormField(
+                                              decoration: InputDecoration(
+                                                hintText: 'Ghi chú',
+                                                hintStyle: TextStyle(
+                                                  color: Colors.grey[600],
+                                                ),
+                                                floatingLabelBehavior:
+                                                    FloatingLabelBehavior.never,
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey,
+                                                      width: 2),
+                                                ),
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                              ),
+                                              controller: _noteController,
+                                              maxLines: 3,
+                                              maxLength: 255,
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: TextButton(
+                                                onPressed: () {
+                                                  _showCalenderBottomSheet(
+                                                      context, (int? index,
+                                                          String? name,
+                                                          String? day,
+                                                          String? hours,
+                                                          String? location,
+                                                          String note) {
+                                                    setState(() {
+                                                      _houseNumberStreetController =
+                                                          TextEditingController(
+                                                        text: (location ?? '')
+                                                            .split(",")[0],
+                                                      );
+                                                      _selectedCvIndex = index;
+                                                      nameCalender = name;
+                                                      _dayController.text =
+                                                          day!;
+                                                      _noteController.text =
+                                                          note;
+                                                      selectedTime =
+                                                          parseTimeOfDay(
+                                                              hours!);
+                                                      List<String> parts =
+                                                          location?.split(
+                                                                  ", ") ??
+                                                              [];
+                                                      for (var part in parts) {
+                                                        if (part.contains(
+                                                            "Phường")) {
+                                                          _selectedWard = part;
+                                                        } else if (part
+                                                            .contains("Xã")) {
+                                                          _selectedWard = part;
+                                                        } else if (part
+                                                            .contains("Thị")) {
+                                                          _selectedWard = part;
+                                                        } else if (part
+                                                            .contains("Quận")) {
+                                                          _selectedDistrict =
+                                                              part;
+                                                        } else if (part
+                                                            .contains(
+                                                                "Huyện")) {
+                                                          _selectedDistrict =
+                                                              part;
+                                                        } else {
+                                                          _selectedCity = part;
+                                                        }
+                                                      }
+                                                    });
+                                                  });
+                                                },
+                                                child:
+                                                    Text('Mẫu lịch phỏng vấn'),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          DropdownButtonFormField<String>(
-                                            decoration: InputDecoration(
-                                              prefixIcon: Icon(
-                                                Icons.location_on_outlined,
-                                                color: Colors.grey[800],
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            hint: const Text(
-                                                'Chọn Tỉnh/Thành phố'),
-                                            value: _selectedCity,
-                                            items: wardsData.keys
-                                                .map((String city) {
-                                              return DropdownMenuItem<String>(
-                                                value: city,
-                                                child: Text(city),
-                                              );
-                                            }).toList(),
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                _selectedCity = newValue;
-                                                _selectedDistrict = null;
-                                                _selectedWard = null;
-                                              });
-                                            },
-                                            validator: (value) {
-                                              if (value == null ||
-                                                  value.isEmpty) {
-                                                return 'Vui lòng chọn Tỉnh/Thành phố';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                          if (_selectedCity != null)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20.0, top: 20),
-                                              child: DropdownButtonFormField<
-                                                  String>(
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                hint: const Text(
-                                                    'Chọn Quận/Huyện'),
-                                                value: _selectedDistrict,
-                                                items: wardsData[_selectedCity]!
-                                                    .entries
-                                                    .map((MapEntry<String,
-                                                            List<String>>
-                                                        entry) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: entry.key,
-                                                    child: Text(entry.key),
-                                                  );
-                                                }).toList(),
-                                                onChanged: (newValue) {
-                                                  setState(() {
-                                                    _selectedDistrict =
-                                                        newValue;
-                                                    _selectedWard = null;
-                                                  });
-                                                },
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return 'Vui lòng chọn Quận/Huyện';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ),
-                                          if (_selectedDistrict != null)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20.0, top: 20),
-                                              child: DropdownButtonFormField<
-                                                  String>(
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                hint: const Text(
-                                                    'Chọn Phường/Xã'),
-                                                value: _selectedWard,
-                                                items:
-                                                    wardsData[_selectedCity]![
-                                                            _selectedDistrict]!
-                                                        .map((String ward) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: ward,
-                                                    child: Text(ward),
-                                                  );
-                                                }).toList(),
-                                                onChanged: (newValue) {
-                                                  setState(() {
-                                                    _selectedWard = newValue;
-                                                  });
-                                                },
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return 'Vui lòng chọn Xã/Phường';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ),
-                                          if (_selectedWard != null)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20.0, top: 20),
-                                              child: TextFormField(
-                                                decoration: InputDecoration(
-                                                  hintText:
-                                                      'Nhập số nhà và tên đường',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                controller:
-                                                    _houseNumberStreetController,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _houseNumberStreet = value;
-                                                  });
-                                                },
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return 'Vui lòng nhập số nhà và tên đường';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: TextButton(
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('Hủy'),
                                           onPressed: () {
-                                            _showCalenderBottomSheet(context,
-                                                (int? index,
-                                                    String? name,
-                                                    String? day,
-                                                    String? hours,
-                                                    String? location) {
-                                              setState(() {
-                                                _houseNumberStreetController =
-                                                    TextEditingController(
-                                                  text: (location ?? '')
-                                                      .split(",")[0],
-                                                );
-                                                _selectedCvIndex = index;
-                                                nameCalender = name;
-                                                _dayController.text = day!;
-                                                selectedTime =
-                                                    parseTimeOfDay(hours!);
-                                                List<String> parts =
-                                                    location?.split(", ") ?? [];
-                                                for (var part in parts) {
-                                                  if (part.contains("Phường")) {
-                                                    _selectedWard = part;
-                                                  } else if (part
-                                                      .contains("Xã")) {
-                                                    _selectedWard = part;
-                                                  } else if (part
-                                                      .contains("Thị")) {
-                                                    _selectedWard = part;
-                                                  } else if (part
-                                                      .contains("Quận")) {
-                                                    _selectedDistrict = part;
-                                                  } else if (part
-                                                      .contains("Huyện")) {
-                                                    _selectedDistrict = part;
-                                                  } else {
-                                                    _selectedCity = part;
-                                                  }
-                                                }
-                                              });
-                                            });
+                                            Navigator.of(context).pop();
                                           },
-                                          child: Text('Mẫu lịch phỏng vấn'),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: const Text('Hủy'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: const Text('Gửi'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      _handleSubmitRight();
-                                    },
-                                  ),
-                                ],
+                                        TextButton(
+                                          child: const Text('Gửi'),
+                                          onPressed: () async {
+                                            bool isValid = await _onSubmit();
+                                            if (isValid) {
+                                              Navigator.of(context)
+                                                  .pop(); // Đóng dialog
+                                              _handleSubmitRight(); // Gọi hàm xử lý tiếp theo
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                                },
                               );
-                            });
-                          },
-                        );
-                      },
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _getApproveButtonColor(status),
                         shape: RoundedRectangleBorder(
@@ -1452,7 +1625,7 @@ class _UvDetailState extends State<UvDetail> {
   }
 
   void _showCalenderBottomSheet(BuildContext context,
-      Function(int?, String?, String?, String?, String?) onSelected) {
+      Function(int?, String?, String?, String?, String?, String) onSelected) {
     String? extractBeforeM(String input) {
       final regex = RegExp(r'.*?M');
       final match = regex.firstMatch(input);
@@ -1589,8 +1762,9 @@ class _UvDetailState extends State<UvDetail> {
                                               final g = extractBeforeM(cv.time);
                                               final d = extractAfterM(cv.time);
                                               final a = cv.address;
+                                              String n = cv.note!;
                                               onSelected(
-                                                  index, cv.name, d, g, a);
+                                                  index, cv.name, d, g, a, n);
                                             } else {
                                               resetDialogState(); // Reset trạng thái khi bỏ chọn
                                               onSelected(
@@ -1598,7 +1772,8 @@ class _UvDetailState extends State<UvDetail> {
                                                   null,
                                                   '0000-00-00',
                                                   '00:00 PM',
-                                                  null);
+                                                  null,
+                                                  '');
                                             }
                                             Navigator.pop(context);
                                           },

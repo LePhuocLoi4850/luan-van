@@ -6,6 +6,100 @@ class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
 
+//payment
+
+  Future<DateTime> fetchDayPaymentCompany(int cid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT service_day FROM company WHERE cid = @cid'''),
+          parameters: {'cid': cid});
+
+      var row = result.first;
+
+      var columnMap = row.toColumnMap();
+
+      DateTime serviceDay = columnMap['service_day'] as DateTime;
+      return serviceDay;
+    } catch (e) {
+      print('fetch service error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updatePaymentCompany(
+    int cid,
+    DateTime serviceDay,
+  ) async {
+    final conn = DatabaseConnection().connection;
+    try {
+      await conn?.execute(
+        Sql.named(
+            'UPDATE company SET service_day = @service_day WHERE cid = @cid'),
+        parameters: {
+          'cid': cid,
+          'service_day': serviceDay,
+        },
+      );
+      print('cập nhật ảnh thành công');
+    } catch (e) {
+      print('cập nhật ảnh công ty thất bại: $e');
+      return;
+    }
+  }
+
+  Future<void> insertPayment(
+    int cid,
+    int svId,
+    String name,
+    String svName,
+    int price,
+    DateTime dayOrder,
+    bool status,
+    String pay,
+  ) async {
+    try {
+      await conn!.execute(Sql.named('''
+      INSERT INTO payment (cid, sv_id, name, sv_name, price, day_order, status, pay) 
+      VALUES (@cid, @sv_id, @name, @sv_name, @price, @day_order, @status, @pay)
+'''), parameters: {
+        'cid': cid,
+        'sv_id': svId,
+        'name': name,
+        'sv_name': svName,
+        'price': price,
+        'day_order': dayOrder,
+        'status': status,
+        'pay': pay,
+      });
+      print('thêm đơn hàng thành công');
+    } catch (e) {
+      print('thêm đơn hàng thất bại: $e');
+    }
+  }
+
+// service
+
+  Future<List<Map<String, dynamic>>> fetchAllService() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM service '''));
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'sv_id': row[0],
+          'sv_name': row[1],
+          'sv_description': row[2],
+          'sv_price': row[3],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch service error: $e');
+      rethrow;
+    }
+  }
+
 // add calender
 
   Future<int?> insertCalender(int cid, String name, String time, String address,

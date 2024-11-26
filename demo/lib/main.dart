@@ -1,11 +1,11 @@
 import 'package:demo/provider.dart';
 import 'package:demo/screen.dart';
+import 'package:demo/web.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import 'controller.dart';
-import 'home.dart';
 // import 'login.dart';
 
 void main() {
@@ -13,6 +13,10 @@ void main() {
   Get.put(AuthController());
   runApp(const MyApp());
 }
+
+final routes = [
+  GetPage(name: '/vnpay', page: () => const Web()),
+];
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -35,6 +39,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (context) => MyBase64())],
       child: GetMaterialApp(
+        getPages: routes,
         home: Obx(() => _authController.isLoggedIn.value
             ? CompanyScreen()
             : CompanyScreen()),

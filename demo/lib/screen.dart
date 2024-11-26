@@ -4,7 +4,7 @@ import 'package:demo/vn.dart';
 import 'package:flutter/material.dart';
 
 import 'email.dart';
-import 'vnpay.dart';
+import 'momo.dart';
 
 class CompanyScreen extends StatefulWidget {
   const CompanyScreen({super.key});
@@ -27,12 +27,12 @@ class _CompanyScreenState extends State<CompanyScreen> {
       resizeToAvoidBottomInset: false,
       body: IndexedStack(
         index: _selectedIndex,
-        children: const [
-          Example(),
-          MessengerWebView(),
-          Email(),
-          MessengerWebView(),
-          UpdateUserScreen(),
+        children: [
+          MyHomePage(),
+          const MessengerWebView(),
+          const Email(),
+          const MessengerWebView(),
+          const UpdateUserScreen(),
         ],
       ),
       floatingActionButton: ClipOval(

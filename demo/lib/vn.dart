@@ -1,83 +1,62 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:vnpay_flutter/vnpay_flutter.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
-class Example extends StatefulWidget {
-  const Example({Key? key}) : super(key: key);
+import 'web.dart';
 
+class VNPayScreen extends StatefulWidget {
   @override
-  State<Example> createState() => _ExampleState();
+  _VNPayScreenState createState() => _VNPayScreenState();
 }
 
-class _ExampleState extends State<Example> {
-  bool isLoading = false;
-  String responseCode = '';
-  Future<void> onPayment() async {
+class _VNPayScreenState extends State<VNPayScreen> {
+  Future<void> _createPaymentUrl() async {
+    final url = Uri.parse('http://10.0.2.2:8888/order/create_payment_url');
+    final headers = {'Content-Type': 'application/json'};
+    final body = {
+      "amount": 10000,
+      "bankCode": 'NCB',
+      "locale": 'vn',
+    };
+    final jsonBody = jsonEncode(body);
     try {
-      setState(() {
-        isLoading = false;
-      });
-      final paymentUrl = await VNPAYFlutter.instance.generatePaymentUrl(
-        url: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
-        version: '2.0.1',
-        command: 'pay',
-        tmnCode: '4EUDD9OP',
-        locale: 'vn',
-        currencyCode: 'VND',
-        txnRef: DateTime.now().millisecondsSinceEpoch.toString(),
-        orderInfo: 'Pay 30.000 VND',
-        amount: 30000,
-        returnUrl: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
-        ipAdress: '10.0.2.2',
-        createAt: DateTime.now(),
-        vnpayHashKey: '2NN2SRGO9KKZ46UW5FCPDTYIQF0WPGDA',
-        vnPayHashType: VNPayHashType.HMACSHA512,
-        vnpayOrderType: 'other',
-        vnpayExpireDate: DateTime.now().add(const Duration(hours: 1)),
-      );
+      final response = await http.post(url, headers: headers, body: jsonBody);
 
-      await VNPAYFlutter.instance.show(
-        paymentUrl: paymentUrl,
-        onPaymentSuccess: (params) {
-          setState(() {
-            responseCode = params['vnp_ResponseCode'] ?? '';
-          });
-        },
-        onPaymentError: (params) {
-          setState(() {
-            responseCode = 'Error';
-          });
-        },
-      );
-      setState(() {
-        isLoading = true;
-      });
+      if (response.statusCode == 302) {
+        // Lấy URL từ header 'Location'
+        String? location = response.headers['location'];
+        if (location != null) {
+          Get.to(() => Web(), arguments: location);
+        } else {
+          print('Không tìm thấy header Location');
+        }
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+      }
     } catch (e) {
-      print(e);
-      setState(() {
-        responseCode = 'Error: $e';
-      });
+      // Xử lý lỗi
+      print('Error: $e');
+      // Hiển thị thông báo lỗi cho người dùng
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Lỗi: $e'),
+      ));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text('Response Code: $responseCode'),
-                  TextButton(
-                    onPressed: onPayment,
-                    child: const Text('30.000VND'),
-                  ),
-                ],
-              ),
-            ),
+      appBar: AppBar(
+        title: Text("Kết nối với server Node.js"),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: _createPaymentUrl,
+          child: Text('Tạo URL thanh toán'),
+        ),
+      ),
     );
   }
 }

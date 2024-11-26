@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jobapp/controller/company_controller.dart';
+import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
 import 'category.dart';
@@ -17,9 +18,33 @@ class HomeNTD extends StatefulWidget {
 class _HomeNTDState extends State<HomeNTD> {
   final AuthController controller = Get.find<AuthController>();
   final CompanyController companyController = Get.find<CompanyController>();
+  late DateTime day;
+  bool hasPackage = false;
   @override
   void initState() {
     super.initState();
+    fetchPaymentDay();
+  }
+
+  void fetchPaymentDay() async {
+    try {
+      day = await Database()
+          .fetchDayPaymentCompany(controller.companyModel.value.id!);
+      if (day.isAfter(DateTime.now())) {
+        print('gói còn hạn');
+        setState(() {
+          hasPackage = true;
+        });
+      } else {
+        print('gói hết hạn');
+
+        setState(() {
+          hasPackage = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Image imageFromBase64String(String base64String) {
@@ -101,6 +126,12 @@ class _HomeNTDState extends State<HomeNTD> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50),
                                 color: Colors.blue,
+                                border: hasPackage
+                                    ? Border.all(
+                                        width: 3,
+                                        color: Colors.red,
+                                        style: BorderStyle.solid)
+                                    : null,
                               ),
                               child: ClipOval(
                                 child:
