@@ -5,7 +5,9 @@
     <application
         android:label="jobapp"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+         android:enableOnBackInvokedCallback="true">
+       
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,7 +33,7 @@
   <action android:name="android.intent.action.VIEW" />
   <category android:name="android.intent.category.DEFAULT" />
   <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="https" android:host="cv-firt-app.web.app" />
+  <data android:scheme="https" android:host="cv-firt-app.web.app" android:pathPrefix="/homeScreen"/>
 </intent-filter>
 
 <intent-filter android:autoVerify="true">

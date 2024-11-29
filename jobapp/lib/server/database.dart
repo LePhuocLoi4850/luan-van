@@ -569,10 +569,107 @@ class Database {
     }
   }
 
+  // Future<List<Map<String, dynamic>>> fetchAllJob(bool status) async {
+  //   try {
+  //     final result = await conn!.execute(Sql.named('''
+  // SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day  FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status
+  //   '''), parameters: {
+  //       'status': status,
+  //     });
+  //     return result.map((row) {
+  //       return {
+  //         'cid': row[0],
+  //         'nameC': row[1],
+  //         'address': row[2],
+  //         'image': row[3],
+  //         'jid': row[4],
+  //         'title': row[5],
+  //         'careerJ': row[6],
+  //         'salaryFrom': row[7],
+  //         'salaryTo': row[8],
+  //         'experience': row[9],
+  //         'expiration_date': row[10],
+  //         'service_day': row[11],
+  //       };
+  //     }).toList();
+  //   } catch (e) {
+  //     print(e);
+  //     rethrow;
+  //   }
+  // }
+
+  // Future<List<Map<String, dynamic>>> fetchAllJobInter(
+  //   bool status,
+  //   String type,
+  // ) async {
+  //   try {
+  //     final result = await conn!.execute(Sql.named('''
+  // SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status AND type = @type
+  //   '''), parameters: {
+  //       'status': status,
+  //       'type': type,
+  //     });
+  //     return result.map((row) {
+  //       return {
+  //         'cid': row[0],
+  //         'nameC': row[1],
+  //         'address': row[2],
+  //         'image': row[3],
+  //         'jid': row[4],
+  //         'title': row[5],
+  //         'careerJ': row[6],
+  //         'salaryFrom': row[7],
+  //         'salaryTo': row[8],
+  //         'experience': row[9],
+  //         'expiration_date': row[10],
+  //         'service_day': row[11],
+  //       };
+  //     }).toList();
+  //   } catch (e) {
+  //     print(e);
+  //     rethrow;
+  //   }
+  // }
+
+  // Future<List<Map<String, dynamic>>> fetchAllJobSearch(bool status) async {
+  //   try {
+  //     final result = await conn!.execute(Sql.named('''
+  // SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, j.type FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status
+  //   '''), parameters: {
+  //       'status': status,
+  //     });
+  //     return result.map((row) {
+  //       return {
+  //         'cid': row[0],
+  //         'nameC': row[1],
+  //         'address': row[2],
+  //         'image': row[3],
+  //         'jid': row[4],
+  //         'title': row[5],
+  //         'careerJ': row[6],
+  //         'salaryFrom': row[7],
+  //         'salaryTo': row[8],
+  //         'experience': row[9],
+  //         'expiration_date': row[10],
+  //         'type': row[11],
+  //       };
+  //     }).toList();
+  //   } catch (e) {
+  //     print(e);
+  //     rethrow;
+  //   }
+  // }
   Future<List<Map<String, dynamic>>> fetchAllJob(bool status) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status
+SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day
+FROM company c
+JOIN job j ON c.cid = j.cid
+WHERE j.status = @status
+ORDER BY 
+  CASE WHEN c.service_day IS NULL THEN 0 ELSE 1 END DESC,  -- Prioritize non-NULL values
+  c.service_day DESC, 
+  j.expiration_date DESC
     '''), parameters: {
         'status': status,
       });
@@ -589,6 +686,7 @@ class Database {
           'salaryTo': row[8],
           'experience': row[9],
           'expiration_date': row[10],
+          'service_day': row[11],
         };
       }).toList();
     } catch (e) {
@@ -603,7 +701,11 @@ class Database {
   ) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status AND type = @type
+SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day
+FROM company c
+JOIN job j ON c.cid = j.cid
+WHERE j.status = @status AND type = @type
+ORDER BY c.service_day DESC, j.expiration_date DESC
     '''), parameters: {
         'status': status,
         'type': type,
@@ -621,6 +723,7 @@ class Database {
           'salaryTo': row[8],
           'experience': row[9],
           'expiration_date': row[10],
+          'service_day': row[11],
         };
       }).toList();
     } catch (e) {
@@ -632,7 +735,11 @@ class Database {
   Future<List<Map<String, dynamic>>> fetchAllJobSearch(bool status) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, j.type FROM company c JOIN job j ON c.cid = j.cid WHERE status = @status
+SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, j.type, c.service_day
+FROM company c
+JOIN job j ON c.cid = j.cid
+WHERE j.status = @status
+ORDER BY c.service_day DESC, j.expiration_date DESC
     '''), parameters: {
         'status': status,
       });
@@ -650,6 +757,7 @@ class Database {
           'experience': row[9],
           'expiration_date': row[10],
           'type': row[11],
+          'service_day': row[12],
         };
       }).toList();
     } catch (e) {
@@ -662,7 +770,10 @@ class Database {
       int cId, bool status) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE c.cid = @cid AND status = @status
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day 
+  FROM company c JOIN job j ON c.cid = j.cid 
+  WHERE c.cid = @cid AND status = @status
+  ORDER BY c.service_day DESC, j.expiration_date DESC
     '''), parameters: {
         'cid': cId,
         'status': status,
@@ -680,6 +791,7 @@ class Database {
           'salaryTo': row[8],
           'experience': row[9],
           'expiration_date': row[10],
+          'service_day': row[11]
         };
       }).toList();
     } catch (e) {
@@ -692,7 +804,11 @@ class Database {
       int uid, String status) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT * FROM apply WHERE uid = @uid AND status = @status
+  SELECT ap.*, c.service_day
+FROM apply ap
+JOIN company c ON ap.cid = c.cid
+WHERE ap.uid = @uid AND ap.status = @status
+ORDER BY c.service_day DESC
     '''), parameters: {'uid': uid, 'status': status});
       List<Map<String, dynamic>> applyList = result.map((row) {
         return {
@@ -709,6 +825,7 @@ class Database {
           'salaryTo': row[10],
           'applyDate': row[11],
           'status': row[12],
+          'service_day': row[20],
           'image': row[13],
         };
       }).toList();
@@ -756,8 +873,15 @@ class Database {
   Future<List<Map<String, dynamic>>> fetchAllJobForCareer(String career) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date FROM company c JOIN job j ON c.cid = j.cid WHERE j.career = @career
-    '''), parameters: {
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day
+    FROM company c
+    JOIN job j ON c.cid = j.cid
+    WHERE j.career = @career
+    ORDER BY 
+    CASE WHEN c.service_day IS NULL THEN 0 ELSE 1 END DESC,  -- Prioritize non-NULL service_day
+    c.service_day DESC, 
+    j.expiration_date DESC
+      '''), parameters: {
         'career': career,
       });
       return result.map((row) {
@@ -773,6 +897,7 @@ class Database {
           'salaryTo': row[8],
           'experience': row[9],
           'expiration_date': row[10],
+          'service_day': row[11],
         };
       }).toList();
     } catch (e) {
@@ -858,7 +983,7 @@ class Database {
   Future<Map<String, dynamic>> fetchUserDataByCid(int cId) async {
     try {
       final result = await conn!.execute(Sql.named('''
-      SELECT * FROM company WHERE cid = @cid
+      SELECT * FROM company WHERE cid = @cid ORDER BY service_day DESC
 '''), parameters: {
         'cid': cId,
       });
@@ -879,6 +1004,7 @@ class Database {
         'description': row[7],
         'image': row[8],
         'createAt': row[9],
+        'service_day': row[10]
       };
     } catch (e) {
       print('fetch company data error: $e');
@@ -889,7 +1015,11 @@ class Database {
   Future<Map<String, dynamic>> fetchJobForId(int jid) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.* FROM company c JOIN job j ON c.cid = j.cid WHERE j.jid = @jid
+  SELECT c.cid, c.name, c.address, c.image, j.*,c.address, c.scale, c.description, c.service_day FROM company c JOIN job j ON c.cid = j.cid WHERE j.jid = @jid
+  ORDER BY 
+  CASE WHEN c.service_day IS NULL THEN 0 ELSE 1 END DESC,  -- Prioritize non-NULL values
+  c.service_day DESC, 
+  j.expiration_date DESC
     '''), parameters: {
         'jid': jid,
       });
@@ -914,6 +1044,10 @@ class Database {
         'interest': row[17],
         'expirationDate': row[18],
         'status': row[19],
+        'addressC': row[20],
+        'scale': row[21],
+        'descriptionC': row[22],
+        'service_day': row[23],
       };
     } catch (e) {
       print(e);
@@ -1677,7 +1811,11 @@ ORDER BY u.uid,
   Future<List<Map<String, dynamic>>> fetchAllCompany() async {
     try {
       final result = await conn!.execute(Sql.named('''
-      SELECT c.cid, c.name, c.career, c.image, COUNT(j.jid) FROM company c LEFT JOIN job j ON c.cid = j.cid GROUP BY c.cid
+      SELECT c.cid, c.name, c.career, c.image, COUNT(j.jid), c.service_day 
+FROM company c 
+LEFT JOIN job j ON c.cid = j.cid 
+GROUP BY c.cid, c.service_day -- Thêm c.service_day vào GROUP BY
+ORDER BY c.service_day DESC
 '''));
       return result.map((row) {
         return {
@@ -1686,6 +1824,7 @@ ORDER BY u.uid,
           'career': row[2],
           'image': row[3],
           'countJ': row[4],
+          'service_day': row[5]
         };
       }).toList();
     } catch (e) {

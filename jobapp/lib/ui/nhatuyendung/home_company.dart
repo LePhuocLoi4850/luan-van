@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jobapp/controller/company_controller.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 
 import 'category.dart';
 
@@ -127,10 +128,19 @@ class _HomeNTDState extends State<HomeNTD> {
                                 borderRadius: BorderRadius.circular(50),
                                 color: Colors.blue,
                                 border: hasPackage
-                                    ? Border.all(
-                                        width: 3,
-                                        color: Colors.red,
-                                        style: BorderStyle.solid)
+                                    ? GradientBoxBorder(
+                                        width: 5, // Độ dày của border
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.red,
+                                            Colors.yellow,
+                                            Colors.green,
+                                            Colors.blue
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        ),
+                                      )
                                     : null,
                               ),
                               child: ClipOval(

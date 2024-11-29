@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 
 import '../../controller/user_controller.dart';
 import '../../server/database.dart';
@@ -44,6 +45,30 @@ class _CompanyGirdTitleState extends State<CompanyGirdTitle> {
     } catch (e) {
       print(e);
     }
+  }
+
+  BoxDecoration _getServiceDayBorder(String? serviceDay) {
+    if (serviceDay != null && serviceDay.isNotEmpty) {
+      try {
+        DateTime serviceDate = DateTime.parse(serviceDay);
+        if (serviceDate.isAfter(DateTime.now())) {
+          return BoxDecoration(
+            border: GradientBoxBorder(
+              width: 3,
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.yellow, Colors.green, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          );
+        }
+      } catch (e) {
+        print('Error parsing service_day: $e');
+      }
+    }
+    return BoxDecoration();
   }
 
   @override
@@ -109,15 +134,15 @@ class _CompanyGirdTitleState extends State<CompanyGirdTitle> {
                                             Container(
                                               height: 70,
                                               width: 70,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
+                                              decoration: _getServiceDayBorder(
+                                                  company['service_day']
+                                                      .toString()),
                                               child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  child: imageFromBase64String(
-                                                      company['image'])),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: imageFromBase64String(
+                                                    company['image']),
+                                              ),
                                             ),
                                             const SizedBox(width: 16),
                                             Expanded(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 
 import 'job_gird_title.dart';
 
@@ -33,6 +34,30 @@ class _JobGirdState extends State<JobGird> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  BoxDecoration _getServiceDayBorder(String? serviceDay) {
+    if (serviceDay != null && serviceDay.isNotEmpty) {
+      try {
+        DateTime serviceDate = DateTime.parse(serviceDay);
+        if (serviceDate.isAfter(DateTime.now())) {
+          return BoxDecoration(
+            border: GradientBoxBorder(
+              width: 3,
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.yellow, Colors.green, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          );
+        }
+      } catch (e) {
+        print('Error parsing service_day: $e');
+      }
+    }
+    return BoxDecoration();
   }
 
   @override
@@ -207,6 +232,9 @@ class _JobGirdState extends State<JobGird> {
                           )
                         : JobGirdTitle(
                             allJobs: _allJobForCareer,
+                            imageDecorator: (serviceDay) {
+                              return _getServiceDayBorder(serviceDay);
+                            },
                           )),
               ),
               const Padding(
@@ -281,6 +309,9 @@ class _JobGirdState extends State<JobGird> {
                           )
                         : JobGirdTitle(
                             allJobs: _allJobInter,
+                            imageDecorator: (serviceDay) {
+                              return _getServiceDayBorder(serviceDay);
+                            },
                           )),
               ),
               const Padding(
@@ -355,6 +386,9 @@ class _JobGirdState extends State<JobGird> {
                           )
                         : JobGirdTitle(
                             allJobs: _allJobs,
+                            imageDecorator: (serviceDay) {
+                              return _getServiceDayBorder(serviceDay);
+                            },
                           )),
               ),
               Padding(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
@@ -62,6 +63,30 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
     }
   }
 
+  BoxDecoration _getServiceDayBorder(String? serviceDay) {
+    if (serviceDay != null && serviceDay.isNotEmpty) {
+      try {
+        DateTime serviceDate = DateTime.parse(serviceDay);
+        if (serviceDate.isAfter(DateTime.now())) {
+          return BoxDecoration(
+            border: GradientBoxBorder(
+              width: 3,
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.yellow, Colors.green, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          );
+        }
+      } catch (e) {
+        print('Error parsing service_day: $e');
+      }
+    }
+    return BoxDecoration();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,8 +132,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                       child: Container(
                         width: 90,
                         height: 90,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10)),
+                        decoration: _getServiceDayBorder(
+                            _detailCompany['service_day'].toString()),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: imageFromBase64String(_detailCompany['image']),
@@ -134,95 +159,97 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.people_alt_outlined),
-                                  Text('100 người theo dõi'),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Icon(Icons.location_city_rounded),
-                                  Text(_detailCompany['scale']),
-                                ],
-                              ),
-                            ],
-                          ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_city_rounded),
+                                    Text(_detailCompany['scale']),
+                                  ],
                                 ),
-                                child: Text(
-                                  '+ Theo dõi công ty',
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18),
-                                ),
-                              ),
+                              ],
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: 150,
-                                height: 35,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Get.toNamed('/jobOfCompany',
-                                        arguments: _detailCompany['cid']);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        side: BorderSide(color: Colors.blue)),
-                                  ),
-                                  child: Text(
-                                    'Tin tuyển dụng',
-                                    style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(
+                          //       horizontal: 20, vertical: 10),
+                          //   child: SizedBox(
+                          //     width: double.infinity,
+                          //     child: ElevatedButton(
+                          //       onPressed: () {},
+                          //       style: ElevatedButton.styleFrom(
+                          //         backgroundColor: Colors.blue,
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(8),
+                          //         ),
+                          //       ),
+                          //       child: Text(
+                          //         '+ Theo dõi công ty',
+                          //         style: const TextStyle(
+                          //             color: Colors.white,
+                          //             fontWeight: FontWeight.bold,
+                          //             fontSize: 18),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                SizedBox(
+                                  width: 150,
+                                  height: 35,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Get.toNamed('/jobOfCompany',
+                                          arguments: _detailCompany['cid']);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          side: BorderSide(color: Colors.blue)),
+                                    ),
+                                    child: Text(
+                                      'Tin tuyển dụng',
+                                      style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 150,
-                                height: 35,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Get.toNamed('/companyGirdTitle');
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        side: BorderSide(color: Colors.blue)),
-                                  ),
-                                  child: Text(
-                                    'Top công ty',
-                                    style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14),
+                                SizedBox(
+                                  width: 170,
+                                  height: 35,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Get.toNamed('/companyGirdTitle');
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          side: BorderSide(color: Colors.blue)),
+                                    ),
+                                    child: Text(
+                                      'danh sách công ty',
+                                      style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const Divider(),
                           Padding(
@@ -246,7 +273,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                         'Số điện thoại:  ',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.grey[600]),
+                                            color: Colors.grey[500],
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         _detailCompany['phone'],
@@ -267,7 +295,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                         'Email:  ',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.grey[600]),
+                                            color: Colors.grey[500],
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         _detailCompany['email'],
@@ -288,7 +317,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                         'Lĩnh vự hoạt động:  ',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.grey[600]),
+                                            color: Colors.grey[500],
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         _detailCompany['career'],
@@ -309,7 +339,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                         'Địa chỉ:  ',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            color: Colors.grey[600]),
+                                            color: Colors.grey[500],
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Expanded(
                                         child: Text(
@@ -324,6 +355,7 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                     ],
                                   ),
                                 ),
+                                const Divider(),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,

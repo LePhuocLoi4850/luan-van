@@ -449,33 +449,6 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
                                 });
                               },
                             ),
-                            if (_selectedCity != null)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 20.0, top: 20),
-                                child: DropdownButtonFormField<String>(
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                  hint: const Text('Chọn Quận/Huyện'),
-                                  value: _selectedDistrict,
-                                  items: _districts[_selectedCity]!
-                                      .map((String district) {
-                                    return DropdownMenuItem<String>(
-                                      value: district,
-                                      child: Text(district),
-                                    );
-                                  }).toList(),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      _selectedDistrict = newValue;
-                                      _updateAddressController();
-                                    });
-                                  },
-                                ),
-                              ),
                           ],
                         ),
                         const SizedBox(

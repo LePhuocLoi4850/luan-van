@@ -1,4 +1,3 @@
-import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import '../../../models/career.dart';
 import '../../../models/location.dart';
@@ -416,6 +415,8 @@ class _SearchScreenUState extends State<SearchScreenU> {
       ),
     );
   }
+
+  removeDiacritics(lowerCase) {}
 }
 
 // import 'package:flutter/material.dart';

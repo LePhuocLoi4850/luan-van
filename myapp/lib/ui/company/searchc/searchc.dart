@@ -1,4 +1,3 @@
-import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -412,4 +411,6 @@ class _SearchUserState extends State<SearchUser> {
       ),
     );
   }
+
+  removeDiacritics(lowerCase) {}
 }

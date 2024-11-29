@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 
@@ -65,6 +66,30 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
         });
       }
     });
+  }
+
+  BoxDecoration _getServiceDayBorder(String? serviceDay) {
+    if (serviceDay != null && serviceDay.isNotEmpty) {
+      try {
+        DateTime serviceDate = DateTime.parse(serviceDay);
+        if (serviceDate.isAfter(DateTime.now())) {
+          return BoxDecoration(
+            border: GradientBoxBorder(
+              width: 3,
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.yellow, Colors.green, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          );
+        }
+      } catch (e) {
+        print('Error parsing service_day: $e');
+      }
+    }
+    return BoxDecoration();
   }
 
   void fetchJobForCareer() async {
@@ -229,7 +254,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               left: 15,
                               right: 15,
                               child: Container(
-                                height: 250,
+                                height: 260,
                                 decoration: BoxDecoration(
                                   boxShadow: [
                                     BoxShadow(
@@ -243,7 +268,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                   color: Colors.white,
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.only(top: 55.0),
+                                  padding: const EdgeInsets.only(top: 45.0),
                                   child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
@@ -260,7 +285,13 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w500),
                                             ),
-                                            Text(detailJob['name'] ?? '')
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(detailJob['name'] ?? '',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                ))
                                           ],
                                         ),
                                       ),
@@ -307,8 +338,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                 child: Container(
                                   width: 90,
                                   height: 90,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10)),
+                                  decoration: _getServiceDayBorder(
+                                      detailJob['service_day'].toString()),
                                   child: GestureDetector(
                                     onTap: () {
                                       Get.toNamed('/companyDetailScreen',
@@ -671,24 +702,21 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                                   Row(
                                                     children: [
                                                       Container(
-                                                          height: 70,
-                                                          width: 70,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        15),
-                                                          ),
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            child:
-                                                                imageFromBase64String(
-                                                                    job['image']),
-                                                          )),
+                                                        height: 70,
+                                                        width: 70,
+                                                        decoration:
+                                                            _getServiceDayBorder(
+                                                                job['service_day']
+                                                                    .toString()),
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          child:
+                                                              imageFromBase64String(
+                                                                  job['image']),
+                                                        ),
+                                                      ),
                                                       const SizedBox(width: 16),
                                                       Expanded(
                                                         child: Column(
@@ -918,8 +946,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Tên công ty',
+                                    Text(
+                                      detailJob['name'],
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold),
@@ -951,23 +979,29 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                             const SizedBox(
                                               width: 10,
                                             ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'địa chỉ công ty',
-                                                  style:
-                                                      TextStyle(fontSize: 13),
-                                                ),
-                                                Text(
-                                                  'Cần thơ',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                              ],
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'địa chỉ công ty',
+                                                    style:
+                                                        TextStyle(fontSize: 13),
+                                                  ),
+                                                  Text(
+                                                    detailJob['addressC'],
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                    maxLines: 3,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    softWrap: true,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -986,7 +1020,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                                   padding:
                                                       const EdgeInsets.all(5.0),
                                                   child: Icon(
-                                                    Icons.location_on_sharp,
+                                                    Icons.location_city_rounded,
                                                     size: 30,
                                                     color: Colors.blue,
                                                   ),
@@ -1006,7 +1040,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                                       TextStyle(fontSize: 13),
                                                 ),
                                                 Text(
-                                                  'Hơn 500 nhân viên',
+                                                  detailJob['scale'],
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
@@ -1018,11 +1052,53 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                                         ),
                                       ],
                                     ),
-                                    const Text(
-                                      'Giới thiệu công ty',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'Giới thiệu công ty',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              userController
+                                                      .isSwitchMore.value =
+                                                  !userController
+                                                      .isSwitchMore.value;
+                                            });
+                                          },
+                                          child: Text(
+                                            userController.isSwitchMore.value
+                                                ? 'Thu gọn'
+                                                : 'Xem thêm',
+                                            style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Text(
+                                        detailJob['descriptionC'],
+                                        style: const TextStyle(fontSize: 16),
+                                        maxLines:
+                                            userController.isSwitchMore.value
+                                                ? null
+                                                : 6,
+                                        overflow:
+                                            userController.isSwitchMore.value
+                                                ? TextOverflow.visible
+                                                : TextOverflow.ellipsis,
+                                        textAlign: TextAlign.justify,
+                                      ),
                                     ),
                                   ],
                                 ),

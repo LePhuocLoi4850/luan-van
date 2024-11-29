@@ -1,6 +1,7 @@
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 
 import '../../../../models/address.dart';
 import '../../../../server/database.dart';
@@ -90,6 +91,30 @@ class _SearchDetailState extends State<SearchDetail> {
     }
   }
 
+  BoxDecoration _getServiceDayBorder(String? serviceDay) {
+    if (serviceDay != null && serviceDay.isNotEmpty) {
+      try {
+        DateTime serviceDate = DateTime.parse(serviceDay);
+        if (serviceDate.isAfter(DateTime.now())) {
+          return BoxDecoration(
+            border: GradientBoxBorder(
+              width: 3,
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.yellow, Colors.green, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          );
+        }
+      } catch (e) {
+        print('Error parsing service_day: $e');
+      }
+    }
+    return BoxDecoration();
+  }
+
   void _filterJobsByTitle(String title) {
     setState(() {
       _isFiltered = true;
@@ -97,10 +122,20 @@ class _SearchDetailState extends State<SearchDetail> {
         return removeDiacritics(item['title'].toLowerCase())
             .contains(removeDiacritics(title.toLowerCase()));
       }).toList();
+
+      print(_job);
       _jobAll = _allJob.where((item) {
         return removeDiacritics(item['title'].toLowerCase())
             .contains(removeDiacritics(title.toLowerCase()));
       }).toList();
+      _job.sort((a, b) =>
+          (b['service_day'] ?? DateTime.fromMillisecondsSinceEpoch(0))
+              .compareTo(
+                  a['service_day'] ?? DateTime.fromMillisecondsSinceEpoch(0)));
+      _jobAll.sort((a, b) =>
+          (b['service_day'] ?? DateTime.fromMillisecondsSinceEpoch(0))
+              .compareTo(
+                  a['service_day'] ?? DateTime.fromMillisecondsSinceEpoch(0)));
     });
   }
 
@@ -647,6 +682,9 @@ class _SearchDetailState extends State<SearchDetail> {
                           ),
                           child: JobGirdTitleVertical(
                             allJobs: _job,
+                            imageDecorator: (serviceDay) {
+                              return _getServiceDayBorder(serviceDay);
+                            },
                           ),
                         ),
                       ),

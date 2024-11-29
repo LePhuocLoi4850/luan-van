@@ -13,8 +13,10 @@ import '../../auth/auth_controller.dart';
 
 class JobGirdTitleVertical extends StatefulWidget {
   final List<Map<String, dynamic>> allJobs;
+  final BoxDecoration Function(String?) imageDecorator;
 
-  const JobGirdTitleVertical({super.key, required this.allJobs});
+  const JobGirdTitleVertical(
+      {super.key, required this.allJobs, required this.imageDecorator});
 
   @override
   State<JobGirdTitleVertical> createState() => _JobGirdTitleVerticalState();
@@ -109,12 +111,12 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
                           Container(
                             height: 70,
                             width: 70,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
+                            decoration: widget
+                                .imageDecorator(job['service_day'].toString()),
                             child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: imageFromBase64String(job['image'])),
+                              borderRadius: BorderRadius.circular(10),
+                              child: imageFromBase64String(job['image']),
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
