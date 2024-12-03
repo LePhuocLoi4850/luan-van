@@ -58,19 +58,31 @@ class _PostJobScreenState extends State<PostJobScreen> {
     'Thứ 4',
     'Thứ 5',
     'Thứ 6',
-    'Thứ 7'
+    'Thứ 7',
+    'Chủ nhật'
   ];
   final List<String> hourFrom = [
     '07:00',
     '08:00',
     '09:00',
     '10:00',
+    '11:00',
+    '12:00',
+    '13:00',
+    '14:00',
+    '15:00',
+    '16:00',
+    '17:00',
   ];
   final List<String> hourTo = [
     '17:00',
     '18:00',
     '19:00',
     '20:00',
+    '21:00',
+    '22:00',
+    '23:00',
+    '24:00',
   ];
   Future<void> _handlePost() async {
     final isValid = _editForm.currentState!.validate();
@@ -376,7 +388,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 5, bottom: 10),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -391,7 +403,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                           ),
                           const Text(
                             'Nam',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
@@ -408,7 +420,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                           ),
                           const Text(
                             'Nữ',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
@@ -425,7 +437,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                           ),
                           const Text(
                             'Không yêu cầu',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
@@ -454,64 +466,80 @@ class _PostJobScreenState extends State<PostJobScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       SizedBox(
-                        width: 100,
-                        height: 50,
-                        child: TextField(
-                            controller: fromController,
-                            keyboardType: TextInputType.none,
-                            decoration: InputDecoration(
-                              hintText: 'Từ',
-                              hintStyle: const TextStyle(fontSize: 18),
-                              border: const OutlineInputBorder(),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                borderSide: const BorderSide(
+                        width: 60,
+                        height: 60,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextField(
+                              controller: fromController,
+                              keyboardType: TextInputType.none,
+                              decoration: InputDecoration(
+                                hintText: 'Từ',
+                                hintStyle: const TextStyle(fontSize: 18),
+                                border: const OutlineInputBorder(),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: const BorderSide(
                                     color: Colors.black,
-                                    width: 1), // Red border when not focused
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                                borderSide: const BorderSide(
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: const BorderSide(
                                     color: Colors.black,
-                                    width: 1), // Red border when not focused
+                                    width: 1,
+                                  ),
+                                ),
+                                alignLabelWithHint: true,
                               ),
+                              textAlign: TextAlign.center,
+                              readOnly: true,
+                              onTap: () => _showSalaryBottomSheet(
+                                  context, fromController),
                             ),
-                            textAlign: TextAlign.center,
-                            readOnly: true,
-                            onTap: () => _showSalaryBottomSheet(
-                                context, fromController)),
+                          ],
+                        ),
                       ),
                       const Text(
                         '-',
                         style: TextStyle(fontSize: 30),
                       ),
                       SizedBox(
-                        width: 100,
-                        height: 50,
-                        child: TextField(
-                          controller: toController,
-                          keyboardType: TextInputType.none,
-                          decoration: InputDecoration(
-                            hintText: 'Đến',
-                            hintStyle: const TextStyle(fontSize: 18),
-                            border: const OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: const BorderSide(
-                                  color: Colors.black,
-                                  width: 1), // Red border when not focused
+                        width: 60,
+                        height: 60,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextField(
+                              controller: toController,
+                              keyboardType: TextInputType.none,
+                              decoration: InputDecoration(
+                                hintText: 'Đến',
+                                hintStyle: const TextStyle(fontSize: 18),
+                                border: const OutlineInputBorder(),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: const BorderSide(
+                                      color: Colors.black,
+                                      width: 1), // Red border when not focused
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: const BorderSide(
+                                      color: Colors.black,
+                                      width: 1), // Red border when not focused
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                              readOnly: true,
+                              onTap: () =>
+                                  _showSalaryBottomSheet(context, toController),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: const BorderSide(
-                                  color: Colors.black,
-                                  width: 1), // Red border when not focused
-                            ),
-                          ),
-                          textAlign: TextAlign.center,
-                          readOnly: true,
-                          onTap: () =>
-                              _showSalaryBottomSheet(context, toController),
+                          ],
                         ),
                       ),
                       const Text(
@@ -590,7 +618,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                           ),
                           SizedBox(
                             width: 75,
-                            height: 50,
+                            height: 60,
                             child: buildDayDropdown(
                               selectedDay: selectedDay1,
                               onChanged: (value) {
@@ -606,7 +634,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                           ),
                           SizedBox(
                             width: 75,
-                            height: 50,
+                            height: 60,
                             child: buildDayDropdown(
                               selectedDay: selectedDay2,
                               onChanged: (value) {
@@ -762,6 +790,11 @@ class _PostJobScreenState extends State<PostJobScreen> {
                     ),
                   ),
                 ),
+                for (int i = 0; i < jobTemplates.length; i++)
+                  ElevatedButton(
+                    onPressed: () => _fillJobTemplate(i),
+                    child: Text('Mẫu ${i + 1}'),
+                  ),
               ],
             ),
           ),
@@ -854,7 +887,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
         DropdownMenuItem(
             value: 'Toàn thời gian', child: Text('Toàn thời gian')),
         DropdownMenuItem(value: 'Bán thời gian', child: Text('Bán thời gian')),
-        DropdownMenuItem(value: 'Thực tập', child: Text('Thực tập')),
+        DropdownMenuItem(value: 'Thực tập sinh', child: Text('Thực tập sinh')),
       ],
       onChanged: (value) {
         setState(() {
@@ -903,77 +936,90 @@ class _PostJobScreenState extends State<PostJobScreen> {
 
   Widget buildDayDropdown(
       {String? selectedDay, ValueChanged<String?>? onChanged}) {
-    return DropdownButtonFormField<String>(
-      value: selectedDay,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-              color: Colors.black, width: 2), // Red border when not focused
-        ),
-      ),
-      hint: const Center(
-        child: Text(
-          'Thứ 2',
-          style: TextStyle(
-            fontSize: 18,
-            color: Color.fromARGB(255, 192, 192, 192),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        DropdownButtonFormField<String>(
+          value: selectedDay,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                  color: Colors.black, width: 2), // Red border when not focused
+            ),
           ),
+          hint: const Center(
+            child: Text(
+              'Thứ 2',
+              style: TextStyle(
+                fontSize: 18,
+                color: Color.fromARGB(255, 192, 192, 192),
+              ),
+            ),
+          ),
+          style: const TextStyle(
+              fontSize: 18,
+              color: Color.fromARGB(255, 0, 0, 0),
+              fontWeight: FontWeight.bold),
+          items: daysOfWeek.map((day) {
+            return DropdownMenuItem(
+              value: day,
+              child: Text(day),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          icon: const SizedBox.shrink(),
         ),
-      ),
-      style: const TextStyle(
-          fontSize: 18,
-          color: Color.fromARGB(255, 0, 0, 0),
-          fontWeight: FontWeight.bold),
-      items: daysOfWeek.map((day) {
-        return DropdownMenuItem(
-          value: day,
-          child: Text(day),
-        );
-      }).toList(),
-      onChanged: onChanged,
-      icon: const SizedBox.shrink(),
+      ],
     );
   }
 
   Widget buildHourFromDropdown(
       {String? selectedHour, ValueChanged<String?>? onChanged}) {
-    return DropdownButtonFormField<String>(
-      value: selectedHour,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-              color: Colors.black, width: 2), // Red border when not focused
-        ),
-      ),
-      hint: const Center(
-        child: Text(
-          '00:00',
-          style: TextStyle(
-            fontSize: 18,
-            color: Color.fromARGB(255, 192, 192, 192),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        DropdownButtonFormField<String>(
+          value: selectedHour,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                  color: Colors.black, width: 2), // Red border when not focused
+            ),
           ),
+          hint: const Center(
+            child: Text(
+              '00:00',
+              style: TextStyle(
+                fontSize: 18,
+                color: Color.fromARGB(255, 192, 192, 192),
+              ),
+            ),
+          ),
+          style: const TextStyle(
+              fontSize: 18,
+              color: Color.fromARGB(255, 0, 0, 0),
+              fontWeight: FontWeight.bold),
+          items: hourFrom.map((hour) {
+            return DropdownMenuItem(
+              value: hour,
+              child: Text(hour),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          icon: const SizedBox.shrink(),
+          isDense: true,
         ),
-      ),
-      style: const TextStyle(
-          fontSize: 18,
-          color: Color.fromARGB(255, 0, 0, 0),
-          fontWeight: FontWeight.bold),
-      items: hourFrom.map((hour) {
-        return DropdownMenuItem(
-          value: hour,
-          child: Text(hour),
-        );
-      }).toList(),
-      onChanged: onChanged,
-      icon: const SizedBox.shrink(),
-      isDense: true,
+      ],
     );
   }
 
@@ -1090,5 +1136,127 @@ class _PostJobScreenState extends State<PostJobScreen> {
         return null;
       },
     );
+  }
+
+  final List<Map<String, dynamic>> jobTemplates = [
+    {
+      'title': 'Tuyển dụng vị trí phục vụ cà phê',
+      'career': 'Dịch vụ',
+      'type': 'Bán thời gian',
+      'quantity': '2',
+      'gender': 'Nữ',
+      'salaryFrom': '5',
+      'salaryTo': '7',
+      'experience': 'Không yêu cầu',
+      'selectedDay1': 'Thứ 3',
+      'selectedDay2': 'Thứ 7',
+      'selectedHour1': '09:00',
+      'selectedHour2': '17:00',
+      'description': 'Quán cà phê ABC cần tuyển 2 nhân viên phục vụ nữ...',
+      'request':
+          'Nhanh nhẹn, hoạt bát, có kinh nghiệm pha chế là một lợi thế...',
+      'interest': 'Môi trường làm việc năng động, thân thiện...',
+      'expirationDate': DateTime.now().add(const Duration(days: 15)),
+    },
+    {
+      'title': 'Tuyển dụng lập trình viên Java',
+      'career': 'Công nghệ thông tin',
+      'type': 'Toàn thời gian',
+      'quantity': '3',
+      'gender': 'Không yêu cầu',
+      'salaryFrom': '15',
+      'salaryTo': '25',
+      'experience': '2 năm',
+      'selectedDay1': 'Thứ 2',
+      'selectedDay2': 'Thứ 6',
+      'selectedHour1': '08:00',
+      'selectedHour2': '17:00',
+      'description':
+          'Công ty XYZ cần tuyển 3 lập trình viên Java có kinh nghiệm...',
+      'request': 'Nắm vững Java Core, Spring Boot...',
+      'interest': 'Mức lương hấp dẫn, cơ hội thăng tiến...',
+      'expirationDate': DateTime.now().add(const Duration(days: 30)),
+    },
+    {
+      'title': 'Tuyển dụng nhân viên tổ chức sự kiện',
+      'career': 'Giải trí - Nghệ thuật',
+      'type': 'Toàn thời gian',
+      'quantity': '1',
+      'gender': 'Không yêu cầu',
+      'salaryFrom': '8',
+      'salaryTo': '12',
+      'experience': '1 năm',
+      'selectedDay1': 'Thứ 2',
+      'selectedDay2': 'Thứ 6',
+      'selectedHour1': '09:00',
+      'selectedHour2': '18:00',
+      'description': 'Công ty tổ chức sự kiện cần tuyển nhân viên năng động...',
+      'request': 'Có kinh nghiệm tổ chức sự kiện, giao tiếp tốt...',
+      'interest': 'Môi trường làm việc sáng tạo, nhiều cơ hội học hỏi...',
+      'expirationDate': DateTime.now().add(const Duration(days: 20)),
+    },
+    {
+      'title': 'Tuyển dụng nhân viên kinh doanh VNPT',
+      'career': 'Viễn thông',
+      'type': 'Toàn thời gian',
+      'quantity': '10',
+      'gender': 'Không yêu cầu',
+      'salaryFrom': '7',
+      'salaryTo': '10',
+      'experience': 'Sắp đi làm',
+      'selectedDay1': 'Thứ 2',
+      'selectedDay2': 'Thứ 7',
+      'selectedHour1': '08:00',
+      'selectedHour2': '17:00',
+      'description': 'VNPT cần tuyển 10 nhân viên kinh doanh...',
+      'request': 'Kỹ năng giao tiếp tốt, có khả năng thuyết phục...',
+      'interest': 'Lương thưởng hấp dẫn, cơ hội phát triển nghề nghiệp...',
+      'expirationDate': DateTime.now().add(const Duration(days: 45)),
+    },
+    {
+      'title': 'Tuyển dụng đầu bếp nhà hàng',
+      'career': 'Dịch vụ - Khách sạn',
+      'type': 'Toàn thời gian',
+      'quantity': '1',
+      'gender': 'Nam',
+      'salaryFrom': '12',
+      'salaryTo': '18',
+      'experience': '3 năm',
+      'selectedDay1': 'Thứ 3',
+      'selectedDay2': 'Thứ 7',
+      'selectedHour1': '10:00',
+      'selectedHour2': '22:00',
+      'description': 'Nhà hàng cần tuyển đầu bếp có kinh nghiệm...',
+      'request': 'Có kinh nghiệm chế biến món Âu, Á...',
+      'interest': 'Mức lương thỏa thuận, chế độ đãi ngộ tốt...',
+      'expirationDate': DateTime.now().add(const Duration(days: 25)),
+    },
+  ];
+
+// Hàm điền thông tin tự động
+  void _fillJobTemplate(int index) {
+    if (index >= 0 && index < jobTemplates.length) {
+      _titleController.text = jobTemplates[index]['title'];
+      _careerController.text = jobTemplates[index]['career'];
+      _loaiController.text = jobTemplates[index]['type'];
+      _soluongController.text = jobTemplates[index]['quantity'];
+      _gioitinhController.text = jobTemplates[index]['gender'];
+      fromController.text = jobTemplates[index]['salaryFrom'];
+      toController.text = jobTemplates[index]['salaryTo'];
+      _experience = jobTemplates[index]['experience'];
+      selectedDay1 = jobTemplates[index]['selectedDay1'];
+      selectedDay2 = jobTemplates[index]['selectedDay2'];
+      selectedHour1 = jobTemplates[index]['selectedHour1'];
+      selectedHour2 = jobTemplates[index]['selectedHour2'];
+      _descriptionController.text = jobTemplates[index]['description'];
+      _requestController.text = jobTemplates[index]['request'];
+      _interestController.text = jobTemplates[index]['interest'];
+
+      DateFormat format = DateFormat('yyyy-MM-dd');
+      _expirationDateController.text =
+          format.format(jobTemplates[index]['expirationDate']);
+
+      setState(() {}); // Cập nhật lại giao diện
+    }
   }
 }

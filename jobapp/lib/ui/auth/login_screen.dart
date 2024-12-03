@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
           controller.saveRoleAdmin(role);
           controller.saveAdminLoginStatus(true);
 
-          Get.offAllNamed('adminScreen');
+          Get.offAllNamed('adminHome');
         } else if (role != 'null') {
           final authLogin = await controller.login(email, pass, role);
           if (authLogin == null) {

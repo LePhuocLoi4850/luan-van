@@ -3,23 +3,27 @@ CREATE TABLE auth (
     name VARCHAR(100) NOT NULL,           -- Tên người dùng, tối đa 100 ký tự, không cho phép NULL
     email VARCHAR(255) UNIQUE NOT NULL,   -- Email người dùng, tối đa 255 ký tự, duy nhất, không cho phép NULL
     pass VARCHAR(255) NOT NULL,           -- Mật khẩu đã băm, tối đa 255 ký tự, không cho phép NULL
-    created_at TIMESTAMP DEFAULT NOW()    -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
-);
+    role VARCHAR(100),
+	created_at TIMESTAMP DEFAULT NOW(),    -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
+	status BOOLEAN DEFAULT false NOT NULL
+	);
 CREATE TABLE payment (
     pay_id SERIAL PRIMARY KEY,
     cid INT REFERENCES company(cid), -- Liên kết với bảng nhà tuyển dụng
     sv_id INT REFERENCES service(sv_id), -- Liên kết với bảng dịch vụ
-    day_order TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    price VARCHAR(255) NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    pay VARCHAR(255),
-    payment_info JSONB
+    name VARCHAR(255),
+	sv_name VARCHAR(255),
+    price INT NOT NULL,
+	day_order TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status BOOLEAN,
+    pay VARCHAR(255)
+   	
 );
-CREATE TABLE dich_vu (
-    id SERIAL PRIMARY KEY,
-    ten_goi VARCHAR(255) NOT NULL,
-    mo_ta TEXT,
-    gia VARCHAR(255) NOT NULL
+CREATE TABLE service (
+    sv_id SERIAL PRIMARY KEY,
+    sv_name VARCHAR(255) NOT NULL,
+    sv_description TEXT,
+    sv_price VARCHAR(255) NOT NULL
 	);
 CREATE TABLE calender (
     cld_id SERIAL PRIMARY KEY , -- Khóa chính
@@ -28,19 +32,20 @@ CREATE TABLE calender (
     time VARCHAR(255) NOT NULL,                -- Thời gian
     address VARCHAR(255) NOT NULL,         -- Địa chỉ
     create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời điểm tạo
-    FOREIGN KEY (cid) REFERENCES company(cid) -- Thay another_table bằng tên bảng có khóa chính cid
+    note TEXT,
+	FOREIGN KEY (cid) REFERENCES company(cid) -- Thay another_table bằng tên bảng có khóa chính cid
 );
 CREATE TABLE favorites (
   	uid INT,
   	jid INT, 
 	cid INT,
 	title VARCHAR(255) NOT NULL,
-	nameC VARCHAR(255) NOT NULL,
-	addressC VARCHAR(255) NOT NULL,
-	experienceJ VARCHAR(255) NOT NULL,
-	salary_fromJ VARCHAR(255) NOT NULL,
-	salary_toJ VARCHAR(255) NOT NULL,
-	imageC TEXT,
+	namec VARCHAR(255) NOT NULL,
+	addressc VARCHAR(255) NOT NULL,
+	experiencej VARCHAR(255) NOT NULL,
+	salary_fromj VARCHAR(255) NOT NULL,
+	salary_toj VARCHAR(255) NOT NULL,
+	imagec TEXT,
   	create_at TIMESTAMP,
   FOREIGN KEY (uid) REFERENCES users(uid),
   FOREIGN KEY (jid) REFERENCES job(jid),
@@ -86,7 +91,8 @@ CREATE TABLE education (
     edu_id SERIAL PRIMARY KEY,           -- Khóa chính tự động tăng
 	uid INT,
     level VARCHAR(100) NOT NULL,           -- Tên người dùng, tối đa 100 ký tự, không cho phép NULL
-    name VARCHAR(255) NOT NULL,  
+    name VARCHAR(255) NOT NULL,
+	career VARCHAR(255),
     time_from Date NOT NULL,          
     time_to Date NOT NULL,  
 	description TEXT, 
@@ -124,7 +130,7 @@ CREATE TABLE certificate (
 CREATE TABLE skill (
     skill_id SERIAL PRIMARY KEY,           -- Khóa chính tự động tăng
 	uid INT,
-    name VARCHAR(100) NOT NULL,           -- Tên người dùng, tối đa 100 ký tự, không cho phép NULL
+    nameskill VARCHAR(100) NOT NULL,           -- Tên người dùng, tối đa 100 ký tự, không cho phép NULL
 	rating INT,
 
 	 CONSTRAINT fk_users
@@ -135,6 +141,8 @@ CREATE TABLE skill (
 CREATE TABLE mycv (
     cv_id SERIAL PRIMARY KEY,           -- Khóa chính tự động tăng
 	uid INT,
+	namecv VARCHAR(255),
+	time DATE,
     pdf TEXT,
 
 	 CONSTRAINT fk_users
@@ -152,8 +160,9 @@ CREATE TABLE mycv (
 	scale VARCHAR(255),							-- Quy mô công ty
     description TEXT,                       -- Mô tả về bản thân (không giới hạn chiều dài)
     image TEXT,                             -- Hình ảnh, có thể là link hoặc base64
-    created_at TIMESTAMP DEFAULT NOW()      -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
-);
+    created_at TIMESTAMP DEFAULT NOW(),      -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
+	service_day DATE DEFAULT NOW()
+	 );
 
 CREATE TABLE job (
     jid SERIAL PRIMARY KEY,              -- Khóa chính tự động tăng
@@ -195,9 +204,12 @@ CREATE TABLE apply (
     imageu TEXT,
 	cv_id int,
 	namecv VARCHAR(255),
+	evaluate VARCHAR(255),
+	comment TEXT,
+	reason VARCHAR(255),
     -- Ràng buộc khóa ngoại
     CONSTRAINT fk_job
-      FOREIGN KEY (jid) 
+      FOREIGN KEY (jid)
       REFERENCES job (jid)
       ON DELETE CASCADE,                     -- Xóa công việc sẽ xóa các đơn ứng tuyển liên quan
 
@@ -217,6 +229,25 @@ CREATE TABLE apply (
 );
 
 -- bảng củ
+-- CREATE TABLE users (
+--     uid SERIAL PRIMARY KEY,                  -- Khóa chính, tự động tăng
+--     email VARCHAR(255) UNIQUE NOT NULL,     -- Email, duy nhất và không cho phép NULL
+--     name VARCHAR(255) NOT NULL,             -- Tên người dùng, tối đa 255 ký tự
+--     career VARCHAR(255),                    -- Nghề nghiệp
+--     phone VARCHAR(20),                      -- Số điện thoại, tối đa 20 ký tự
+--     gender VARCHAR(10),                     -- Giới tính (Male/Female), tối đa 10 ký tự
+--     birthday DATE,                          -- Ngày sinh, kiểu DATE
+--     address VARCHAR(255),                   -- Địa chỉ
+--     description TEXT,                       -- Mô tả về bản thân (không giới hạn chiều dài)
+-- 	salary from 
+-- 	salary to 
+--     image TEXT,                             -- Hình ảnh, có thể là link hoặc base64
+   
+--     experience TEXT,                        -- Kinh nghiệm làm việc
+  
+--     created_at TIMESTAMP DEFAULT NOW()      -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
+-- );
+-- bảng mới
 CREATE TABLE users (
     uid SERIAL PRIMARY KEY,                  -- Khóa chính, tự động tăng
     email VARCHAR(255) UNIQUE NOT NULL,     -- Email, duy nhất và không cho phép NULL
@@ -227,34 +258,14 @@ CREATE TABLE users (
     birthday DATE,                          -- Ngày sinh, kiểu DATE
     address VARCHAR(255),                   -- Địa chỉ
     description TEXT,                       -- Mô tả về bản thân (không giới hạn chiều dài)
-	salary from 
-	salary to 
-    image TEXT,                             -- Hình ảnh, có thể là link hoặc base64
-   
-    experience TEXT,                        -- Kinh nghiệm làm việc
-  
-    created_at TIMESTAMP DEFAULT NOW()      -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
-);
--- bảng mới
-CREATE TABLE users_new (
-    uid SERIAL PRIMARY KEY,                  -- Khóa chính, tự động tăng
-    email VARCHAR(255) UNIQUE NOT NULL,     -- Email, duy nhất và không cho phép NULL
-    name VARCHAR(255) NOT NULL,             -- Tên người dùng, tối đa 255 ký tự
-    career VARCHAR(255),                    -- Nghề nghiệp
-    phone VARCHAR(20),                      -- Số điện thoại, tối đa 20 ký tự
-    gender VARCHAR(10),                     -- Giới tính (Male/Female), tối đa 10 ký tự
-    birthday DATE,                          -- Ngày sinh, kiểu DATE
-    address VARCHAR(255),                   -- Địa chỉ
-    description TEXT,                       -- Mô tả về bản thân (không giới hạn chiều dài)
-
     salary_from NUMERIC,                    -- Mức lương tối thiểu
     salary_to NUMERIC,                      -- Mức lương tối đa
     image TEXT,                             -- Hình ảnh, có thể là link hoặc base64
-                
     experience TEXT,                        -- Kinh nghiệm làm việc
-    
-    created_at TIMESTAMP DEFAULT NOW()      -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
-);
+    created_at TIMESTAMP DEFAULT NOW(),     -- Thời gian tạo tài khoản, mặc định là thời gian hiện tại
+	link TEXT,
+	contact_status BOOLEAN
+	);
 -- chuyển dữ liệu từ bảng củ sang bảng mới
 INSERT INTO users_new (uid, email, name, career, phone, gender, birthday, address, description, image, education, skill, certificate, experience, prize, created_at)
 SELECT uid, email, name, career, phone, gender, birthday, address, description, image, education, skill, certificate, experience, prize, created_at

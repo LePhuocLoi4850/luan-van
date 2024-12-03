@@ -334,8 +334,12 @@ class AuthController extends GetxController {
           'image': image,
         },
       );
+
       print('Thêm thông tin user thành công');
       int id = await Database().selectIdUserForEmail(email);
+      await conn!.execute(Sql.named('''
+      INSERT INTO mycv (uid,namecv,time) VALUES (@uid,@namecv,@time)
+'''), parameters: {'uid': id, 'namecv': name, 'time': DateTime.now()});
       userModel.value = UserModel(
         id: id,
         name: name,

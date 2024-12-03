@@ -28,13 +28,6 @@ class _MyCVScreenState extends State<MyCVScreen> {
         toolbarHeight: 80,
         backgroundColor: Colors.blue,
         title: const Text('Quản lý công việc'),
-        actions: [
-          GestureDetector(
-              onTap: () {
-                _logout();
-              },
-              child: const Icon(Icons.output_outlined))
-        ],
       ),
       body: Container(
         color: Color.fromARGB(255, 234, 234, 234),
@@ -71,7 +64,7 @@ class _MyCVScreenState extends State<MyCVScreen> {
                             ),
                             const Text(
                               'Việc làm yêu thích',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 18),
                             ),
                             const Spacer(),
                             const Icon(
@@ -97,7 +90,7 @@ class _MyCVScreenState extends State<MyCVScreen> {
                             ),
                             const Text(
                               'Công việc đang chờ duyêt',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 18),
                             ),
                             const Spacer(),
                             const Icon(
@@ -123,7 +116,7 @@ class _MyCVScreenState extends State<MyCVScreen> {
                             ),
                             const Text(
                               'Công việc đã nhận',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 18),
                             ),
                             const Spacer(),
                             const Icon(
@@ -149,7 +142,7 @@ class _MyCVScreenState extends State<MyCVScreen> {
                             ),
                             const Text(
                               'Công việc bị từ chối',
-                              style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 18),
                             ),
                             const Spacer(),
                             const Icon(

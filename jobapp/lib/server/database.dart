@@ -6,7 +6,105 @@ class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
 
+// contact status
+  Future<Map<String, dynamic>> fetchContactStatus(int uid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT link, contact_status FROM users WHERE uid=@uid
+'''), parameters: {'uid': uid});
+      final row = result.first;
+      return {
+        'link': row[0] ?? '',
+        'contact_status': row[1] ?? false,
+      };
+    } catch (e) {
+      print('fetch calender error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateContactStatus(int uid, bool contactStatus) async {
+    try {
+      await conn!.execute(Sql.named('''
+      UPDATE users SET contact_status = @contact_status WHERE uid = @uid
+'''), parameters: {'uid': uid, 'contact_status': contactStatus});
+      print('Cập nhật status contact thành công');
+    } catch (e) {
+      print('Cập nhật status contact error: $e');
+    }
+  }
+
 //payment
+
+  Future<List<Map<String, dynamic>>> fetchHistoryPayment(int cid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM payment WHERE cid = @cid'''), parameters: {
+        'cid': cid,
+      });
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'pay_id': row[0],
+          'cid': row[1],
+          'sv_id': row[2],
+          'name': row[3],
+          'sv_name': row[4],
+          'price': row[5],
+          'day_order': row[6],
+          'status': row[7],
+          'pay': row[8],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch history payment error');
+      rethrow;
+    }
+  }
+
+  Future<int> calculateTotalPrice() async {
+    try {
+      final payments = await fetchAllPayment();
+      int totalPrice = 0;
+
+      for (var payment in payments) {
+        totalPrice += payment['price'] as int;
+      }
+
+      return totalPrice;
+    } catch (e) {
+      print('Error calculating total price: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllPayment() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM payment '''));
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'pay_id': row[0],
+          'cid': row[1],
+          'sv_id': row[2],
+          'name': row[3],
+          'sv_name': row[4],
+          'price': row[5],
+          'day_order': row[6],
+          'status': row[7],
+          'pay': row[8],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch payment error: $e');
+      rethrow;
+    }
+  }
 
   Future<DateTime> fetchDayPaymentCompany(int cid) async {
     try {
@@ -78,8 +176,88 @@ class Database {
   }
 
 // service
+  Future<int?> addService(
+      String svName, String svPrice, String svDescription) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      INSERT INTO service (sv_name, sv_price, sv_description) VALUES (@sv_name, @sv_price, @sv_description) RETURNING sv_id
+'''), parameters: {
+        'sv_name': svName,
+        'sv_price': svPrice,
+        'sv_description': svDescription,
+      });
+      if (result.isNotEmpty) {
+        print('Thêm service  thành công');
+        return result.first.toColumnMap()['sv_id'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Thêm service thất bại: $e');
+      return null;
+    }
+  }
+
+  Future<void> deleteService(int svId) async {
+    try {
+      await conn!.execute(Sql.named('''
+      DELETE FROM service WHERE sv_id = @sv_id 
+'''), parameters: {
+        'sv_id': svId,
+      });
+      print('xóa service thành công');
+    } catch (e) {
+      print('xóa service thất bại: $e');
+    }
+  }
+
+  Future<void> updateService(
+    int svId,
+    String svName,
+    String svPrice,
+    String svDescription,
+  ) async {
+    final conn = DatabaseConnection().connection;
+    try {
+      await conn?.execute(
+        Sql.named(
+            'UPDATE service SET sv_name = @sv_name,sv_price = @sv_price,sv_description = @sv_description WHERE sv_id = @sv_id'),
+        parameters: {
+          'sv_id': svId,
+          'sv_name': svName,
+          'sv_price': svPrice,
+          'sv_description': svDescription,
+        },
+      );
+      print('cập nhật service thành công');
+    } catch (e) {
+      print('cập nhật service công ty thất bại: $e');
+      return;
+    }
+  }
 
   Future<List<Map<String, dynamic>>> fetchAllService() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM service '''));
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'sv_id': row[0],
+          'sv_name': row[1],
+          'sv_description': row[2],
+          'sv_price': row[3],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch service error: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllServiceAdmin() async {
     try {
       final result = await conn!.execute(Sql.named('''
       SELECT * FROM service '''));
@@ -272,6 +450,25 @@ class Database {
       rethrow;
     }
   }
+
+  Future<int> countService() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT COUNT(sv_id) 
+      FROM service
+    '''));
+
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('Đếm service thất bại: $e');
+      rethrow;
+    }
+  }
   //favorites
 
   Future<void> addFavorites(
@@ -443,10 +640,29 @@ class Database {
     }
   }
 
+  Future<Map<String, dynamic>> fetchCvProfile(int uid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM mycv WHERE uid = @uid AND pdf IS NULL
+'''), parameters: {'uid': uid});
+
+      final row = result.first;
+      return {
+        'cv_id': row[0],
+        'uid': row[1],
+        'nameCv': row[2],
+        'time': row[3].toString(),
+      };
+    } catch (e) {
+      print('fetch cv profile for uid lỗi: $e');
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAllCvForUid(int uid) async {
     try {
       final result = await conn!.execute(Sql.named('''
-      SELECT * FROM mycv WHERE uid = @uid
+      SELECT * FROM mycv WHERE uid = @uid AND pdf IS NOT NULL
 '''), parameters: {
         'uid': uid,
       });
@@ -659,6 +875,7 @@ class Database {
   //     rethrow;
   //   }
   // }
+
   Future<List<Map<String, dynamic>>> fetchAllJob(bool status) async {
     try {
       final result = await conn!.execute(Sql.named('''
@@ -971,7 +1188,9 @@ ORDER BY c.service_day DESC
         'image': row[11],
         'experience': row[12],
         'create_at': row[13],
-        'education': row[14] ?? 'chưa cập nhật',
+        'education': row[16] ?? 'chưa cập nhật',
+        'link': row[14],
+        'contact_status': row[15]
       };
     } catch (e) {
       print(e);
@@ -1552,6 +1771,26 @@ SELECT * FROM job WHERE cid = @cid AND status = @status'''), parameters: {
   }
 
   // Update Profile UV
+  Future<void> updateBasicNameUser(
+      int uid, String name, String career, String link) async {
+    final conn = DatabaseConnection().connection;
+    try {
+      await conn?.execute(
+        Sql.named(
+            'UPDATE users SET name = @name,career = @career, link = @link WHERE uid = @uid'),
+        parameters: {
+          'uid': uid,
+          'name': name,
+          'career': career,
+          'link': link,
+        },
+      );
+    } catch (e) {
+      print('Cập nhật thông tin cơ bản thất bại: $e');
+      return;
+    }
+  }
+
   Future<void> updatePersonalInformationUser(
     int uid,
     String email,
@@ -1798,7 +2037,7 @@ ORDER BY u.uid,
           'image': row[11],
           'experience': row[12],
           'create_at': row[13],
-          'education': row[14],
+          'education': row[16],
         };
       }).toList();
     } catch (e) {
@@ -1936,6 +2175,23 @@ ORDER BY c.service_day DESC
     try {
       final result = await conn!.execute(Sql.named('''
     SELECT COUNT(*) FROM job WHERE cid=@cid
+'''), parameters: {'cid': cid});
+      if (result.isNotEmpty) {
+        var row = result.first;
+        return row[0] as int;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print('đếm job thất bại: $e');
+      rethrow;
+    }
+  }
+
+  Future<int> countUserApplyForCid(int cid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+    SELECT COUNT(*) FROM apply WHERE cid=@cid
 '''), parameters: {'cid': cid});
       if (result.isNotEmpty) {
         var row = result.first;

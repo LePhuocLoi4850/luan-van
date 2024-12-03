@@ -77,7 +77,7 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 190,
+      height: 210,
       child: ListView.builder(
         scrollDirection: Axis.vertical,
         physics: const ClampingScrollPhysics(),

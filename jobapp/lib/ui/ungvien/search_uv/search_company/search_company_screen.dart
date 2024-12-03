@@ -129,6 +129,9 @@ class _SearchCompanyScreenState extends State<SearchCompanyScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      width: 5,
+                    )
                   ],
                 ),
               ),
@@ -139,7 +142,7 @@ class _SearchCompanyScreenState extends State<SearchCompanyScreen> {
                 itemBuilder: (context, index) {
                   final company = filteredHotSearch[index];
                   return SizedBox(
-                    height: 200,
+                    height: 160,
                     child: GestureDetector(
                       onTap: () {},
                       child: Card(
@@ -229,8 +232,6 @@ class _SearchCompanyScreenState extends State<SearchCompanyScreen> {
                                     ],
                                   ),
                                 ),
-                                ElevatedButton(
-                                    onPressed: () {}, child: Text('Theo dõi'))
                               ],
                             ),
                           ),

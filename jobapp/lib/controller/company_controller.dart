@@ -12,7 +12,10 @@ class CompanyController extends GetxController {
     try {
       final jobCount =
           await Database().countJobForCid(controller.companyModel.value.id!);
+      final userCount = await Database()
+          .countUserApplyForCid(controller.companyModel.value.id!);
       countPostJob.value = jobCount;
+      countUserApply.value = userCount;
     } catch (e) {
       print('Lỗi khi đếm số job: $e');
     }

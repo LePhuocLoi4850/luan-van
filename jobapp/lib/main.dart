@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jobapp/provider/user_provider.dart';
+import 'package:jobapp/ui/admin/admin_job.dart';
 import 'package:jobapp/ui/auth/login_screen.dart';
 import 'package:jobapp/ui/auth/register_screen.dart';
 import 'package:jobapp/ui/nhatuyendung/list_job.dart';
@@ -17,12 +18,16 @@ import 'package:jobapp/ui/ungvien/home_uv/notification.dart';
 import 'package:jobapp/ui/ungvien/mycv/job_pending.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_job/filter_search.dart';
 import 'package:jobapp/ui/ungvien/search_uv/search_job/search_screen.dart';
-import 'package:postgres/postgres.dart';
 import 'package:provider/provider.dart';
 import 'provider/provider.dart';
 import 'server/database_connection.dart';
 import 'share/splash_screen.dart';
-import 'ui/admin/home_screen.dart';
+import 'ui/admin/add_service.dart';
+import 'ui/admin/admin_company.dart';
+import 'ui/admin/admin_home.dart';
+import 'ui/admin/admin_service.dart';
+import 'ui/admin/admin_user.dart';
+import 'ui/admin/edit_service.dart';
 import 'ui/auth/auth_controller.dart';
 import 'ui/auth/choose_role.dart';
 import 'ui/auth/update_profile_company.dart';
@@ -37,6 +42,7 @@ import 'ui/nhatuyendung/profile_ntd/profile_screen.dart';
 import 'ui/nhatuyendung/profile_ntd/profile_update.dart';
 import 'ui/nhatuyendung/screen_company.dart';
 
+import 'ui/payment/history.dart';
 import 'ui/payment/momo.dart';
 import 'ui/payment/view_momo.dart';
 import 'ui/ungvien/home_uv/cv_profile_screen.dart';
@@ -140,11 +146,18 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/notificationApply', page: () => const NotificationApply()),
     GetPage(name: '/cvProfileScreen', page: () => const CvProfileScreen()),
     GetPage(name: '/favoritesScreen', page: () => const FavoritesScreen()),
-    GetPage(name: '/adminScreen', page: () => const AdminScreen()),
+    GetPage(name: '/adminHome', page: () => const AdminHome()),
+    GetPage(name: '/adminService', page: () => const AdminService()),
+    GetPage(name: '/editService', page: () => const EditService()),
+    GetPage(name: '/addService', page: () => const AddService()),
     GetPage(name: '/calenderScreen', page: () => const CalenderScreen()),
     GetPage(name: '/calenderDetail', page: () => const CalenderDetail()),
     GetPage(name: '/web', page: () => const Web()),
     GetPage(name: '/momo', page: () => const Momo()),
+    GetPage(name: '/history', page: () => const History()),
+    GetPage(name: '/adminJob', page: () => const AdminJob()),
+    GetPage(name: '/adminUser', page: () => const AdminUser()),
+    GetPage(name: '/adminCompany', page: () => const AdminCompany()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,
@@ -184,7 +197,7 @@ class _MyAppState extends State<MyApp> {
                       case 'user':
                         return const UserScreen();
                       case 'admin':
-                        return const AdminScreen();
+                        return const AdminHome();
                       default:
                         return const ChooseRole();
                     }

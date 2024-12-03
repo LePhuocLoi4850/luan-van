@@ -24,31 +24,33 @@ class _JobGirdTitleState extends State<JobGirdTitle> {
   final UserController userController = Get.find<UserController>();
   final FavoritesController favoritesController =
       Get.find<FavoritesController>();
+  List<Map<String, dynamic>> _allFavorite = [];
   String salary = '';
   @override
   void initState() {
     super.initState();
+    _loadFavorites();
   }
 
-  // Future<void> _loadFavorites() async {
-  //   int uid = controller.userModel.value.id!;
-  //   try {
-  //     _allFavorite = await Database().fetchAllFavoriteForUid(uid);
-  //     print(_allFavorite);
-  //     userController.clearFavorites();
-  //     for (var favorite in _allFavorite) {
-  //       userController.favoriteJobs.add(Favorite.fromMap(favorite));
-  //     }
-  //     userController.favoriteCount.value = userController.favoriteJobs.length;
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  Future<void> _loadFavorites() async {
+    int uid = controller.userModel.value.id!;
+    try {
+      _allFavorite = await Database().fetchAllFavoriteForUid(uid);
+      print(_allFavorite);
+      favoritesController.clearFavoritesData();
+      for (var favorites in _allFavorite) {
+        final favorite = Favorite.fromMap(favorites);
+        favoritesController.addFavorites(favorite);
+      }
+    } catch (e) {
+      print('lỗi favorite: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 190,
+      height: 210,
       child: PageView.builder(
         scrollDirection: Axis.horizontal,
         physics: const ClampingScrollPhysics(),

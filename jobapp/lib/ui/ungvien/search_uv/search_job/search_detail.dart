@@ -669,23 +669,20 @@ class _SearchDetailState extends State<SearchDetail> {
               ? const Center(
                   child: CircularProgressIndicator(),
                 )
-              : SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      height: 650,
-                      color: Colors.white,
-                      child: GestureDetector(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: JobGirdTitleVertical(
-                            allJobs: _job,
-                            imageDecorator: (serviceDay) {
-                              return _getServiceDayBorder(serviceDay);
-                            },
-                          ),
+              : Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Container(
+                        height: 600,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: JobGirdTitleVertical(
+                          allJobs: _job,
+                          imageDecorator: (serviceDay) {
+                            return _getServiceDayBorder(serviceDay);
+                          },
                         ),
                       ),
                     ),

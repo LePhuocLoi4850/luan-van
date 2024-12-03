@@ -274,7 +274,7 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
                         ),
                       ),
                       const SizedBox(
-                        width: 20,
+                        width: 10,
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +289,7 @@ class _UpdateProfileUserState extends State<UpdateProfileUser> {
                           Text(
                             controller.email!,
                             style: const TextStyle(
-                                fontSize: 20, color: Colors.white),
+                                fontSize: 18, color: Colors.white),
                           ),
                         ],
                       ),

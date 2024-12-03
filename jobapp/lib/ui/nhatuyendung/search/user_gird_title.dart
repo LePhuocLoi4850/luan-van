@@ -56,7 +56,7 @@ class _UserGirdTitleState extends State<UserGirdTitle> {
         color: Colors.white,
         elevation: 3.0,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
               Row(

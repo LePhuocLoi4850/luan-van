@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jobapp/server/database.dart';
 
@@ -25,10 +26,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ImagePicker _picker = ImagePicker();
   bool isExpanded = false;
   List<Map<String, dynamic>> allCalender = [];
+  late DateTime day;
+  bool hasPackage = false;
   @override
   void initState() {
     super.initState();
     fetchCalender();
+    fetchPaymentDay();
+  }
+
+  void fetchPaymentDay() async {
+    try {
+      day = await Database()
+          .fetchDayPaymentCompany(controller.companyModel.value.id!);
+      if (day.isAfter(DateTime.now())) {
+        print('gói còn hạn');
+        setState(() {
+          hasPackage = true;
+        });
+      } else {
+        print('gói hết hạn');
+
+        setState(() {
+          hasPackage = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> fetchCalender() async {
@@ -99,7 +124,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: 150,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 4),
+                              border: hasPackage
+                                  ? GradientBoxBorder(
+                                      width: 5, // Độ dày của border
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.red,
+                                          Colors.yellow,
+                                          Colors.green,
+                                          Colors.blue
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                    )
+                                  : null,
                             ),
                             child: ClipOval(
                               child: controller.companyModel.value.image != null
@@ -147,7 +186,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: const TextStyle(
                           fontSize: 22, fontWeight: FontWeight.bold),
                     ),
-                    const Text('100 người theo dõi'),
                     Padding(
                       padding: const EdgeInsets.only(top: 15, right: 20),
                       child: Container(
@@ -198,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Container(
                       width: 120, // Tab giữa lớn hơn
                       alignment: Alignment.center,
-                      child: const Text("Thông tin công ty"),
+                      child: const Text("Thông tin"),
                     ),
                   ),
                   Tab(
@@ -213,90 +251,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                 child: Container(
                   color: Colors.grey[200],
-                  child: TabBarView(
-                    children: [
-                      Padding(
+                  child: TabBarView(children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
                         padding: const EdgeInsets.all(16.0),
-                        child: Container(
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Quy mô công ty',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Quy mô công ty',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Text(
+                                  '${controller.companyModel.value.scale}',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Về công ty',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 20),
-                                  child: Text(
-                                    '${controller.companyModel.value.scale}',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      'Về công ty',
-                                      style: TextStyle(
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        isExpanded = !isExpanded;
+                                      });
+                                    },
+                                    child: Text(
+                                      isExpanded ? 'Thu gọn' : 'Xem thêm',
+                                      style: const TextStyle(
                                         color: Colors.blue,
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          isExpanded = !isExpanded;
-                                        });
-                                      },
-                                      child: Text(
-                                        isExpanded ? 'Thu gọn' : 'Xem thêm',
-                                        style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  '${controller.companyModel.value.description}',
-                                  style: const TextStyle(fontSize: 16),
-                                  maxLines: isExpanded ? null : 6,
-                                  overflow: isExpanded
-                                      ? TextOverflow.visible
-                                      : TextOverflow.ellipsis,
-                                  textAlign: TextAlign.justify,
-                                ),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                '${controller.companyModel.value.description}',
+                                style: const TextStyle(fontSize: 16),
+                                maxLines: isExpanded ? null : 6,
+                                overflow: isExpanded
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
+                                textAlign: TextAlign.justify,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      Padding(
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white),
                         padding: const EdgeInsets.all(16.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white),
-                          padding: const EdgeInsets.all(16.0),
+                        child: SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -428,7 +466,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   SizedBox(
                                     width: 290,
-                                    height: 70,
+                                    height: 100,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -458,129 +496,178 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                      Container(
-                          color: Colors.white,
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(0.0),
-                          child: calenderController.calenderData.isEmpty
-                              ? Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0, vertical: 20),
-                                  child: Container(
-                                    height: 120,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: Colors.grey),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Padding(
-                                            padding: EdgeInsets.all(5.0),
-                                            child: Text(
-                                              'Bạn chưa có mẫu lịch phỏng vấn',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16),
+                    ),
+                    Container(
+                        color: Colors.grey[200],
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(0.0),
+                        child: calenderController.calenderData.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 20),
+                                child: Container(
+                                  height: 120,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: Colors.grey),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.all(5.0),
+                                          child: Text(
+                                            'Bạn chưa có mẫu lịch phỏng vấn',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 300,
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              final result = await Get.toNamed(
+                                                  '/calenderScreen');
+                                              if (result == true) {
+                                                setState(() {});
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  color: Color.fromARGB(
+                                                      136, 0, 0, 0),
+                                                ),
+                                                Text(
+                                                  'Thêm mẫu lịch phỏng vấn',
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 16),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          SizedBox(
-                                            width: 300,
-                                            child: ElevatedButton(
-                                                onPressed: () async {
-                                                  final result =
-                                                      await Get.toNamed(
-                                                          '/calenderScreen');
-                                                  if (result == true) {
-                                                    setState(() {});
-                                                  }
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                ),
-                                                child: const Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.add,
-                                                      color: Color.fromARGB(
-                                                          136, 0, 0, 0),
-                                                    ),
-                                                    Text(
-                                                      'Thêm mẫu lịch phỏng vấn',
-                                                      style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 16),
-                                                    ),
-                                                  ],
-                                                )),
-                                          )
-                                        ],
-                                      ),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                )
-                              : ListView.builder(
-                                  itemCount:
-                                      calenderController.calenderData.length,
-                                  itemBuilder: (context, index) {
-                                    final cld =
-                                        calenderController.calenderData[index];
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10.0, vertical: 5),
-                                      child: Container(
-                                        height: 70,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20.0),
-                                              child: Text(cld.name),
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Container(
+                                    height: 500,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    width: double.infinity,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10.0, vertical: 10),
+                                          child: ElevatedButton.icon(
+                                            onPressed: () async {
+                                              final result = await Get.toNamed(
+                                                  '/calenderScreen');
+
+                                              if (result == true) {
+                                                setState(() {});
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.blue,
+                                              foregroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
                                             ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                Map<String, dynamic> data = {
-                                                  'cld_id': cld.cldId,
-                                                  'cid': cld.cid,
-                                                  'name': cld.name,
-                                                  'time': cld.time,
-                                                  'address': cld.address,
-                                                  'createAt': cld.createAt,
-                                                  'note': cld.note,
-                                                };
-                                                final result =
-                                                    await Get.toNamed(
-                                                        '/calenderDetail',
-                                                        arguments: data);
-                                                if (result == true) {
-                                                  setState(() {});
-                                                }
-                                              },
-                                              child: Text('Xem'),
-                                            ),
-                                          ],
+                                            icon: const Icon(Icons.add),
+                                            label: const Text('Thêm'),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  })),
-                    ],
-                  ),
+                                        Expanded(
+                                          child: SingleChildScrollView(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: Column(
+                                                children: calenderController
+                                                    .calenderData
+                                                    .asMap()
+                                                    .entries
+                                                    .map((entry) {
+                                                  final colors = [
+                                                    Colors.grey[200],
+                                                    Colors.grey[50],
+                                                  ];
+                                                  final index = entry.key;
+                                                  final cld = entry.value;
+                                                  final color = colors[
+                                                      index % colors.length];
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                        color: color,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10)),
+                                                    child: ListTile(
+                                                      title: Text(cld.name),
+                                                      trailing: Text(
+                                                        'Xem',
+                                                        style: TextStyle(
+                                                            fontSize: 16),
+                                                      ),
+                                                      onTap: () async {
+                                                        Map<String, dynamic>
+                                                            data = {
+                                                          'cld_id': cld.cldId,
+                                                          'cid': cld.cid,
+                                                          'name': cld.name,
+                                                          'time': cld.time,
+                                                          'address':
+                                                              cld.address,
+                                                          'createAt':
+                                                              cld.createAt,
+                                                          'note': cld.note,
+                                                        };
+                                                        final result =
+                                                            await Get.toNamed(
+                                                          '/calenderDetail',
+                                                          arguments: data,
+                                                        );
+                                                        if (result == true) {
+                                                          setState(() {});
+                                                        }
+                                                      },
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                              ))
+                  ]),
                 ),
               )
             ],

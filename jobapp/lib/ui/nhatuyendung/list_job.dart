@@ -66,14 +66,14 @@ class _ListJobState extends State<ListJob> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Are you sure?'),
+        title: const Text('Bạn chắc chắn?'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop(false);
             },
-            child: const Text('No'),
+            child: const Text('Không'),
           ),
           TextButton(
             onPressed: () {
@@ -81,7 +81,7 @@ class _ListJobState extends State<ListJob> {
               Navigator.of(ctx).pop(true);
               _fetchJob();
             },
-            child: const Text('Yes'),
+            child: const Text('Có'),
           ),
         ],
       ),
@@ -174,7 +174,7 @@ class _ListJobState extends State<ListJob> {
                               color: job['status'] == true
                                   ? Colors.grey[400]
                                   : Colors.green,
-                              size: 30,
+                              size: 25,
                             )),
                         IconButton(
                             onPressed: () {
@@ -182,7 +182,7 @@ class _ListJobState extends State<ListJob> {
                                   ? null
                                   : _handleDeleteJob(
                                       context,
-                                      'Direct and straightforward?',
+                                      'Muốn ẩn công việc hiện tại?',
                                       job['jid'],
                                     );
                             },
@@ -191,7 +191,7 @@ class _ListJobState extends State<ListJob> {
                               color: job['status'] == true
                                   ? Colors.grey[400]
                                   : Colors.red,
-                              size: 30,
+                              size: 25,
                             )),
                       ],
                     ),

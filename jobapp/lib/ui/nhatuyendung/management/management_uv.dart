@@ -18,14 +18,13 @@ class _ManagementUvState extends State<ManagementUv>
   List<Map<String, dynamic>> appliedUsers = [];
   List<Map<String, dynamic>> receivedUsers = [];
   List<Map<String, dynamic>> refusedUsers = [];
-  List<Map<String, dynamic>> cancelledUsers = [];
 
   bool _isLoading = true;
   @override
   void initState() {
     super.initState();
     _fetchData();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   void _fetchData() async {
@@ -35,7 +34,6 @@ class _ManagementUvState extends State<ManagementUv>
       appliedUsers = await Database().fetchAllJobApplied(nameC, 'applied');
       receivedUsers = await Database().fetchAllJobApplied(nameC, 'approved');
       refusedUsers = await Database().fetchAllJobApplied(nameC, 'rejected');
-      cancelledUsers = await Database().fetchAllJobApplied(nameC, 'cancelled');
     } catch (e) {
       print(e);
     } finally {
@@ -64,7 +62,6 @@ class _ManagementUvState extends State<ManagementUv>
             Tab(text: 'Đang chờ duyệt'),
             Tab(text: 'Đã nhận'),
             Tab(text: 'Đã từ chối'),
-            Tab(text: 'Đã hủy'),
           ],
         ),
       ),
@@ -78,7 +75,6 @@ class _ManagementUvState extends State<ManagementUv>
                   _buildSection(appliedUsers),
                   _buildSection(receivedUsers),
                   _buildSection(refusedUsers),
-                  _buildSection(cancelledUsers),
                 ],
               ),
       ),

@@ -20,6 +20,7 @@ class _UpdateNameState extends State<UpdateName> {
   final _nameController = TextEditingController();
   final _careerController = TextEditingController();
   final _searchController = TextEditingController();
+  final _linkController = TextEditingController();
 
   Career? selectedCareer;
   CareerManager careerManager = CareerManager();
@@ -33,21 +34,12 @@ class _UpdateNameState extends State<UpdateName> {
 
   void _handleUpdate() async {
     int uid = controller.userModel.value.id!;
-    String email = controller.userModel.value.email!;
     String name = _nameController.text;
     String career = _careerController.text;
-    int phone = int.tryParse(controller.userModel.value.phone!)!;
-    DateTime birthday =
-        DateTime.tryParse(controller.userModel.value.birthday.toString())!;
-    String gender = controller.userModel.value.gender!;
-    int salaryFrom =
-        int.parse(controller.userModel.value.salaryFrom.toString());
-    int salaryTo = int.parse(controller.userModel.value.salaryTo.toString());
-    String address = controller.userModel.value.address!;
-    String experience = controller.userModel.value.experience!;
+    String link = _linkController.text;
+
     try {
-      await Database().updatePersonalInformationUser(uid, email, name, career,
-          phone, birthday, gender, salaryFrom, salaryTo, address, experience);
+      await Database().updateBasicNameUser(uid, name, career, link);
 
       controller.userModel.value = controller.userModel.value.copyWith(
         name: name,
@@ -158,6 +150,33 @@ class _UpdateNameState extends State<UpdateName> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Link liên hệ',
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              TextFormField(
+                controller: _linkController,
+                decoration: InputDecoration(
+                  hintText: 'Link Facebook',
+                  hintStyle: TextStyle(
+                    color: Colors.grey[600],
+                  ),
+                  floatingLabelBehavior: FloatingLabelBehavior.never,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
@@ -251,7 +270,6 @@ class _UpdateNameState extends State<UpdateName> {
                               selectedCareer = filteredCareers[index];
                               _careerController.text =
                                   filteredCareers[index].name;
-
                               updateParentState();
 
                               Navigator.of(context).pop();

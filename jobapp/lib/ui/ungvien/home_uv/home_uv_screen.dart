@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jobapp/controller/user_controller.dart';
 import 'package:jobapp/server/database.dart';
 import 'package:jobapp/ui/auth/auth_controller.dart';
 import 'package:jobapp/ui/ungvien/home_uv/Job_gird.dart';
@@ -27,6 +28,7 @@ class HomeUV extends StatefulWidget {
 
 class _HomeUVState extends State<HomeUV> {
   final AuthController controller = Get.find<AuthController>();
+  final UserController userController = Get.find<UserController>();
   final cvStorageController = Get.find<CvStorageController>();
   final _offsetToArmed = 50.0;
   Map<String, dynamic> _userData = {};
@@ -57,7 +59,7 @@ class _HomeUVState extends State<HomeUV> {
           salaryFrom: int.tryParse(_userData['salary_from']),
           salaryTo: int.tryParse(_userData['salary_to']),
           image: _userData['image'],
-          experience: _userData['experience'],
+          experience: _userData['experience'] ?? 'Sắp đi làm',
           createdAt: _userData['create_at']);
       controller.saveUserData(controller.userModel.value);
       setState(() {});
@@ -69,7 +71,10 @@ class _HomeUVState extends State<HomeUV> {
   Future<void> _fetchCvUpload() async {
     try {
       int uid = controller.userModel.value.id!;
+      userController.data = await Database().fetchCvProfile(uid);
       final cvData = await Database().fetchAllCvForUid(uid);
+      print(userController.data);
+      print(cvData);
       cvStorageController.clearCvData();
       for (final cvMap in cvData) {
         final cv = CV.fromMap(cvMap);
@@ -128,31 +133,37 @@ class _HomeUVState extends State<HomeUV> {
                     padding: const EdgeInsets.only(bottom: 5),
                     child: Obx(
                       () {
-                        return Row(
-                          children: [
-                            ClipOval(
-                              child: imageFromBase64String(
-                                controller.userModel.value.image.toString(),
+                        return GestureDetector(
+                          onTap: () {
+                            Get.toNamed('/updateCV');
+                          },
+                          child: Row(
+                            children: [
+                              ClipOval(
+                                child: imageFromBase64String(
+                                  controller.userModel.value.image.toString(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text.rich(
-                              TextSpan(
-                                text: 'Hello ',
-                                style: const TextStyle(fontSize: 18),
-                                children: <InlineSpan>[
-                                  TextSpan(
-                                    text: '${controller.userModel.value.name}!',
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
+                              const SizedBox(
+                                width: 10,
                               ),
-                            )
-                          ],
+                              Text.rich(
+                                TextSpan(
+                                  text: 'Hello ',
+                                  style: const TextStyle(fontSize: 18),
+                                  children: <InlineSpan>[
+                                    TextSpan(
+                                      text:
+                                          '${controller.userModel.value.name}!',
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         );
                       },
                     ),
@@ -332,7 +343,7 @@ class ScreenRefresh extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Container(
-                                width: 250,
+                                width: 200,
                                 height: 30,
                                 decoration: BoxDecoration(
                                     color: Colors.grey[300],
@@ -431,7 +442,7 @@ class ScreenRefresh extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Container(
-                                width: 250,
+                                width: 200,
                                 height: 30,
                                 decoration: BoxDecoration(
                                     color: Colors.grey[300],

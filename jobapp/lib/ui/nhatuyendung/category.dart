@@ -258,6 +258,46 @@ class _CategoryState extends State<Category> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(left: 0),
+              child: SizedBox(
+                width: 80,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.toNamed('/history');
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: Color.fromARGB(255, 255, 254, 214),
+                              border: Border.all(
+                                  color: Color.fromARGB(255, 253, 251, 131),
+                                  width: 2)),
+                          child: const Center(
+                            child: Icon(
+                              Icons.shopify_rounded,
+                              size: 30,
+                              color: Color.fromARGB(255, 226, 243, 33),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      'Lịch sử thanh toán',
+                      style: TextStyle(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -45,7 +45,7 @@ class _UpdateSkillState extends State<UpdateSkill> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Are you sure?'),
+        title: const Text('Bạn có chắc?'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
@@ -146,7 +146,7 @@ class _UpdateSkillState extends State<UpdateSkill> {
                         _handleDelete(context, 'Bạn có muốn xóa kỹ năng');
                       },
                       child: Text(
-                        'Xóa kinh nghiệm',
+                        'Xóa kỹ năng',
                         style: TextStyle(
                             fontSize: 16,
                             color: Colors.black,

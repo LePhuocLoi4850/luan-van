@@ -68,7 +68,7 @@ class _UpdateCertificateState extends State<UpdateCertificate> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Are you sure?'),
+        title: const Text('Bạn có chắc?'),
         content: Text(message),
         actions: <Widget>[
           TextButton(

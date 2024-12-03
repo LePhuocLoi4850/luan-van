@@ -40,8 +40,7 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
   }
 
   void _fetchJobCareer() async {
-    String career = await Database()
-        .selectCareerUserForEmail(controller.userModel.value.email!);
+    String career = controller.userModel.value.career!;
 
     try {
       _jobCareer = await Database().fetchAllJobForCareer(career);
@@ -88,7 +87,7 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blue, Colors.white],
-          stops: [0.1, 0.3],
+          stops: [0.1, 0.2],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -154,43 +153,6 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Tìm kiếm hàng đầu',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          width: 380,
-                          height: 192,
-                          child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10.0,
-                              mainAxisSpacing: 8.0,
-                              childAspectRatio: 7,
-                            ),
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                  color: Colors.transparent,
-                                  child: RichText(
-                                      text: TextSpan(
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.black),
-                                          children: [
-                                        TextSpan(
-                                            text: '${index + 1} ',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18)),
-                                        TextSpan(text: '${items[index]}')
-                                      ])));
-                            },
-                          ),
-                        ),
-                        const Text(
                           'Việc làm phù hợp',
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
@@ -202,25 +164,20 @@ class _SearchUVScreenState extends State<SearchUVScreen> {
                             : Container(
                                 color: Colors.white,
                                 child: ListView.builder(
-                                  shrinkWrap:
-                                      true, // Để giới hạn chiều cao theo dữ liệu
-                                  physics:
-                                      NeverScrollableScrollPhysics(), // Ngăn việc cuộn bên trong nếu không cần thiết
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
                                   itemCount: _jobCareer.length,
                                   itemBuilder: (context, index) {
-                                    return GestureDetector(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                        child: JobGirdTitleVertical(
-                                          allJobs: [_jobCareer[index]],
-                                          imageDecorator: (serviceDay) {
-                                            return _getServiceDayBorder(
-                                                serviceDay);
-                                          },
-                                        ),
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: JobGirdTitleVertical(
+                                        allJobs: [_jobCareer[index]],
+                                        imageDecorator: (serviceDay) {
+                                          return _getServiceDayBorder(
+                                              serviceDay);
+                                        },
                                       ),
                                     );
                                   },

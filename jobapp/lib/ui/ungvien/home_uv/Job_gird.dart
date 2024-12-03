@@ -15,7 +15,7 @@ class JobGird extends StatefulWidget {
 
 class _JobGirdState extends State<JobGird> {
   final AuthController controller = Get.find<AuthController>();
-  String inter = 'Thực tập';
+  String inter = 'Thực tập sinh';
   List<Map<String, dynamic>> _allJobs = [];
   List<Map<String, dynamic>> _allJobForCareer = [];
   List<Map<String, dynamic>> _allJobInter = [];

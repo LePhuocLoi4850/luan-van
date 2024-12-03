@@ -202,7 +202,7 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 SizedBox(
-                                  width: 150,
+                                  width: 170,
                                   height: 35,
                                   child: ElevatedButton(
                                     onPressed: () {
@@ -226,7 +226,7 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 170,
+                                  width: 190,
                                   height: 35,
                                   child: ElevatedButton(
                                     onPressed: () {
@@ -264,7 +264,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(5.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -286,7 +287,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(5.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -308,7 +310,8 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(5.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -320,17 +323,21 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
                                             color: Colors.grey[500],
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      Text(
-                                        _detailCompany['career'],
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
+                                      Expanded(
+                                        child: Text(
+                                          _detailCompany['career'],
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              overflow: TextOverflow.visible,
+                                              fontWeight: FontWeight.w500),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(5.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,

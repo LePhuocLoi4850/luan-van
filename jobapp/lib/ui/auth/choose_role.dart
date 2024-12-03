@@ -16,12 +16,19 @@ class _ChooseRoleState extends State<ChooseRole> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(color: Colors.white),
+        decoration: BoxDecoration(color: Colors.blue[50]),
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Text(
+                  'Hãy chọn vai trò của bạn',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ),
               GestureDetector(
                 onTap: () {
                   controller.chooseRole('user', controller.email.toString());

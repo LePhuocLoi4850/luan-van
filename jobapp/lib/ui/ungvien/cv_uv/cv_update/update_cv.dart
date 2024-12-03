@@ -216,45 +216,49 @@ class _UpdateCvState extends State<UpdateCv> {
                         padding: const EdgeInsets.only(top: 15, right: 20),
                         child: Row(
                           children: [
-                            Container(
-                              width: 310,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[400],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: TextButton(
-                                onPressed: () async {
-                                  final result =
-                                      await Get.toNamed('/updateName');
-                                  if (result == true) {
-                                    setState(() {});
-                                  }
-                                },
-                                child: Text(
-                                  'Cập nhật thông tin cơ bản',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold),
+                            Expanded(
+                              flex: 4,
+                              child: Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[400],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: TextButton(
+                                  onPressed: () async {
+                                    final result =
+                                        await Get.toNamed('/updateName');
+                                    if (result == true) {
+                                      setState(() {});
+                                    }
+                                  },
+                                  child: Text(
+                                    'Cập nhật thông tin cơ bản',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                             ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[400],
-                                borderRadius: BorderRadius.circular(10),
+                            SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[400],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: IconButton(
+                                    onPressed: () {
+                                      Get.toNamed('/cvProfileScreen',
+                                          arguments:
+                                              controller.userModel.value.id);
+                                    },
+                                    icon: Icon(Icons.remove_red_eye)),
                               ),
-                              child: IconButton(
-                                  onPressed: () {
-                                    Get.toNamed('/cvProfileScreen');
-                                  },
-                                  icon: Icon(Icons.remove_red_eye)),
                             )
                           ],
                         ),
@@ -429,13 +433,22 @@ class _UpdateCvState extends State<UpdateCv> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        ClipRect(
-                                                          child: imageFromBase64String(
-                                                              controller
-                                                                  .userModel
-                                                                  .value
-                                                                  .image
-                                                                  .toString()),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            child: Image(
+                                                              image: AssetImage(
+                                                                  'assets/images/experience.jpg'),
+                                                              width: 60,
+                                                              height: 60,
+                                                            ),
+                                                          ),
                                                         ),
                                                         Expanded(
                                                           child: Column(
@@ -569,13 +582,22 @@ class _UpdateCvState extends State<UpdateCv> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        ClipRect(
-                                                          child: imageFromBase64String(
-                                                              controller
-                                                                  .userModel
-                                                                  .value
-                                                                  .image
-                                                                  .toString()),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            child: Image(
+                                                              image: AssetImage(
+                                                                  'assets/images/education.jpg'),
+                                                              width: 60,
+                                                              height: 60,
+                                                            ),
+                                                          ),
                                                         ),
                                                         Expanded(
                                                           child: Column(
@@ -687,77 +709,71 @@ class _UpdateCvState extends State<UpdateCv> {
                                             ? const Center(
                                                 child:
                                                     CircularProgressIndicator())
-                                            : SizedBox(
-                                                width: double.infinity,
-                                                height: 180,
-                                                child: ListView.builder(
-                                                  padding: EdgeInsets.only(
-                                                      bottom: 00),
-                                                  itemCount: _allSkill.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final skill =
-                                                        _allSkill[index];
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Container(
-                                                        decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        15),
-                                                            color: Colors
-                                                                .grey[200]),
-                                                        child: ListTile(
-                                                          title: Text(skill[
-                                                              'nameSkill']),
-                                                          subtitle:
-                                                              RatingBar.builder(
-                                                            initialRating:
-                                                                skill['rating']
-                                                                    .toDouble(),
-                                                            ignoreGestures:
-                                                                true,
-                                                            direction:
-                                                                Axis.horizontal,
-                                                            allowHalfRating:
-                                                                false,
-                                                            itemCount: 5,
-                                                            itemSize: 20,
-                                                            itemBuilder:
-                                                                (context, _) =>
-                                                                    const Icon(
-                                                              Icons.star,
-                                                              color:
-                                                                  Colors.amber,
-                                                            ),
-                                                            onRatingUpdate:
-                                                                (rating) {},
+                                            : ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                padding:
+                                                    EdgeInsets.only(bottom: 00),
+                                                itemCount: _allSkill.length,
+                                                itemBuilder: (context, index) {
+                                                  final skill =
+                                                      _allSkill[index];
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(15),
+                                                          color:
+                                                              Colors.grey[200]),
+                                                      child: ListTile(
+                                                        title: Text(
+                                                            skill['nameSkill']),
+                                                        subtitle:
+                                                            RatingBar.builder(
+                                                          initialRating:
+                                                              skill['rating']
+                                                                  .toDouble(),
+                                                          ignoreGestures: true,
+                                                          direction:
+                                                              Axis.horizontal,
+                                                          allowHalfRating:
+                                                              false,
+                                                          itemCount: 5,
+                                                          itemSize: 20,
+                                                          itemBuilder:
+                                                              (context, _) =>
+                                                                  const Icon(
+                                                            Icons.star,
+                                                            color: Colors.amber,
                                                           ),
-                                                          trailing: IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              final result =
-                                                                  await Get.toNamed(
-                                                                      '/updateSkill',
-                                                                      arguments:
-                                                                          skill);
-                                                              if (result ==
-                                                                  true) {
-                                                                _fetchSkill();
-                                                                setState(() {});
-                                                              }
-                                                            },
-                                                            icon: Icon(
-                                                                Icons.edit),
-                                                          ),
+                                                          onRatingUpdate:
+                                                              (rating) {},
+                                                        ),
+                                                        trailing: IconButton(
+                                                          onPressed: () async {
+                                                            final result =
+                                                                await Get.toNamed(
+                                                                    '/updateSkill',
+                                                                    arguments:
+                                                                        skill);
+                                                            if (result ==
+                                                                true) {
+                                                              _fetchSkill();
+                                                              setState(() {});
+                                                            }
+                                                          },
+                                                          icon:
+                                                              Icon(Icons.edit),
                                                         ),
                                                       ),
-                                                    );
-                                                  },
-                                                ),
+                                                    ),
+                                                  );
+                                                },
                                               ),
                                       ],
                                     ),
@@ -805,111 +821,118 @@ class _UpdateCvState extends State<UpdateCv> {
                                             ? const Center(
                                                 child:
                                                     CircularProgressIndicator())
-                                            : Expanded(
-                                                child: ListView.builder(
-                                                  padding: EdgeInsets.only(
-                                                      bottom: 00),
-                                                  shrinkWrap: true,
-                                                  itemCount:
-                                                      _allCertificate.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final certificate =
-                                                        _allCertificate[index];
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 5.0,
-                                                              bottom: 10),
-                                                      child: Container(
-                                                        height: 100,
-                                                        width: double.infinity,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
-                                                          color:
-                                                              Colors.grey[200],
-                                                        ),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                ClipRect(
-                                                                  child: imageFromBase64String(
-                                                                      controller
-                                                                          .userModel
-                                                                          .value
-                                                                          .image
-                                                                          .toString()),
-                                                                ),
-                                                                Expanded(
-                                                                  child: Column(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      Text(
-                                                                        certificate[
-                                                                            'nameCertificate'],
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                        ),
-                                                                      ),
-                                                                      Text(certificate[
-                                                                          'nameHost']),
-                                                                    ],
+                                            : ListView.builder(
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                padding:
+                                                    EdgeInsets.only(bottom: 00),
+                                                shrinkWrap: true,
+                                                itemCount:
+                                                    _allCertificate.length,
+                                                itemBuilder: (context, index) {
+                                                  final certificate =
+                                                      _allCertificate[index];
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 5.0,
+                                                            bottom: 10),
+                                                    child: Container(
+                                                      height: 100,
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        color: Colors.grey[200],
+                                                      ),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        8.0),
+                                                                child:
+                                                                    ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  child: Image(
+                                                                    image: AssetImage(
+                                                                        'assets/images/certificate.jpg'),
+                                                                    width: 60,
+                                                                    height: 60,
                                                                   ),
                                                                 ),
-                                                                IconButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    final result = await Get.toNamed(
-                                                                        '/updateCertificate',
-                                                                        arguments:
-                                                                            certificate);
-                                                                    if (result ==
-                                                                        true) {
-                                                                      _fetchCertificate();
-                                                                      setState(
-                                                                          () {});
-                                                                    }
-                                                                  },
-                                                                  icon: Icon(
-                                                                      Icons
-                                                                          .edit),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                      left: 10),
-                                                              child: Text(
-                                                                "${DateTime.parse(certificate['time_from'].toString()).year}/"
-                                                                "${DateTime.parse(certificate['time_from'].toString()).month} - "
-                                                                "${DateTime.parse(certificate['time_to'].toString()).year}/"
-                                                                "${DateTime.parse(certificate['time_to'].toString()).month}",
                                                               ),
+                                                              Expanded(
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      certificate[
+                                                                          'nameCertificate'],
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                    Text(certificate[
+                                                                        'nameHost']),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              IconButton(
+                                                                onPressed:
+                                                                    () async {
+                                                                  final result = await Get.toNamed(
+                                                                      '/updateCertificate',
+                                                                      arguments:
+                                                                          certificate);
+                                                                  if (result ==
+                                                                      true) {
+                                                                    _fetchCertificate();
+                                                                    setState(
+                                                                        () {});
+                                                                  }
+                                                                },
+                                                                icon: Icon(
+                                                                    Icons.edit),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 10),
+                                                            child: Text(
+                                                              "${DateTime.parse(certificate['time_from'].toString()).year}/"
+                                                              "${DateTime.parse(certificate['time_from'].toString()).month} - "
+                                                              "${DateTime.parse(certificate['time_to'].toString()).year}/"
+                                                              "${DateTime.parse(certificate['time_to'].toString()).month}",
                                                             ),
-                                                          ],
-                                                        ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                    );
-                                                  },
-                                                ),
+                                                    ),
+                                                  );
+                                                },
                                               )
                                       ],
                                     ),

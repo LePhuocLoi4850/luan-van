@@ -74,7 +74,7 @@ class _UpdateEducationState extends State<UpdateEducation> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Are you sure?'),
+        title: const Text('Bạn có chắc?'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
@@ -353,7 +353,7 @@ class _UpdateEducationState extends State<UpdateEducation> {
                             _handleDelete(context, 'Bạn có muốn xóa học vấn');
                           },
                           child: Text(
-                            'Xóa kinh nghiệm',
+                            'Xóa học vấn',
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,

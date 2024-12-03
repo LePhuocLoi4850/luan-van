@@ -24,13 +24,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Favorite Jobs"),
+        title: const Text("Việc làm yêu thích"),
+        backgroundColor: Colors.blue,
         centerTitle: true,
       ),
       body: Obx(() {
         if (favoritesController.favoritesData.isEmpty) {
           return const Center(
-            child: Text("No favorites added."),
+            child: Text("Không có việc làm yêu thích nào"),
           );
         }
 

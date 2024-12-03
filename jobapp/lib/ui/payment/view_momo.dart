@@ -85,14 +85,7 @@ class _WebState extends State<Web> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.offAllNamed('/companyScreen');
-            },
-            icon: Icon(Icons.home),
-          )
-        ],
+        title: Text('Thanh toán'),
       ),
       body: WebViewWidget(controller: controller),
     );

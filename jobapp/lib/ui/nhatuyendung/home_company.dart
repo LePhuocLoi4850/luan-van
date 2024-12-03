@@ -111,72 +111,77 @@ class _HomeNTDState extends State<HomeNTD> {
                   Padding(
                     padding:
                         const EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        border: Border.all(
-                            color: const Color.fromARGB(255, 216, 216, 216),
-                            width: 3),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.blue,
-                                border: hasPackage
-                                    ? GradientBoxBorder(
-                                        width: 5, // Độ dày của border
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.red,
-                                            Colors.yellow,
-                                            Colors.green,
-                                            Colors.blue
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                              child: ClipOval(
-                                child:
-                                    controller.companyModel.value.image != null
-                                        ? imageFromBase64String(controller
-                                            .companyModel.value.image
-                                            .toString())
-                                        : const Image(
-                                            image: AssetImage(
-                                                'assets/images/user.png'),
-                                            width: 60,
-                                            height: 60,
-                                            fit: BoxFit.cover,
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.toNamed('/profileScreen');
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 216, 216, 216),
+                              width: 3),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50),
+                                  color: Colors.blue,
+                                  border: hasPackage
+                                      ? GradientBoxBorder(
+                                          width: 5, // Độ dày của border
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.red,
+                                              Colors.yellow,
+                                              Colors.green,
+                                              Colors.blue
+                                            ],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
                                           ),
+                                        )
+                                      : null,
+                                ),
+                                child: ClipOval(
+                                  child: controller.companyModel.value.image !=
+                                          null
+                                      ? imageFromBase64String(controller
+                                          .companyModel.value.image
+                                          .toString())
+                                      : const Image(
+                                          image: AssetImage(
+                                              'assets/images/user.png'),
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 20.0),
-                                    child: Text(
+                              SizedBox(
+                                width: 240,
+                                height: 70,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
                                       controller.companyModel.value.name
                                           .toString(),
                                       style: const TextStyle(fontSize: 22),
-                                      softWrap: true,
-                                    ),
-                                  ),
-                                ],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: false,
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -207,20 +212,22 @@ class _HomeNTDState extends State<HomeNTD> {
                     ),
                     child: const Padding(
                       padding: EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: 10.0, bottom: 10),
-                            child: Text(
-                              'Danh mục của bạn ',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 10.0, bottom: 10),
+                              child: Text(
+                                'Danh mục của bạn ',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                          //Danh mục
-                          Category(),
-                        ],
+                            //Danh mục
+                            Category(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -230,10 +237,9 @@ class _HomeNTDState extends State<HomeNTD> {
                 height: 20,
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 5, left: 15, right: 15),
+                padding: const EdgeInsets.only(top: 5, left: 10, right: 10),
                 child: Container(
-                  width: 400,
-                  height: 140,
+                  height: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.white,
@@ -242,105 +248,57 @@ class _HomeNTDState extends State<HomeNTD> {
                         width: 3),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SizedBox(
-                        width: 180,
-                        child: Padding(
-                          padding: EdgeInsets.all(15.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Tổng số tin đã đăng',
-                                      style: TextStyle(fontSize: 15),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Obx(() {
-                                    return Text(
-                                      companyController.countPostJob.toString(),
-                                      style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold),
-                                    );
-                                  })
-                                ],
-                              ),
-                              Divider(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [Text('Tuần này'), Text('0 tin')],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [Text('Tháng này'), Text('0 tin')],
-                              ),
-                            ],
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Tổng số tin đã đăng',
+                              style: TextStyle(fontSize: 15),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Obx(() {
+                              return Text(
+                                companyController.countPostJob.toString(),
+                                style: TextStyle(
+                                    fontSize: 22, fontWeight: FontWeight.bold),
+                              );
+                            })
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        width: 180,
-                        child: Padding(
-                          padding: EdgeInsets.all(15.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Ứng viên đã ứng tuyển',
-                                      style: TextStyle(fontSize: 15),
-                                      maxLines: 5,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                    ),
-                                  ),
-                                  Text(
-                                    companyController.countUserApply.toString(),
-                                    style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ],
-                              ),
-                              Divider(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Tuần này'),
-                                  Text(
-                                    '0 ứng viên',
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Tháng này'),
-                                  Text('0 ứng viên')
-                                ],
-                              ),
-                            ],
-                          ),
+                      VerticalDivider(
+                        width: 2,
+                        thickness: 3,
+                        color: const Color.fromARGB(255, 216, 216, 216),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Ứng viên đã ứng tuyển',
+                              style: TextStyle(fontSize: 15),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Obx(() {
+                              return Text(
+                                companyController.countUserApply.toString(),
+                                style: TextStyle(
+                                    fontSize: 22, fontWeight: FontWeight.bold),
+                              );
+                            })
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -348,3 +306,23 @@ class _HomeNTDState extends State<HomeNTD> {
     );
   }
 }
+//  Padding(
+//                         padding: const EdgeInsets.all(5.0),
+//                         child: Column(
+//                           children: [
+//                             Text(
+//                               'Ứng viên đã ứng tuyển',
+//                               style: TextStyle(fontSize: 15),
+//                               maxLines: 2,
+//                               overflow: TextOverflow.ellipsis,
+//                             ),
+//                             Obx(() {
+//                               return Text(
+//                                 companyController.countPostJob.toString(),
+//                                 style: TextStyle(
+//                                     fontSize: 22, fontWeight: FontWeight.bold),
+//                               );
+//                             })
+//                           ],
+//                         ),
+//                       )

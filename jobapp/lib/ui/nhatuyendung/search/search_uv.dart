@@ -92,6 +92,7 @@ class _SearchUvScreenState extends State<SearchUvScreen> {
     try {
       _originalUsers = await Database().fetchAllUsers();
       _allUsers = List.from(_originalUsers);
+      print(_allUsers);
     } catch (e) {
       print(e);
     }

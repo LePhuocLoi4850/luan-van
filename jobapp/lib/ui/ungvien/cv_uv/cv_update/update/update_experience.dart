@@ -70,7 +70,7 @@ class _UpdateExperienceState extends State<UpdateExperience> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Are you sure?'),
+        title: const Text('Bạn có chắc?'),
         content: Text(message),
         actions: <Widget>[
           TextButton(

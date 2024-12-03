@@ -151,26 +151,31 @@ class _UvDetailState extends State<UvDetail> {
   }
 
   Future<void> fetchPdf() async {
+    print(nameCv);
     try {
-      pdf = await Database().fetchPdfForCvId(cvId);
-      if (pdf.isEmpty) {
-        return;
+      if (nameCv == 'CV Profile') {
+        Get.toNamed('/cvProfileScreen', arguments: uid);
       } else {
-        Get.to(
-          () => Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Get.back();
-                },
+        pdf = await Database().fetchPdfForCvId(cvId);
+        if (pdf.isEmpty) {
+          return;
+        } else {
+          Get.to(
+            () => Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Get.back();
+                  },
+                ),
+              ),
+              body: SfPdfViewer.memory(
+                base64Decode(pdf),
               ),
             ),
-            body: SfPdfViewer.memory(
-              base64Decode(pdf),
-            ),
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
       print(e);
@@ -310,30 +315,30 @@ class _UvDetailState extends State<UvDetail> {
     }
   }
 
-  // void _handleSubmit() async {
-  //   String nameC = controller.companyModel.value.name!;
-  //   String evaluate = _isCheckedAccept ? 'Phù hợp' : 'Không phù hợp';
-  //   String comment = _commentController.text;
-  //   try {
-  //     switch (status) {
-  //       case 'applied':
-  //         String reason = 'bị từ chối';
-  //         await Database().updateApplicantStatus(
-  //             jid, uid, 'rejected', nameC, evaluate, comment, reason);
-  //         break;
-  //       case 'approved':
-  //       case 'rejected':
-  //       case 'cancelled':
-  //         Get.snackbar(
-  //             'Thông báo', 'Tính năng đang trong quá trình phát triển');
-  //         break;
-  //       default:
-  //         Get.snackbar('Lỗi', 'Trạng thái không xác định');
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  void _handleSubmit() async {
+    String nameC = controller.companyModel.value.name!;
+    String evaluate = _isCheckedAccept ? 'Phù hợp' : 'Không phù hợp';
+    String comment = _commentController.text;
+    try {
+      switch (status) {
+        case 'applied':
+          String reason = 'bị từ chối';
+          await Database().updateApplicantStatus(
+              jid, uid, 'rejected', nameC, evaluate, comment, reason);
+          break;
+        case 'approved':
+        case 'rejected':
+        case 'cancelled':
+          Get.snackbar(
+              'Thông báo', 'Tính năng đang trong quá trình phát triển');
+          break;
+        default:
+          Get.snackbar('Lỗi', 'Trạng thái không xác định');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
 // button right
   String _getApproveButtonText(String status) {
@@ -691,7 +696,7 @@ class _UvDetailState extends State<UvDetail> {
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 22),
+                                                fontSize: 18),
                                           ),
                                         ),
                                 ),
@@ -736,8 +741,8 @@ class _UvDetailState extends State<UvDetail> {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () {
-                                      fetchPdf();
+                                    onPressed: () async {
+                                      await fetchPdf();
                                     },
                                     child: Text(
                                       'Xem',
@@ -789,7 +794,7 @@ class _UvDetailState extends State<UvDetail> {
                                               children: [
                                                 Container(
                                                   height: 50,
-                                                  width: 170,
+                                                  width: 130,
                                                   decoration: BoxDecoration(
                                                       color:
                                                           const Color.fromARGB(
@@ -878,10 +883,10 @@ class _UvDetailState extends State<UvDetail> {
                                                     Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
-                                                              .spaceBetween,
+                                                              .start,
                                                       children: [
                                                         Container(
-                                                            width: 150,
+                                                            width: 130,
                                                             height: 50,
                                                             decoration: BoxDecoration(
                                                                 border: BorderDirectional(
@@ -904,7 +909,7 @@ class _UvDetailState extends State<UvDetail> {
                                                               ),
                                                             ))),
                                                         Container(
-                                                          width: 197,
+                                                          width: 180,
                                                           height: 50,
                                                           decoration:
                                                               BoxDecoration(
@@ -1008,6 +1013,7 @@ class _UvDetailState extends State<UvDetail> {
                                     colorText: Colors.white);
                                 return;
                               }
+                              _handleSubmit();
                               Get.back(result: 'rejected');
                             },
                       style: ElevatedButton.styleFrom(
@@ -1112,7 +1118,7 @@ class _UvDetailState extends State<UvDetail> {
                                                       ),
                                                     ),
                                                     SizedBox(
-                                                      width: 160,
+                                                      width: 130,
                                                       child: TextFormField(
                                                         readOnly: true,
                                                         onTap: () =>
@@ -1120,12 +1126,6 @@ class _UvDetailState extends State<UvDetail> {
                                                                 context),
                                                         decoration:
                                                             InputDecoration(
-                                                          prefixIcon: Icon(
-                                                            Icons
-                                                                .date_range_outlined,
-                                                            color: Colors
-                                                                .grey[800],
-                                                          ),
                                                           hintText:
                                                               '0000-00-00',
                                                           hintStyle: TextStyle(
@@ -1168,118 +1168,102 @@ class _UvDetailState extends State<UvDetail> {
                                                                     .bold),
                                                       ),
                                                     ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              0.0),
-                                                      child: ElevatedButton(
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                          elevation: 0,
-                                                          shape:
-                                                              RoundedRectangleBorder(
-                                                            side: BorderSide(
-                                                                color: Colors
-                                                                    .grey),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                          ),
-                                                          minimumSize:
-                                                              const Size(
-                                                                  100, 58),
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  10),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        elevation: 0,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          side: BorderSide(
+                                                              color:
+                                                                  Colors.grey),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
                                                         ),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Icon(
-                                                              Icons
-                                                                  .timelapse_rounded,
-                                                              color: Colors
-                                                                  .grey[800],
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 10,
-                                                            ),
-                                                            Center(
-                                                              child:
-                                                                  selectedTime !=
-                                                                          null
-                                                                      ? Text(
-                                                                          selectedTime!
-                                                                              .format(context),
-                                                                          style: TextStyle(
-                                                                              fontSize: 20,
-                                                                              fontWeight: FontWeight.w500),
-                                                                        )
-                                                                      : Text(
-                                                                          '00:00 PM',
-                                                                          style: TextStyle(
-                                                                              fontSize: 20,
-                                                                              color: Colors.black54),
-                                                                        ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        onPressed: () async {
-                                                          time =
-                                                              await showTimePicker(
-                                                            context: context,
-                                                            initialTime:
-                                                                selectedTime ??
-                                                                    TimeOfDay
-                                                                        .now(),
-                                                            initialEntryMode:
-                                                                entryMode,
-                                                            orientation:
-                                                                orientation,
-                                                            builder:
-                                                                (BuildContext
-                                                                        context,
-                                                                    Widget?
-                                                                        child) {
-                                                              return Theme(
-                                                                data: Theme.of(
-                                                                        context)
-                                                                    .copyWith(
-                                                                  materialTapTargetSize:
-                                                                      tapTargetSize,
-                                                                ),
-                                                                child:
-                                                                    Directionality(
-                                                                  textDirection:
-                                                                      textDirection,
-                                                                  child:
-                                                                      MediaQuery(
-                                                                    data: MediaQuery.of(
-                                                                            context)
-                                                                        .copyWith(
-                                                                      alwaysUse24HourFormat:
-                                                                          use24HourTime,
-                                                                    ),
-                                                                    child:
-                                                                        child!,
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
-                                                          );
-                                                          setState(() {
-                                                            selectedTime = time;
-                                                          });
-                                                        },
+                                                        minimumSize:
+                                                            const Size(100, 58),
+                                                        padding:
+                                                            EdgeInsets.all(10),
                                                       ),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Center(
+                                                            child:
+                                                                selectedTime !=
+                                                                        null
+                                                                    ? Text(
+                                                                        selectedTime!
+                                                                            .format(context),
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.w500),
+                                                                      )
+                                                                    : Text(
+                                                                        '00:00 PM',
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                20,
+                                                                            color:
+                                                                                Colors.black54),
+                                                                      ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      onPressed: () async {
+                                                        time =
+                                                            await showTimePicker(
+                                                          context: context,
+                                                          initialTime:
+                                                              selectedTime ??
+                                                                  TimeOfDay
+                                                                      .now(),
+                                                          initialEntryMode:
+                                                              entryMode,
+                                                          orientation:
+                                                              orientation,
+                                                          builder: (BuildContext
+                                                                  context,
+                                                              Widget? child) {
+                                                            return Theme(
+                                                              data: Theme.of(
+                                                                      context)
+                                                                  .copyWith(
+                                                                materialTapTargetSize:
+                                                                    tapTargetSize,
+                                                              ),
+                                                              child:
+                                                                  Directionality(
+                                                                textDirection:
+                                                                    textDirection,
+                                                                child:
+                                                                    MediaQuery(
+                                                                  data: MediaQuery.of(
+                                                                          context)
+                                                                      .copyWith(
+                                                                    alwaysUse24HourFormat:
+                                                                        use24HourTime,
+                                                                  ),
+                                                                  child: child!,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                        setState(() {
+                                                          selectedTime = time;
+                                                        });
+                                                      },
                                                     ),
                                                   ],
                                                 ),

@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../server/database.dart';
-import '../../auth/auth_controller.dart';
 
 class CvProfileScreen extends StatefulWidget {
   const CvProfileScreen({super.key});
@@ -16,16 +15,18 @@ class CvProfileScreen extends StatefulWidget {
 }
 
 class _CvProfileScreenState extends State<CvProfileScreen> {
-  AuthController controller = Get.find<AuthController>();
+  // AuthController controller = Get.find<AuthController>();
   List<Map<String, dynamic>> _allEducation = [];
   List<Map<String, dynamic>> _allExperience = [];
   List<Map<String, dynamic>> _allCertificate = [];
   List<Map<String, dynamic>> _allSkill = [];
+  Map<String, dynamic> userData = {};
   bool isLoading = false;
-
+  int id = 0;
   @override
   void initState() {
     super.initState();
+    id = Get.arguments;
     _fetchData();
   }
 
@@ -47,7 +48,7 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
   }
 
   Future<void> _fetchEducation() async {
-    int uid = controller.userModel.value.id!;
+    int uid = id;
     try {
       _allEducation = await Database().fetchEducation(uid);
     } catch (e) {
@@ -56,7 +57,7 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
   }
 
   Future<void> _fetchExperience() async {
-    int uid = controller.userModel.value.id!;
+    int uid = id;
     try {
       _allExperience = await Database().fetchExperience(uid);
     } catch (e) {
@@ -65,7 +66,7 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
   }
 
   Future<void> _fetchCertificate() async {
-    int uid = controller.userModel.value.id!;
+    int uid = id;
     try {
       _allCertificate = await Database().fetchCertificate(uid);
     } catch (e) {
@@ -74,8 +75,9 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
   }
 
   Future<void> _fetchSkill() async {
-    int uid = controller.userModel.value.id!;
+    int uid = id;
     try {
+      userData = await Database().fetchUserDataForUid(uid);
       _allSkill = await Database().fetchSkill(uid);
     } catch (e) {
       print(e);
@@ -113,15 +115,14 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
                                     padding: const EdgeInsets.all(10.0),
                                     child: ClipOval(
                                       child: Container(
-                                        width: 150,
-                                        height: 150,
+                                        width: 130,
+                                        height: 130,
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(50),
                                         ),
                                         child: imageFromBase64String(
-                                          controller.userModel.value.image
-                                              .toString(),
+                                          userData['image'].toString(),
                                         ),
                                       ),
                                     ),
@@ -131,7 +132,7 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        controller.userModel.value.name!,
+                                        userData['name'],
                                         style: TextStyle(
                                           fontSize: 22,
                                           fontWeight: FontWeight.bold,
@@ -142,31 +143,29 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
                                           Icons.cake,
                                           color: Colors.blue,
                                         ),
-                                        data: DateFormat('yyyy-MM-dd').format(
-                                            controller
-                                                .userModel.value.birthday!),
+                                        data: DateFormat('yyyy-MM-dd')
+                                            .format(userData['birthday']),
                                       ),
                                       Information(
                                         icon: Icon(
                                           Icons.email,
                                           color: Colors.blue,
                                         ),
-                                        data: controller.userModel.value.email!,
+                                        data: userData['email'],
                                       ),
                                       Information(
                                         icon: Icon(
                                           Icons.phone,
                                           color: Colors.blue,
                                         ),
-                                        data: controller.userModel.value.phone!,
+                                        data: userData['phone'],
                                       ),
                                       Information(
                                         icon: Icon(
                                           Icons.location_on_rounded,
                                           color: Colors.blue,
                                         ),
-                                        data:
-                                            controller.userModel.value.address!,
+                                        data: userData['address'],
                                       ),
                                     ],
                                   )
@@ -224,139 +223,6 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
                                                   ),
                                                   Text(
                                                     '${DateFormat('yyyy-MM-dd').format(education['time_from'])} - ${DateFormat('yyyy-MM-dd').format(education['time_to'])}',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color:
-                                                            Colors.grey[500]),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          );
-                                        }),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Container(
-                              color: Colors.white,
-                              padding: EdgeInsets.all(5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Kinh nghiệm',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Center(
-                                    child: ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: _allExperience.length,
-                                        itemBuilder: (context, index) {
-                                          var experience =
-                                              _allExperience[index];
-                                          return Row(
-                                            children: [
-                                              Image(
-                                                image: AssetImage(
-                                                    'assets/images/experience.jpg'),
-                                                width: 80,
-                                                height: 80,
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    experience['nameCompany'],
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Text(experience['position'],
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w500)),
-                                                  Text(
-                                                    '${DateFormat('yyyy-MM-dd').format(experience['time_from'])} - ${DateFormat('yyyy-MM-dd').format(experience['time_to'])}',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color:
-                                                            Colors.grey[500]),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          );
-                                        }),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Container(
-                              color: Colors.white,
-                              padding: EdgeInsets.all(5),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Chứng chỉ',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Center(
-                                    child: ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: _allCertificate.length,
-                                        itemBuilder: (context, index) {
-                                          var certificate =
-                                              _allCertificate[index];
-                                          return Row(
-                                            children: [
-                                              Image(
-                                                image: AssetImage(
-                                                    'assets/images/certificate.jpg'),
-                                                width: 80,
-                                                height: 80,
-                                              ),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    certificate[
-                                                        'nameCertificate'],
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  Text(
-                                                    certificate['nameHost'],
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w500),
-                                                  ),
-                                                  Text(
-                                                    '${DateFormat('yyyy-MM-dd').format(certificate['time_from'])} - ${DateFormat('yyyy-MM-dd').format(certificate['time_to'])}',
                                                     style: TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
@@ -441,6 +307,140 @@ class _CvProfileScreenState extends State<CvProfileScreen> {
                               ),
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Container(
+                              color: Colors.white,
+                              padding: EdgeInsets.all(5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Chứng chỉ',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Center(
+                                    child: ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: _allCertificate.length,
+                                        itemBuilder: (context, index) {
+                                          var certificate =
+                                              _allCertificate[index];
+                                          return Row(
+                                            children: [
+                                              Image(
+                                                image: AssetImage(
+                                                    'assets/images/certificate.jpg'),
+                                                width: 80,
+                                                height: 80,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    certificate[
+                                                        'nameCertificate'],
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(
+                                                    certificate['nameHost'],
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                  Text(
+                                                    '${DateFormat('yyyy-MM-dd').format(certificate['time_from'])} - ${DateFormat('yyyy-MM-dd').format(certificate['time_to'])}',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Colors.grey[500]),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          );
+                                        }),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10, bottom: 10),
+                            child: Container(
+                              color: Colors.white,
+                              padding: EdgeInsets.all(5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Kinh nghiệm',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Center(
+                                    child: ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: _allExperience.length,
+                                        itemBuilder: (context, index) {
+                                          var experience =
+                                              _allExperience[index];
+                                          return Row(
+                                            children: [
+                                              Image(
+                                                image: AssetImage(
+                                                    'assets/images/experience.jpg'),
+                                                width: 80,
+                                                height: 80,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    experience['nameCompany'],
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(experience['position'],
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w500)),
+                                                  Text(
+                                                    '${DateFormat('yyyy-MM-dd').format(experience['time_from'])} - ${DateFormat('yyyy-MM-dd').format(experience['time_to'])}',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            Colors.grey[500]),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          );
+                                        }),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       )
                     ],
@@ -493,7 +493,12 @@ class Information extends StatelessWidget {
         icon,
         Padding(
           padding: const EdgeInsets.all(5.0),
-          child: Text(data),
+          child: Text(
+            data,
+            style: TextStyle(fontSize: 14),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         )
       ],
     );

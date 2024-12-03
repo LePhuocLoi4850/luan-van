@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fit: BoxFit.fill)),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 220.0, left: 20, right: 20),
+              padding: const EdgeInsets.only(top: 180.0, left: 20, right: 20),
               child: Form(
                 key: _formKey,
                 child: Column(

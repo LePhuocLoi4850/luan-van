@@ -32,6 +32,8 @@ class _ApplyState extends State<Apply> {
   int? _groupValue1;
   String? emailCompany;
   String? address;
+  int? cvId;
+  String? nameCv;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> detailJob = {};
   bool isLoading = false;
@@ -140,10 +142,16 @@ class _ApplyState extends State<Apply> {
     String salaryTo = detailJob['salaryTo'];
     String imageC = detailJob['image'];
     String imageU = controller.userModel.value.image!;
-    int cvId = cvStorageController.cvData[_selectedCvIndex!].cvId;
-    String nameCv = cvStorageController.cvData[_selectedCvIndex!].nameCv;
     DateTime applyDate = DateTime.now();
-
+    if (_selectedCvIndex == null && isCVProfile) {
+      cvId = userController.data['cv_id'];
+      nameCv = userController.data['nameCv'];
+    } else {
+      cvId = cvStorageController.cvData[_selectedCvIndex!].cvId;
+      nameCv = cvStorageController.cvData[_selectedCvIndex!].nameCv;
+    }
+    print('$cvId, $nameCv');
+    print('$cvId, $nameCv');
     try {
       await Database().apply(
           jid,
@@ -160,8 +168,8 @@ class _ApplyState extends State<Apply> {
           status,
           imageC,
           imageU,
-          cvId,
-          nameCv);
+          cvId!,
+          nameCv!);
       print('ứng tuyển thành công');
       await _sendEmailUser();
       await _sendEmailCompany();
@@ -171,6 +179,17 @@ class _ApplyState extends State<Apply> {
       Get.offAllNamed('/notificationApply');
     } catch (e) {
       print('Ứng tuyển lỗi: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ứng tuyển thất bại'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -727,79 +746,6 @@ class _ApplyState extends State<Apply> {
                             SizedBox(
                               width: 350,
                               height: _groupValue == 1 ? 15 : 0,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    _buildRadioListTile(
-                      title: 'Tải CV lên từ điện thoại',
-                      value: 2,
-                      selectedBorderColor: Colors.blue,
-                      unselectedBorderColor: Colors.grey,
-                      child: SizedBox(
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 350,
-                              height: _groupValue == 2 ? 200 : 0,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.blue)),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ShaderMask(
-                                    shaderCallback: (Rect bounds) {
-                                      return const LinearGradient(
-                                        colors: [Colors.white, Colors.blue],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ).createShader(bounds);
-                                    },
-                                    child: const Icon(
-                                      Icons.cloud_upload_rounded,
-                                      size: 50,
-                                      color: Color.fromARGB(255, 122, 188, 243),
-                                    ),
-                                  ),
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 10),
-                                    child: Text(
-                                      'Nhấn để tải lên',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
-                                    child: RichText(
-                                      textAlign: TextAlign.center,
-                                      text: const TextSpan(
-                                        style: TextStyle(
-                                            fontSize: 16, color: Colors.black),
-                                        children: [
-                                          TextSpan(
-                                              text:
-                                                  'Hỗ trợ định dạng .doc, .docx, pdf có kích thước dưới '),
-                                          TextSpan(
-                                            text: '5MB',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 350,
-                              height: _groupValue == 2 ? 15 : 0,
                             ),
                           ],
                         ),

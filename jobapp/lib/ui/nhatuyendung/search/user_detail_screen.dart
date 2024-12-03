@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
@@ -19,6 +21,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   List<Map<String, dynamic>> experienceData = [];
   List<Map<String, dynamic>> skillData = [];
   List<Map<String, dynamic>> educationData = [];
+  // Map<String, dynamic> contactStatus = {};
   int uid = 0;
   bool isLoading = false;
   @override
@@ -45,6 +48,21 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       }
     } catch (e) {
       print('chi tiết thông tin user: $e');
+    }
+  }
+
+  void checkContactStatus() async {
+    try {
+      if (userData['link'] == null || userData['contact_status'] == false) {
+        print('Không thể nhắn tin với ứng viên');
+      } else {
+        final Uri url = Uri.parse(userData['link']);
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -666,6 +684,43 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 ),
               ),
             ),
+      bottomNavigationBar: PreferredSize(
+        preferredSize: const Size.fromHeight(200),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 0.0),
+          child: BottomAppBar(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        checkContactStatus();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 11.8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Nhắn tin',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

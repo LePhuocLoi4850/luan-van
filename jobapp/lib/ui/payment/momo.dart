@@ -111,14 +111,14 @@ class _MomoState extends State<Momo> {
                                       Text(
                                         sv['sv_name'],
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(
-                                        sv['sv_price'],
+                                        '${sv['sv_price']} VNĐ',
                                         style: TextStyle(
-                                            fontSize: 20,
+                                            fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.blue),
                                       )
@@ -151,8 +151,10 @@ class _MomoState extends State<Momo> {
                                                       .companyModel.value.name!,
                                                   sv_name: sv['sv_name'],
                                                   sv_price: int.parse(
-                                                      sv['sv_price'].replaceAll(
-                                                          '.', '')));
+                                                      sv['sv_price']
+                                                          .replaceAll('.', '')
+                                                          .replaceAll(
+                                                              ',', '')));
                                           if (payUrl != null) {
                                             Map<String, dynamic> data = {
                                               'url': payUrl,
@@ -163,8 +165,8 @@ class _MomoState extends State<Momo> {
                                                   .companyModel.value.name!,
                                               'sv_name': sv['sv_name'],
                                               'sv_price': int.parse(
-                                                  sv['sv_price']
-                                                      .replaceAll('.', '')),
+                                                  sv['sv_price'].replaceAll(
+                                                      RegExp(r'[^0-9]'), ''))
                                             };
                                             Get.toNamed("/web",
                                                 arguments: data);
@@ -176,7 +178,7 @@ class _MomoState extends State<Momo> {
                                               horizontal: 20,
                                               vertical: 10), // Padding
                                           textStyle: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight:
                                                   FontWeight.bold), // Font chữ
                                           shape: RoundedRectangleBorder(
@@ -187,7 +189,7 @@ class _MomoState extends State<Momo> {
                                         child: Text(
                                           'Mua Ngay',
                                           style: TextStyle(
-                                              fontSize: 20,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.red),
                                         ))

@@ -47,25 +47,6 @@ class _CompanyScreenState extends State<CompanyScreen> {
           ProfileScreen(),
         ],
       ),
-      floatingActionButton: ClipOval(
-        child: Material(
-          color: Colors.blue,
-          elevation: 0,
-          child: InkWell(
-            focusColor: Colors.blue,
-            onTap: () => _onItemTapped(2),
-            child: const SizedBox(
-              width: 50,
-              height: 50,
-              child: Icon(
-                Icons.search_outlined,
-                size: 30,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -86,15 +67,18 @@ class _CompanyScreenState extends State<CompanyScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: SizedBox.shrink(),
-            label: '',
+            icon: Icon(
+              Icons.search,
+              size: 30,
+            ),
+            label: 'Tìm kiếm',
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.note_rounded,
+              Icons.person,
               size: 30,
             ),
-            label: 'Hồ sơ',
+            label: 'Profile',
           ),
         ],
       ),

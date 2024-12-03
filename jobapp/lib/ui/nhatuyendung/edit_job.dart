@@ -447,7 +447,7 @@ class _EditJobState extends State<EditJob> {
                                 ),
                                 const Text(
                                   'Nam',
-                                  style: TextStyle(fontSize: 18),
+                                  style: TextStyle(fontSize: 16),
                                 ),
                               ],
                             ),
@@ -464,7 +464,7 @@ class _EditJobState extends State<EditJob> {
                                 ),
                                 const Text(
                                   'Nữ',
-                                  style: TextStyle(fontSize: 18),
+                                  style: TextStyle(fontSize: 16),
                                 ),
                               ],
                             ),
@@ -481,7 +481,7 @@ class _EditJobState extends State<EditJob> {
                                 ),
                                 const Text(
                                   'Không yêu cầu',
-                                  style: TextStyle(fontSize: 18),
+                                  style: TextStyle(fontSize: 16),
                                 ),
                               ],
                             ),
@@ -511,68 +511,83 @@ class _EditJobState extends State<EditJob> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             SizedBox(
-                              width: 100,
-                              height: 50,
-                              child: TextField(
-                                  controller: fromController,
-                                  keyboardType: TextInputType.none,
-                                  decoration: InputDecoration(
-                                    hintText: 'Từ',
-                                    hintStyle: const TextStyle(fontSize: 18),
-                                    border: const OutlineInputBorder(),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black,
-                                          width:
-                                              1), // Red border when not focused
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black,
-                                          width:
-                                              1), // Red border when not focused
-                                    ),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  readOnly: true,
-                                  onTap: () => _showSalaryBottomSheet(
-                                      context, fromController)),
+                              width: 60,
+                              height: 60,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  TextField(
+                                      controller: fromController,
+                                      keyboardType: TextInputType.none,
+                                      decoration: InputDecoration(
+                                        hintText: 'Từ',
+                                        hintStyle:
+                                            const TextStyle(fontSize: 18),
+                                        border: const OutlineInputBorder(),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          borderSide: const BorderSide(
+                                              color: Colors.black,
+                                              width:
+                                                  1), // Red border when not focused
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          borderSide: const BorderSide(
+                                              color: Colors.black,
+                                              width:
+                                                  1), // Red border when not focused
+                                        ),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      readOnly: true,
+                                      onTap: () => _showSalaryBottomSheet(
+                                          context, fromController)),
+                                ],
+                              ),
                             ),
                             const Text(
                               '-',
                               style: TextStyle(fontSize: 30),
                             ),
                             SizedBox(
-                              width: 100,
-                              height: 50,
-                              child: TextField(
-                                controller: toController,
-                                keyboardType: TextInputType.none,
-                                decoration: InputDecoration(
-                                  hintText: 'Đến',
-                                  hintStyle: const TextStyle(fontSize: 18),
-                                  border: const OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black,
-                                        width:
-                                            1), // Red border when not focused
+                              width: 60,
+                              height: 60,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  TextField(
+                                    controller: toController,
+                                    keyboardType: TextInputType.none,
+                                    decoration: InputDecoration(
+                                      hintText: 'Đến',
+                                      hintStyle: const TextStyle(fontSize: 18),
+                                      border: const OutlineInputBorder(),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        borderSide: const BorderSide(
+                                            color: Colors.black,
+                                            width:
+                                                1), // Red border when not focused
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        borderSide: const BorderSide(
+                                            color: Colors.black,
+                                            width:
+                                                1), // Red border when not focused
+                                      ),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    readOnly: true,
+                                    onTap: () => _showSalaryBottomSheet(
+                                        context, toController),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black,
-                                        width:
-                                            1), // Red border when not focused
-                                  ),
-                                ),
-                                textAlign: TextAlign.center,
-                                readOnly: true,
-                                onTap: () => _showSalaryBottomSheet(
-                                    context, toController),
+                                ],
                               ),
                             ),
                             const Text(

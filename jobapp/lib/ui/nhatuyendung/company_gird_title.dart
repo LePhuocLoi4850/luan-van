@@ -217,38 +217,6 @@ class _CompanyGirdTitleState extends State<CompanyGirdTitle> {
                                         const SizedBox(
                                           height: 10,
                                         ),
-                                        SizedBox(
-                                          width: 300,
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                                side: BorderSide(
-                                                    color: Colors.blue),
-                                              ),
-                                            ),
-                                            onPressed: () {},
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  Icons.add,
-                                                  color: Colors.blue,
-                                                ),
-                                                Text(
-                                                  'Theo dõi',
-                                                  style: TextStyle(
-                                                    color: Colors.blue,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),

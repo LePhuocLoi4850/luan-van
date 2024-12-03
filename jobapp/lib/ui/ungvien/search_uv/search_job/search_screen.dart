@@ -15,9 +15,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final FocusNode _focusNode = FocusNode();
   final List<String> hotSearch = [
     'Lập trình viên',
-    'Nhân viên tư vấn',
-    'Kế toán',
-    'Tuyển dụng nhân sự',
+    'Nhân viên kinh doanh',
     'Thực tập sinh'
   ];
   List<String> allNameJob = [];
@@ -147,7 +145,11 @@ class _SearchScreenState extends State<SearchScreen> {
                             itemCount: hotSearch.length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  setState(() {
+                                    _searchController.text = hotSearch[index];
+                                  });
+                                },
                                 child: ListTile(
                                   title: Column(
                                     crossAxisAlignment:

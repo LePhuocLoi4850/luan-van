@@ -35,6 +35,7 @@ class _CvScreenState extends State<CvScreen> {
     try {
       int uid = controller.userModel.value.id!;
       final cvData = await Database().fetchAllCvForUid(uid);
+      print(cvData);
       cvStorageController.clearCvData();
       for (final cvMap in cvData) {
         final cv = CV.fromMap(cvMap);
@@ -54,7 +55,7 @@ class _CvScreenState extends State<CvScreen> {
     return showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Are you sure?'),
+        title: const Text('Bạn có chắc?'),
         content: Text(message),
         actions: <Widget>[
           TextButton(
