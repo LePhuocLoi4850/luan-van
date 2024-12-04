@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jobapp/controller/favorites_controller.dart';
 
 import '../../../controller/user_controller.dart';
@@ -77,7 +78,7 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 210,
+      height: 230,
       child: ListView.builder(
         scrollDirection: Axis.vertical,
         physics: const ClampingScrollPhysics(),
@@ -270,6 +271,12 @@ class _JobGirdTitleVerticalState extends State<JobGirdTitleVertical> {
                             ),
                           ],
                         ),
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                              'Hạn chót ứng tuyển: ${DateFormat('dd/MM/yyyy').format(job['expiration_date'])}'),
+                        ],
                       )
                     ],
                   ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jobapp/provider/user_provider.dart';
-import 'package:jobapp/ui/admin/admin_job.dart';
+import 'package:jobapp/ui/admin/admin_job/admin_job.dart';
 import 'package:jobapp/ui/auth/login_screen.dart';
 import 'package:jobapp/ui/auth/register_screen.dart';
 import 'package:jobapp/ui/nhatuyendung/list_job.dart';
@@ -22,12 +22,20 @@ import 'package:provider/provider.dart';
 import 'provider/provider.dart';
 import 'server/database_connection.dart';
 import 'share/splash_screen.dart';
-import 'ui/admin/add_service.dart';
-import 'ui/admin/admin_company.dart';
+import 'ui/admin/admin_pay/admin_pay.dart';
+import 'ui/admin/admin_pay/pay_detail_screen_admin.dart';
+import 'ui/admin/admin_service/add_service.dart';
+import 'ui/admin/admin_company/admin_company.dart';
 import 'ui/admin/admin_home.dart';
-import 'ui/admin/admin_service.dart';
-import 'ui/admin/admin_user.dart';
-import 'ui/admin/edit_service.dart';
+import 'ui/admin/admin_service/admin_service.dart';
+import 'ui/admin/admin_user/admin_user.dart';
+import 'ui/admin/admin_company/company_detail_admin.dart';
+import 'ui/admin/admin_service/edit_service.dart';
+import 'ui/admin/admin_job/job_detail_screen_admin.dart';
+import 'ui/admin/admin_service/service_detail.dart';
+import 'ui/admin/admin_user/user_detail_admin.dart';
+import 'ui/admin/chart.dart';
+import 'ui/admin/uv_detail_admin.dart';
 import 'ui/auth/auth_controller.dart';
 import 'ui/auth/choose_role.dart';
 import 'ui/auth/update_profile_company.dart';
@@ -158,6 +166,17 @@ class _MyAppState extends State<MyApp> {
     GetPage(name: '/adminJob', page: () => const AdminJob()),
     GetPage(name: '/adminUser', page: () => const AdminUser()),
     GetPage(name: '/adminCompany', page: () => const AdminCompany()),
+    GetPage(name: '/serviceDetail', page: () => const ServiceDetail()),
+    GetPage(name: '/uvDetailAdmin', page: () => const UvDetailAdmin()),
+    GetPage(name: '/userDetailAdmin', page: () => const UserDetailAdmin()),
+    GetPage(name: '/jobChart', page: () => const RevenueChart()),
+    GetPage(name: '/adminPay', page: () => const AdminPay()),
+    GetPage(
+        name: '/companyDetailAdmin', page: () => const CompanyDetailAdmin()),
+    GetPage(name: '/jobDetailAdmin', page: () => const JobDetailAdmin()),
+    GetPage(
+        name: '/payDetailScreenAdmin',
+        page: () => const PayDetailScreenAdmin()),
     GetPage(
         transition: Transition.rightToLeftWithFade,
         curve: Curves.easeInOutCubicEmphasized,

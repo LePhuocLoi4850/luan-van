@@ -62,6 +62,8 @@ dependencies:
   go_router: ^14.6.1
   gradient_borders: ^1.0.1
   url_launcher: ^6.3.1
+  syncfusion_flutter_charts: ^27.2.5
+  collection: ^1.18.0
   
 dev_dependencies:
   flutter_test:

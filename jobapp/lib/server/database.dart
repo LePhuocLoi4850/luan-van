@@ -5,6 +5,343 @@ import 'package:postgres/postgres.dart';
 class Database {
   final conn = DatabaseConnection().connection;
   CompanyModel? companyModel;
+//admin
+
+// apply
+  Future<Map<String, dynamic>> fetchJobDetailAdmin(int jid) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT j.title, j.description, j.request, j.interest, j.salary_from, j.salary_to, j.expiration_date, c.name AS nameC, c.address
+    FROM job j
+    JOIN company c ON j.cid = c.cid
+    WHERE j.jid = @jid
+    '''), parameters: {'jid': jid});
+    if (result.isEmpty) {
+      return {};
+    }
+    return result
+        .map((row) => {
+              'title': row[0],
+              'description': row[1],
+              'request': row[2],
+              'interest': row[3],
+              'salary_from': row[4],
+              'salary_to': row[5],
+              'expiration_date': row[6],
+              'nameC': row[7],
+              'address': row[8],
+            })
+        .first;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAppliesForJob(int jid) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT u.name AS nameu, u.image, a.status, a.apply_date, a.title
+    FROM apply a
+    JOIN users u ON a.uid = u.uid
+    WHERE a.jid = @jid
+    '''), parameters: {'jid': jid});
+    return result
+        .map((row) => {
+              'nameu': row[0],
+              'image': row[1],
+              'status': row[2],
+              'apply_date': row[3],
+              'title': row[4]
+            })
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllApply() async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT *
+    FROM apply
+    '''));
+    return result
+        .map((row) => {
+              'apply_id': row[0],
+              'jid': row[1],
+              'uid': row[3],
+              'cid': row[4],
+              'nameu': row[5],
+              'title': row[6],
+              'namec': row[7],
+              'address': row[8],
+              'experience': row[9],
+              'salaryFrom': row[10],
+              'salaryTo': row[11],
+              'apply_date': row[12],
+              'status': row[13],
+              'image': row[14],
+              'cv_id': row[15],
+              'namecv': row[16],
+              'evaluate': row[17],
+              'comment': row[18],
+              'reason': row[19],
+            })
+        .toList();
+  }
+
+//company
+  Future<List<Map<String, dynamic>>> fetchAppliesForCompany(int cid) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT a.title, u.name AS nameu, a.status, u.image, u.email, u.phone, a.apply_date
+    FROM apply a
+    JOIN users u ON a.uid = u.uid
+    WHERE a.cid = @cid
+    '''), parameters: {'cid': cid});
+    return result
+        .map((row) => {
+              'title': row[0],
+              'nameu': row[1],
+              'status': row[2],
+              'image': row[3],
+              'email': row[4],
+              'phone': row[5],
+              'apply_date': row[6],
+            })
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllCompanyAdmin() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT c.cid, c.name, c.career, c.image, COUNT(DISTINCT j.jid), c.service_day , COUNT(DISTINCT a.apply_id), c.created_at
+FROM company c 
+LEFT JOIN job j ON c.cid = j.cid
+LEFT JOIN apply a ON c.cid = a.cid
+GROUP BY c.cid, c.service_day -- Thêm c.service_day vào GROUP BY
+ORDER BY c.service_day DESC
+'''));
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'name': row[1],
+          'career': row[2],
+          'image': row[3],
+          'countJ': row[4],
+          'service_day': row[5],
+          'countU': row[6],
+          'created_at': row[7]
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch all company error: $e');
+      rethrow;
+    }
+  }
+
+// user
+  Future<List<Map<String, dynamic>>> fetchApplyForUid(int uid) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT a.title, c.name AS namec, a.status 
+    FROM apply a
+    JOIN company c ON a.cid = c.cid
+    WHERE a.uid = @uid
+    '''), parameters: {'uid': uid});
+    return result
+        .map((row) => {
+              'title': row[0],
+              'namec': row[1],
+              'status': row[2],
+            })
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllUserAdmin() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+    SELECT u.*, (SELECT COUNT(*) FROM apply WHERE uid = u.uid) AS num_apply
+      FROM users u
+'''));
+
+      return result.map((row) {
+        return {
+          'uid': row[0],
+          'email': row[1],
+          'name': row[2],
+          'career': row[3],
+          'phone': row[4],
+          'gender': row[5],
+          'birthday': row[6],
+          'address': row[7],
+          'description': row[8],
+          'salaryFrom': row[9],
+          'salaryTo': row[10],
+          'image': row[11],
+          'experience': row[12],
+          'create_at': row[13],
+          'num_apply': row[16],
+        };
+      }).toList();
+    } catch (e) {
+      print('error fetch all users: $e');
+      rethrow;
+    }
+  }
+// job
+
+  Future<Map<String, dynamic>> fetchApplyJidUid(int jid, int uid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+     SELECT a.status, u.birthday, u.gender, u.email, u.phone, a.cv_id, a.namecv, a.comment
+      FROM apply a
+      JOIN users u ON a.uid = u.uid
+      WHERE a.jid = @jid AND a.uid = @uid
+      '''), parameters: {'jid': jid, 'uid': uid});
+      final row = result.first;
+      return {
+        'status': row[0],
+        'birthday': row[1],
+        'gender': row[2],
+        'email': row[3],
+        'phone': row[4],
+        'cv_id': row[5],
+        'namecv': row[6],
+        'comment': row[7]
+      };
+    } catch (e) {
+      print('fetch apply error: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllApplyForJobId(int jid) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT u.uid, u.name, u.address, u.image, u.career,a.status, a.apply_date
+      FROM users u
+      JOIN apply a ON u.uid = a.uid
+      WHERE a.jid = @jid
+      '''), parameters: {'jid': jid});
+      return result.map((row) {
+        return {
+          'uid': row[0],
+          'name': row[1],
+          'address': row[2],
+          'image': row[3],
+          'career': row[4],
+          'status': row[5],
+          'apply_date': row[6],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch apply for job error: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllJobChartAdmin() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+SELECT c.cid, c.name, SUM(a.num_apply) AS total_num_apply, COUNT(j.jid) AS num_jobs
+FROM company c
+JOIN job j ON c.cid = j.cid
+LEFT JOIN (SELECT jid, COUNT(apply_id) AS num_apply FROM apply GROUP BY jid) a ON j.jid = a.jid
+GROUP BY c.cid, c.name
+ORDER BY 
+CASE WHEN c.service_day IS NULL THEN 0 ELSE 1 END DESC,
+c.service_day DESC;
+    '''));
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'nameC': row[1],
+          'total_num_apply': int.tryParse(row[2].toString()) ?? 0,
+          'num_jobs': row[3],
+        };
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllJobAdmin() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+SELECT c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day,j.status, COUNT(a.apply_id) AS num_apply
+FROM company c
+JOIN job j ON c.cid = j.cid
+LEFT JOIN apply a ON j.jid = a.jid
+GROUP BY c.cid, c.name, c.address, c.image, j.jid, j.title, j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day
+ORDER BY 
+CASE WHEN c.service_day IS NULL THEN 0 ELSE 1 END DESC,
+ c.service_day DESC, 
+ j.expiration_date DESC;
+    '''));
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'nameC': row[1],
+          'address': row[2],
+          'image': row[3],
+          'jid': row[4],
+          'title': row[5],
+          'careerJ': row[6],
+          'salaryFrom': row[7],
+          'salaryTo': row[8],
+          'experience': row[9],
+          'expiration_date': row[10],
+          'service_day': row[11],
+          'status': row[12],
+          'num_apply': row[13],
+        };
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+// service
+  Future<List<Map<String, dynamic>>> fetchCompaniesBoughtService(
+      int svId) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT DISTINCT c.cid, c.name
+    FROM company c
+    INNER JOIN payment p ON c.cid = p.cid
+    WHERE p.sv_id = @sv_id
+    '''), parameters: {'sv_id': svId});
+    return result
+        .map(
+          (row) => {
+            'cid': row[0],
+            'name': row[1],
+          },
+        )
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchInvoicesForService(int svId) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT sv_name, price, day_order 
+    FROM payment
+    WHERE sv_id = @sv_id
+    '''), parameters: {'sv_id': svId});
+    return result
+        .map((row) => {
+              'sv_name': row[0],
+              'price': row[1],
+              'day_order': row[2],
+            })
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchInvoicesForCompany(
+      int svId, int cid) async {
+    final result = await conn!.execute(Sql.named('''
+    SELECT sv_name, price, day_order 
+    FROM payment
+    WHERE sv_id = @sv_id AND cid = @cid
+    '''), parameters: {'cid': cid, 'sv_id': svId});
+    return result
+        .map((row) => {
+              'sv_name': row[0],
+              'price': row[1],
+              'day_order': row[2],
+            })
+        .toList();
+  }
 
 // contact status
   Future<Map<String, dynamic>> fetchContactStatus(int uid) async {
@@ -260,7 +597,11 @@ class Database {
   Future<List<Map<String, dynamic>>> fetchAllServiceAdmin() async {
     try {
       final result = await conn!.execute(Sql.named('''
-      SELECT * FROM service '''));
+        SELECT s.*, COUNT(p.cid) AS num_companies_bought
+      FROM service s
+      LEFT JOIN payment p ON s.sv_id = p.sv_id
+      GROUP BY s.sv_id, s.sv_name, s.sv_description, s.sv_price
+      '''));
       if (result.isEmpty) {
         return [];
       }
@@ -270,6 +611,7 @@ class Database {
           'sv_name': row[1],
           'sv_description': row[2],
           'sv_price': row[3],
+          'num_companies_bought': row[4],
         };
       }).toList();
     } catch (e) {

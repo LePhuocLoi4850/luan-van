@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jobapp/controller/favorites_controller.dart';
 import 'package:jobapp/models/favorites.dart';
 import '../../../controller/user_controller.dart';
@@ -76,7 +77,7 @@ class _JobGirdTitleState extends State<JobGirdTitle> {
                     ),
                     borderRadius: BorderRadius.circular(15)),
                 child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
                   child: Column(
                     children: [
                       Row(
@@ -105,7 +106,7 @@ class _JobGirdTitleState extends State<JobGirdTitle> {
                                       '${job['title']}',
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w500,
-                                          fontSize: 20),
+                                          fontSize: 18),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -243,6 +244,12 @@ class _JobGirdTitleState extends State<JobGirdTitle> {
                             ),
                           ],
                         ),
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                              'Hạn chót ứng tuyển: ${DateFormat('dd/MM/yyyy').format(job['expiration_date'])}'),
+                        ],
                       )
                     ],
                   ),
