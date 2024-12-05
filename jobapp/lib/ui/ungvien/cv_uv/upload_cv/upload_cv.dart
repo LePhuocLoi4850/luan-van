@@ -153,7 +153,7 @@ class _UploadCvState extends State<UploadCv> {
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
                           width: double.infinity,
-                          height: 80,
+                          height: 90,
                           padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),

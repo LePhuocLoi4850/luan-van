@@ -119,7 +119,31 @@ class _UserDetailAdminState extends State<UserDetailAdmin>
 
   Widget _buildListCV() {
     return applyList.isEmpty
-        ? const Center(child: Text('Ứng viên này chưa có cv upload nào.'))
+        ? Column(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Now CV_Profile'),
+                  TextButton(
+                    onPressed: () async {
+                      Get.toNamed('/cvProfileScreen', arguments: uid);
+                    },
+                    child: Text(
+                      'Xem',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          )
         : Column(
             children: [
               Padding(
@@ -751,37 +775,49 @@ class _UserDetailAdminState extends State<UserDetailAdmin>
             itemBuilder: (context, index) {
               final apply = applyList[index];
               return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10)),
-                  child: ListTile(
-                    title: Text(
-                      apply['title'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.all(10.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Map<String, dynamic> data = {
+                        'uid': uid,
+                        'jid': apply['jid'],
+                        'title': apply['title'],
+                        'name': apply['nameu'],
+                        'image': apply['image'],
+                      };
+                      Get.toNamed('/uvDetailAdmin', arguments: data);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: getStatusBackgroundColor(apply['status']),
+                      ),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: imageFromBase64String(apply['imagec']),
+                        ),
+                        title: Text(
+                          apply['nameu'],
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Column(
+                          children: [
+                            Text(apply['title']),
+                            Text(
+                                'Ngày ứng tuyển: ${DateFormat('dd/MM/yyyy').format(apply['apply_date'])}'),
+                          ],
+                        ),
+                        trailing: Icon(
+                          Status.getIcon(apply['status']),
+                          color: Status.getColor(apply['status']),
+                        ),
+                      ),
                     ),
-                    subtitle: Text(apply['namec']),
-                    trailing: Text(
-                      getStatus(apply['status']),
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-              );
+                  ));
             },
           );
-  }
-
-  String getStatus(String status) {
-    switch (status) {
-      case 'applied':
-        return 'Đang chờ duyệt';
-      case 'rejected':
-        return 'Đã bị từ chối';
-      default:
-        return 'Đã nhận';
-    }
   }
 
   Widget imageFromBase64String(String base64String) {
@@ -820,6 +856,41 @@ class _UserDetailAdminState extends State<UserDetailAdmin>
         height: 100,
         fit: BoxFit.cover,
       );
+    }
+  }
+}
+
+Color getStatusBackgroundColor(String status) {
+  switch (status) {
+    case 'applied':
+      return Colors.yellow[50]!; // Màu vàng nhạt
+    case 'rejected':
+      return Colors.red[50]!; // Màu đỏ nhạt
+    default:
+      return Colors.green[50]!; // Màu xanh lá cây nhạt
+  }
+}
+
+class Status {
+  static IconData getIcon(String status) {
+    switch (status) {
+      case 'applied':
+        return Icons.av_timer;
+      case 'rejected':
+        return Icons.cancel_sharp;
+      default:
+        return Icons.check_box;
+    }
+  }
+
+  static Color getColor(String status) {
+    switch (status) {
+      case 'applied':
+        return Colors.yellow;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.green;
     }
   }
 }

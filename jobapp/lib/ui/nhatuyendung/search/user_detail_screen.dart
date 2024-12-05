@@ -56,14 +56,40 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       if (userData['link'] == null || userData['contact_status'] == false) {
         print('Không thể nhắn tin với ứng viên');
       } else {
-        final Uri url = Uri.parse(userData['link']);
-        if (!await launchUrl(url)) {
-          throw Exception('Could not launch $url');
+        String messengerLink;
+        if (userData['link'].contains('facebook.com')) {
+          String facebookId = extractFacebookId(userData['link']);
+          messengerLink = 'fb-messenger://user-thread/$facebookId';
+        } else {
+          messengerLink = userData['link'];
         }
+        Get.to(OpenMessengerButton(), arguments: messengerLink);
       }
     } catch (e) {
       print(e);
     }
+  }
+
+  String extractFacebookId(String facebookLink) {
+    try {
+      RegExp regExp = RegExp(
+          r"^(?:https?:\/\/)?(?:www\.)?(?:facebook\.com|fb\.com)\/(?:profile\.php\?id=(?<id>\d+)|([^/?]+))");
+
+      var match = regExp.firstMatch(facebookLink);
+
+      if (match != null) {
+        String? facebookId = match.namedGroup('id') ?? match.group(1);
+        if (facebookId != null) {
+          facebookId = facebookId.split('/').first.split('?').first;
+          return facebookId;
+        }
+      }
+    } catch (e) {
+      print('Error extracting Facebook ID: $e');
+    }
+
+    // Return an empty string if no ID is found
+    return '';
   }
 
   @override
@@ -761,5 +787,39 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
         fit: BoxFit.cover,
       );
     }
+  }
+}
+
+class OpenMessengerButton extends StatefulWidget {
+  const OpenMessengerButton({Key? key}) : super(key: key);
+
+  @override
+  State<OpenMessengerButton> createState() => _OpenMessengerButtonState();
+}
+
+class _OpenMessengerButtonState extends State<OpenMessengerButton> {
+  String link = Get.arguments;
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        final Uri url = Uri.parse(link);
+        if (!await launchUrl(url)) {
+          throw Exception('Could not launch $url');
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+        padding: const EdgeInsets.symmetric(vertical: 11.8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: const Text(
+        'Nhắn tin',
+        style: TextStyle(
+            fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+    );
   }
 }

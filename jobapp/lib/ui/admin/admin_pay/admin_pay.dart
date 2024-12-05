@@ -14,8 +14,8 @@ class AdminPay extends StatefulWidget {
 class _AdminPayState extends State<AdminPay> {
   List<Map<String, dynamic>> _allPayData = [];
   List<Map<String, dynamic>> payData = [];
-  bool isLoading = false;
   String _selectedInterval = 'all';
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -27,7 +27,7 @@ class _AdminPayState extends State<AdminPay> {
       isLoading = true;
     });
     try {
-      _allPayData = await Database().fetchAllPayment(); // Lấy tất cả đơn hàng
+      _allPayData = await Database().fetchAllPayment();
       _filterPayData(_selectedInterval);
 
       setState(() {
@@ -177,7 +177,7 @@ class _AdminPayState extends State<AdminPay> {
             return pay['day_order'].year == now.year;
           }).toList();
           break;
-        default: // Trường hợp 'all' - hiển thị tất cả
+        default:
           payData = List.from(_allPayData);
       }
     });

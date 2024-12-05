@@ -169,7 +169,7 @@ class AuthController extends GetxController {
 
     try {
       final result = await conn?.execute(Sql.named('''
-      SELECT pass FROM auth WHERE email = @email
+      SELECT pass, status FROM auth WHERE email = @email
     '''), parameters: {
         'email': email,
       });
@@ -185,8 +185,20 @@ class AuthController extends GetxController {
         return false;
       }
 
-      final storedPass = result.single.single as String;
-
+      // final storedPass = result.single.single as String;
+      final row = result.single;
+      final storedPass = row[0] as String;
+      final status = row[1] as bool;
+      if (status) {
+        Fluttertoast.showToast(
+          msg: "Tài khoản của bạn đã bị khóa",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return false;
+      }
       if (pass != storedPass) {
         Fluttertoast.showToast(
           msg: "Mật khẩu không đúng",

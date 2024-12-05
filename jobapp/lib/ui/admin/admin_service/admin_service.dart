@@ -101,7 +101,7 @@ class _AdminServiceState extends State<AdminService> {
                           children: [
                             Expanded(
                                 child: Text(
-                              'Đã mua: ${sv['num_companies_bought']}',
+                              'Đã mua: ${sv['num_companies_bought'] ?? 0}',
                               style: TextStyle(color: Colors.green),
                             )),
                             TextButton(

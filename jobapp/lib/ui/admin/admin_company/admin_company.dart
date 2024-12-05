@@ -22,7 +22,7 @@ class _AdminCompanyState extends State<AdminCompany> {
 
   List<Map<String, dynamic>> _allCompany = [];
   bool isLoading = false;
-
+  String? _currentFilter;
   @override
   void initState() {
     super.initState();
@@ -72,176 +72,44 @@ class _AdminCompanyState extends State<AdminCompany> {
     return BoxDecoration();
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: Text('Danh sách công ty'),
-  //     ),
-  //     body: isLoading
-  //         ? Center(
-  //             child: CircularProgressIndicator(),
-  //           )
-  //         : Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: SizedBox(
-  //               height: 800,
-  //               child: Container(
-  //                 decoration:
-  //                     BoxDecoration(borderRadius: BorderRadius.circular(15)),
-  //                 child: SizedBox(
-  //                   height: 200,
-  //                   child: ListView.builder(
-  //                       itemCount: _allCompany.length,
-  //                       itemBuilder: (context, index) {
-  //                         final company = _allCompany[index];
-  //                         return Padding(
-  //                           padding: const EdgeInsets.symmetric(vertical: 10.0),
-  //                           child: GestureDetector(
-  //                             onTap: () {
-  //                               Get.toNamed('/companyDetailAdmin',
-  //                                   arguments: company['cid']);
-  //                             },
-  //                             child: Card(
-  //                               elevation: 0.0,
-  //                               child: Container(
-  //                                 decoration: BoxDecoration(
-  //                                     color: Colors.white,
-  //                                     border: Border.all(
-  //                                       color: const Color.fromARGB(
-  //                                           255, 142, 201, 248),
-  //                                     ),
-  //                                     borderRadius: BorderRadius.circular(15)),
-  //                                 child: Padding(
-  //                                   padding: const EdgeInsets.all(10.0),
-  //                                   child: Column(
-  //                                     children: [
-  //                                       Row(
-  //                                         children: [
-  //                                           Container(
-  //                                             height: 70,
-  //                                             width: 70,
-  //                                             decoration: _getServiceDayBorder(
-  //                                                 company['service_day']
-  //                                                     .toString()),
-  //                                             child: ClipRRect(
-  //                                               borderRadius:
-  //                                                   BorderRadius.circular(10),
-  //                                               child: imageFromBase64String(
-  //                                                   company['image']),
-  //                                             ),
-  //                                           ),
-  //                                           const SizedBox(width: 16),
-  //                                           Expanded(
-  //                                             child: Column(
-  //                                               crossAxisAlignment:
-  //                                                   CrossAxisAlignment.start,
-  //                                               children: [
-  //                                                 Row(
-  //                                                   mainAxisAlignment:
-  //                                                       MainAxisAlignment
-  //                                                           .spaceBetween,
-  //                                                   children: [
-  //                                                     Expanded(
-  //                                                       child: Text(
-  //                                                         '${company['name']}',
-  //                                                         style:
-  //                                                             const TextStyle(
-  //                                                                 fontWeight:
-  //                                                                     FontWeight
-  //                                                                         .w500,
-  //                                                                 fontSize: 20),
-  //                                                         maxLines: 2,
-  //                                                         overflow: TextOverflow
-  //                                                             .ellipsis,
-  //                                                       ),
-  //                                                     ),
-  //                                                   ],
-  //                                                 ),
-  //                                                 Text(
-  //                                                   company['career'],
-  //                                                   style: const TextStyle(
-  //                                                       fontSize: 17,
-  //                                                       color: Color.fromARGB(
-  //                                                           255,
-  //                                                           124,
-  //                                                           124,
-  //                                                           124)),
-  //                                                   overflow:
-  //                                                       TextOverflow.ellipsis,
-  //                                                   maxLines: 1,
-  //                                                 ),
-  //                                               ],
-  //                                             ),
-  //                                           ),
-  //                                         ],
-  //                                       ),
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.only(
-  //                                             left: 85.0, top: 5),
-  //                                         child: Row(
-  //                                           children: [
-  //                                             Container(
-  //                                               decoration: BoxDecoration(
-  //                                                   color: Colors.grey[200],
-  //                                                   borderRadius:
-  //                                                       BorderRadius.circular(
-  //                                                           10)),
-  //                                               child: Padding(
-  //                                                 padding:
-  //                                                     const EdgeInsets.all(7.0),
-  //                                                 child: Text(
-  //                                                   '${company['countJ'].toString()} việc làm',
-  //                                                   style: const TextStyle(
-  //                                                       fontWeight:
-  //                                                           FontWeight.w500),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                             const SizedBox(
-  //                                               width: 20,
-  //                                             ),
-  //                                             Container(
-  //                                               decoration: BoxDecoration(
-  //                                                   color: Colors.grey[200],
-  //                                                   borderRadius:
-  //                                                       BorderRadius.circular(
-  //                                                           10)),
-  //                                               child: Padding(
-  //                                                 padding:
-  //                                                     const EdgeInsets.all(7.0),
-  //                                                 child: Text(
-  //                                                   '${company['countU'].toString()} hồ sơ',
-  //                                                   style: const TextStyle(
-  //                                                       fontWeight:
-  //                                                           FontWeight.w500),
-  //                                                 ),
-  //                                               ),
-  //                                             ),
-  //                                           ],
-  //                                         ),
-  //                                       ),
-  //                                       const SizedBox(
-  //                                         height: 10,
-  //                                       ),
-  //                                     ],
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         );
-  //                       }),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //   );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Danh sách công ty'),
+        actions: [
+          PopupMenuButton<String>(
+            initialValue: _currentFilter,
+            onSelected: (String filter) {
+              setState(() {
+                _currentFilter = filter;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'Tất cả',
+                  child: Text('Tất cả'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Hoạt động',
+                  child: Text('Hoạt động'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Bị khóa',
+                  child: Text('Bị khóa'),
+                ),
+              ];
+            },
+            child: ElevatedButton(
+              onPressed: null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: Text(_currentFilter ?? 'Thống kê'),
+            ),
+          ),
+        ],
       ),
       body: isLoading
           ? Center(
@@ -255,6 +123,13 @@ class _AdminCompanyState extends State<AdminCompany> {
                     const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final company = _allCompany[index];
+                  if (_currentFilter == 'Hoạt động' &&
+                      company['status'] != false) {
+                    return const SizedBox.shrink();
+                  } else if (_currentFilter == 'Bị khóa' &&
+                      company['status'] != true) {
+                    return const SizedBox.shrink();
+                  }
                   return GestureDetector(
                     onTap: () {
                       Get.toNamed('/companyDetailAdmin',
@@ -284,7 +159,23 @@ class _AdminCompanyState extends State<AdminCompany> {
                             Text('Số lượng hồ sơ: ${company['countU']}'),
                           ],
                         ),
-                        trailing: Icon(Icons.remove_red_eye_sharp),
+                        trailing: IconButton(
+                          onPressed: () async {
+                            await Database().updateAuthStatus(
+                                company['email'], !company['status']);
+                            setState(() {
+                              company['status'] = !company['status'];
+                            });
+                          },
+                          icon: Icon(
+                            company['status']
+                                ? Icons.lock
+                                : Icons.lock_open, // Chọn icon dựa trên status
+                            color: company['status']
+                                ? Colors.yellow
+                                : Colors.black, // Chọn màu dựa trên status
+                          ),
+                        ),
                       ),
                     ),
                   );

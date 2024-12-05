@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jobapp/server/database.dart';
 
 class ServiceDetail extends StatefulWidget {
@@ -77,12 +78,10 @@ class _ServiceDetailState extends State<ServiceDetail>
       itemBuilder: (context, index) {
         final company = _companyList[index];
         return ExpansionTile(
-          // Sử dụng ExpansionTile
           title: Text(company['name']),
           children: [
             FutureBuilder<List<Map<String, dynamic>>>(
-              future: Database().fetchInvoicesForCompany(
-                  svId!, company['cid']), // Lấy danh sách hóa đơn của công ty
+              future: Database().fetchInvoicesForCompany(svId!, company['cid']),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -118,13 +117,70 @@ class _ServiceDetailState extends State<ServiceDetail>
       itemCount: _invoiceList.length,
       itemBuilder: (context, index) {
         final invoice = _invoiceList[index];
-        return ListTile(
-          title: Text(invoice['sv_name']),
-          subtitle: Text('${invoice['price']} VNĐ'),
-          trailing: Text(invoice['day_order'].toString()),
-          // Hiển thị thêm thông tin hóa đơn nếu cần
+        return GestureDetector(
+          onTap: () {
+            Map<String, dynamic> data = {
+              'pay_id': invoice['pay_id'],
+              'day_order': invoice['day_order'],
+              'sv_name': invoice['sv_name'],
+              'price': invoice['price'],
+              'pay': invoice['pay'],
+              'cid': invoice['cid'],
+              'name': invoice['name'],
+            };
+            Get.toNamed('/payDetailScreenAdmin', arguments: data);
+          },
+          child: Card(
+            elevation: 1,
+            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.all(15),
+              leading: Icon(
+                Icons.shopify_outlined,
+                color: Colors.blue,
+                size: 40,
+              ),
+              title: Text(
+                invoice['name'],
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${formatCurrency(invoice['price'].toDouble())} VND',
+                    style: TextStyle(
+                      color: Colors.green, // Màu xanh lá cây cho giá tiền
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    DateFormat('yyyy-MM-dd HH:mm:ss')
+                        .format(invoice['day_order']),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              trailing:
+                  Icon(Icons.arrow_forward_ios, size: 18), // Thêm icon mũi tên
+            ),
+          ),
         );
       },
     );
+  }
+
+  String formatCurrency(double amount) {
+    final formatter = NumberFormat("#,##0", "en_US");
+    return formatter.format(amount);
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/gradient_borders.dart';
 import 'package:intl/intl.dart';
 import 'package:jobapp/server/database.dart';
 
@@ -18,13 +19,20 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
   Map<String, dynamic> company = {};
   List<Map<String, dynamic>> jobList = [];
   List<Map<String, dynamic>> applyList = [];
+  List<Map<String, dynamic>> _allPayData = [];
+  List<Map<String, dynamic>> payData = [];
+  String _selectedInterval = 'all';
   bool isLoading = false;
   String? salary;
-
+  int? cid;
+  bool showActiveJobs = true;
+  bool showHiddenJobs = true;
+  String? _currentFilter;
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
+    cid = Get.arguments;
     _fetchData();
   }
 
@@ -41,9 +49,10 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
     try {
       final cid = Get.arguments as int;
       applyList = await Database().fetchAppliesForCompany(cid);
-      print(applyList);
       company = await Database().fetchUserDataByCid(cid);
-      jobList = await Database().fetchAllJobForCid(cid, false);
+      jobList = await Database().fetchAllJobForCidAdmin(cid);
+      _allPayData = await Database().fetchAllPayment();
+      _filterPayData(_selectedInterval);
     } catch (e) {
       print('Fetch data error: $e');
     } finally {
@@ -51,6 +60,39 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
         isLoading = false;
       });
     }
+  }
+
+  void _filterPayData(String interval) {
+    setState(() {
+      switch (interval) {
+        case 'week':
+          payData = _allPayData.where((pay) {
+            DateTime now = DateTime.now();
+            DateTime firstDayOfCurrentWeek =
+                now.subtract(Duration(days: now.weekday - 1));
+            DateTime lastDayOfCurrentWeek =
+                firstDayOfCurrentWeek.add(Duration(days: 6));
+            return pay['day_order'].isAfter(firstDayOfCurrentWeek) &&
+                pay['day_order'].isBefore(lastDayOfCurrentWeek);
+          }).toList();
+          break;
+        case 'month':
+          payData = _allPayData.where((pay) {
+            DateTime now = DateTime.now();
+            return pay['day_order'].month == now.month &&
+                pay['day_order'].year == now.year;
+          }).toList();
+          break;
+        case 'year':
+          payData = _allPayData.where((pay) {
+            DateTime now = DateTime.now();
+            return pay['day_order'].year == now.year;
+          }).toList();
+          break;
+        default:
+          payData = List.from(_allPayData);
+      }
+    });
   }
 
   @override
@@ -64,6 +106,7 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
             Tab(text: 'Thông tin'),
             Tab(text: 'Việc làm'),
             Tab(text: 'Hồ sơ ứng tuyển'),
+            Tab(text: 'Hóa đơn')
           ],
         ),
       ),
@@ -72,14 +115,10 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
           : TabBarView(
               controller: _tabController,
               children: [
-                // Tab 1: Thông tin công ty
                 _buildCompanyInfo(),
-
-                // Tab 2: Việc làm của công ty
                 _buildJobList(),
-
-                // Tab 3: Hồ sơ ứng tuyển
                 _buildApplyList(),
+                _buildPay(),
               ],
             ),
     );
@@ -120,152 +159,161 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
     );
   }
 
+  BoxDecoration _getServiceDayBorder(String? serviceDay) {
+    if (serviceDay != null && serviceDay.isNotEmpty) {
+      try {
+        DateTime serviceDate = DateTime.parse(serviceDay);
+        if (serviceDate.isAfter(DateTime.now())) {
+          return BoxDecoration(
+            border: GradientBoxBorder(
+              width: 3,
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.yellow, Colors.green, Colors.blue],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          );
+        }
+      } catch (e) {
+        print('Error parsing service_day: $e');
+      }
+    }
+    return BoxDecoration();
+  }
+
   Widget _buildJobList() {
     return jobList.isEmpty
         ? const Center(child: Text('Công ty này chưa đăng tuyển việc làm nào.'))
-        : ListView.builder(
-            itemCount: jobList.length,
-            itemBuilder: (context, index) {
-              final job = jobList[index];
-              salary = '${job['salaryFrom']} - ${job['salaryTo']} Triệu';
-              int lastCommaIndex = job['address'].lastIndexOf(",");
-              final address =
-                  job['address'].substring(lastCommaIndex + 1).trim();
-              return Card(
-                elevation: 0.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color.fromARGB(255, 142, 201, 248),
-                      ),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              height: 70,
-                              width: 70,
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              PopupMenuButton<String>(
+                initialValue: _currentFilter,
+                onSelected: (String filter) {
+                  setState(() {
+                    _currentFilter = filter;
+                  });
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    const PopupMenuItem<String>(
+                      value: 'Tất cả',
+                      child: Text('Tất cả'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'Đã ẩn',
+                      child: Text('Đã ẩn'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'Hoạt động',
+                      child: Text('Hoạt động'),
+                    ),
+                  ];
+                },
+                child: ElevatedButton(
+                  onPressed: null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: Text(_currentFilter ?? 'Thống kê'),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: jobList.length,
+                  itemBuilder: (context, index) {
+                    final job = jobList[index];
+                    salary = '${job['salaryFrom']} - ${job['salaryTo']} Triệu';
+
+                    if (_currentFilter == 'Đã ẩn' && job['status'] != true) {
+                      return const SizedBox.shrink();
+                    } else if (_currentFilter == 'Hoạt động' &&
+                        job['status'] != false) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.toNamed('/jobDetailAdmin', arguments: job['jid']);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ListTile(
+                            leading: Container(
+                              decoration: _getServiceDayBorder(
+                                  job['service_day'].toString()),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: imageFromBase64String(job['image']),
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                                child: Column(
+                            title: Text(
+                              job['title'],
+                              style: TextStyle(
+                                  fontSize: 17, fontWeight: FontWeight.bold),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Text(job['nameC']),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        '${job['title']}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 20),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
+                                    Icon(Icons.person_2),
+                                    Text(job['num_apply'].toString()),
                                   ],
                                 ),
                                 Text(
-                                  job['nameC'],
-                                  style: const TextStyle(
-                                      fontSize: 17,
-                                      color:
-                                          Color.fromARGB(255, 124, 124, 124)),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
+                                    'Hết hạn: ${DateFormat('dd/MM/yyyy').format(job['expiration_date'])}'),
                               ],
-                            )),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 85.0, top: 5),
-                          child: Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(7.0),
-                                  child: Text(
-                                    address,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w500),
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.all(7.0),
+                              decoration: BoxDecoration(
+                                color: job['status'] == false
+                                    ? Colors.green[50]
+                                    : Colors.red[50],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  await Database()
+                                      .deleteJob(job['jid'], !job['status']);
+                                  setState(() {
+                                    job['status'] = !job['status'];
+                                  });
+                                },
+                                child: Text(
+                                  job['status'] == false
+                                      ? 'Hoạt động'
+                                      : 'Đã ẩn',
+                                  style: TextStyle(
+                                    color: job['status'] == false
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(7.0),
-                                  child: Text(
-                                    job['experience'],
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 85.0, top: 5),
-                          child: Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.blue[50],
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(7.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.attach_money_outlined,
-                                        size: 18,
-                                        color: Colors.blue,
-                                      ),
-                                      Text(
-                                        salary!,
-                                        style: const TextStyle(
-                                            color: Colors.blue,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                                'Hạn chót ứng tuyển: ${DateFormat('dd/MM/yyyy').format(job['expiration_date'])}'),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
   }
 
@@ -277,38 +325,161 @@ class _CompanyDetailAdminState extends State<CompanyDetailAdmin>
             itemCount: applyList.length,
             itemBuilder: (context, index) {
               final apply = applyList[index];
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: getStatusBackgroundColor(apply['status']),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: imageFromBase64String(apply['image']),
-                    ),
-                    title: Text(
-                      apply['nameu'],
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(apply['title']),
-                        Text(
-                            'Ngày ứng tuyển: ${DateFormat('dd/MM/yyyy').format(apply['apply_date'])}'),
-                      ],
-                    ),
-                    trailing: Icon(
-                      Status.getIcon(apply['status']),
-                      color: Status.getColor(apply['status']),
+              return GestureDetector(
+                onTap: () {
+                  Map<String, dynamic> data = {
+                    'uid': apply['uid'],
+                    'jid': apply['jid'],
+                    'title': apply['title'],
+                    'name': apply['nameu'],
+                    'image': apply['image'],
+                  };
+                  Get.toNamed('/uvDetailAdmin', arguments: data);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: getStatusBackgroundColor(apply['status']),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: imageFromBase64String(apply['image']),
+                      ),
+                      title: Text(
+                        apply['nameu'],
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(apply['title']),
+                          Text(
+                              'Ngày ứng tuyển: ${DateFormat('dd/MM/yyyy').format(apply['apply_date'])}'),
+                        ],
+                      ),
+                      trailing: Icon(
+                        Status.getIcon(apply['status']),
+                        color: Status.getColor(apply['status']),
+                      ),
                     ),
                   ),
                 ),
               );
             },
+          );
+  }
+
+  String formatCurrency(double amount) {
+    final formatter = NumberFormat("#,##0", "en_US");
+    return formatter.format(amount);
+  }
+
+  Widget _buildPay() {
+    return applyList.isEmpty
+        ? const Center(
+            child: Text('Chưa có hồ sơ ứng tuyển nào cho công ty này.'))
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              PopupMenuButton<String>(
+                onSelected: (String interval) {
+                  setState(() {
+                    _selectedInterval = interval;
+                    _filterPayData(_selectedInterval);
+                  });
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'all',
+                    child: Text('Tất cả'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'week',
+                    child: Text('Tuần này'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'month',
+                    child: Text('Tháng này'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'year',
+                    child: Text('Năm này'),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: payData.length,
+                  itemBuilder: (context, index) {
+                    final pay = payData[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Map<String, dynamic> data = {
+                          'pay_id': pay['pay_id'],
+                          'day_order': pay['day_order'],
+                          'sv_name': pay['sv_name'],
+                          'price': pay['price'],
+                          'pay': pay['pay'],
+                          'cid': pay['cid'],
+                          'name': pay['name'],
+                        };
+                        Get.toNamed('/payDetailScreenAdmin', arguments: data);
+                      },
+                      child: Card(
+                        elevation: 1,
+                        margin:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(15),
+                          leading: Icon(
+                            Icons.shopify_outlined,
+                            color: Colors.blue,
+                            size: 40,
+                          ),
+                          title: Text(
+                            pay['name'],
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${formatCurrency(pay['price'].toDouble())} VND',
+                                style: TextStyle(
+                                  color: Colors
+                                      .green, // Màu xanh lá cây cho giá tiền
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                DateFormat('yyyy-MM-dd HH:mm:ss')
+                                    .format(pay['day_order']),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: Icon(Icons.arrow_forward_ios,
+                              size: 18), // Thêm icon mũi tên
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
   }
 

@@ -20,11 +20,13 @@ class _JobDetailAdminState extends State<JobDetailAdmin>
   List<Map<String, dynamic>> applyList = [];
   bool isLoading = false;
   String? salary;
+  int? jid;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    jid = Get.arguments;
     _fetchData();
   }
 
@@ -117,27 +119,45 @@ class _JobDetailAdminState extends State<JobDetailAdmin>
             itemCount: applyList.length,
             itemBuilder: (context, index) {
               final apply = applyList[index];
-              return Container(
-                color: getStatusBackgroundColor(apply['status']),
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: imageFromBase64String(apply['image']),
-                  ),
-                  title: Text(
-                    apply['nameu'],
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    children: [
-                      Text(apply['title']),
-                      Text(
-                          'Ngày ứng tuyển: ${DateFormat('dd/MM/yyyy').format(apply['apply_date'])}'),
-                    ],
-                  ),
-                  trailing: Icon(
-                    Status.getIcon(apply['status']),
-                    color: Status.getColor(apply['status']),
+              return Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Map<String, dynamic> data = {
+                      'uid': apply['uid'],
+                      'jid': jid,
+                      'title': apply['title'],
+                      'name': apply['nameu'],
+                      'image': apply['image'],
+                    };
+                    Get.toNamed('/uvDetailAdmin', arguments: data);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: getStatusBackgroundColor(apply['status']),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: imageFromBase64String(apply['image']),
+                      ),
+                      title: Text(
+                        apply['nameu'],
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        children: [
+                          Text(apply['title']),
+                          Text(
+                              'Ngày ứng tuyển: ${DateFormat('dd/MM/yyyy').format(apply['apply_date'])}'),
+                        ],
+                      ),
+                      trailing: Icon(
+                        Status.getIcon(apply['status']),
+                        color: Status.getColor(apply['status']),
+                      ),
+                    ),
                   ),
                 ),
               );
@@ -164,17 +184,6 @@ class _JobDetailAdminState extends State<JobDetailAdmin>
         ],
       ),
     );
-  }
-
-  Color getStatusBackgroundColor(String status) {
-    switch (status) {
-      case 'applied':
-        return Colors.yellow[50]!; // Màu vàng nhạt
-      case 'rejected':
-        return Colors.red[50]!; // Màu đỏ nhạt
-      default:
-        return Colors.green[50]!; // Màu xanh lá cây nhạt
-    }
   }
 
   Widget imageFromBase64String(String base64String) {
@@ -212,6 +221,17 @@ class _JobDetailAdminState extends State<JobDetailAdmin>
         height: 100,
         fit: BoxFit.cover,
       );
+    }
+  }
+
+  Color getStatusBackgroundColor(String status) {
+    switch (status) {
+      case 'applied':
+        return Colors.yellow[50]!; // Màu vàng nhạt
+      case 'rejected':
+        return Colors.red[50]!; // Màu đỏ nhạt
+      default:
+        return Colors.green[50]!; // Màu xanh lá cây nhạt
     }
   }
 }

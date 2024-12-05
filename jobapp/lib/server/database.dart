@@ -7,6 +7,46 @@ class Database {
   CompanyModel? companyModel;
 //admin
 
+// payment
+
+  Future<List<Map<String, dynamic>>> fetchAllPaymentCid() async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM payment WHERE cid = @cid'''));
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'pay_id': row[0],
+          'cid': row[1],
+          'sv_id': row[2],
+          'name': row[3],
+          'sv_name': row[4],
+          'price': row[5],
+          'day_order': row[6],
+          'status': row[7],
+          'pay': row[8],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch payment error: $e');
+      rethrow;
+    }
+  }
+// auth
+
+  Future<void> updateAuthStatus(String email, bool status) async {
+    try {
+      await conn!.execute(Sql.named('''
+      UPDATE auth SET status = @status WHERE email = @email AND status = @status
+'''), parameters: {'email': email, 'status': status});
+      print('Cập nhật status auth thành công');
+    } catch (e) {
+      print('Cập nhật status auth error: $e');
+    }
+  }
+
 // apply
   Future<Map<String, dynamic>> fetchJobDetailAdmin(int jid) async {
     final result = await conn!.execute(Sql.named('''
@@ -35,7 +75,7 @@ class Database {
 
   Future<List<Map<String, dynamic>>> fetchAppliesForJob(int jid) async {
     final result = await conn!.execute(Sql.named('''
-    SELECT u.name AS nameu, u.image, a.status, a.apply_date, a.title
+    SELECT u.name AS nameu, u.image, a.status, a.apply_date, a.title, a.uid
     FROM apply a
     JOIN users u ON a.uid = u.uid
     WHERE a.jid = @jid
@@ -46,7 +86,8 @@ class Database {
               'image': row[1],
               'status': row[2],
               'apply_date': row[3],
-              'title': row[4]
+              'title': row[4],
+              'uid': row[5],
             })
         .toList();
   }
@@ -82,9 +123,46 @@ class Database {
   }
 
 //company
+  Future<List<Map<String, dynamic>>> fetchAllJobForCidAdmin(int cId) async {
+    try {
+      final result = await conn!.execute(Sql.named('''
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day, j.status, COUNT(a.apply_id) AS num_apply
+  FROM company c 
+  JOIN job j ON c.cid = j.cid 
+  LEFT JOIN apply a ON j.jid = a.jid
+  WHERE c.cid = @cid
+  GROUP BY c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day
+  ORDER BY c.service_day DESC, j.expiration_date DESC
+    '''), parameters: {
+        'cid': cId,
+      });
+      return result.map((row) {
+        return {
+          'cid': row[0],
+          'nameC': row[1],
+          'address': row[2],
+          'image': row[3],
+          'jid': row[4],
+          'title': row[5],
+          'careerJ': row[6],
+          'salaryFrom': row[7],
+          'salaryTo': row[8],
+          'experience': row[9],
+          'expiration_date': row[10],
+          'service_day': row[11],
+          'status': row[12],
+          'num_apply': row[13]
+        };
+      }).toList();
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchAppliesForCompany(int cid) async {
     final result = await conn!.execute(Sql.named('''
-    SELECT a.title, u.name AS nameu, a.status, u.image, u.email, u.phone, a.apply_date
+    SELECT a.title, u.name AS nameu, a.status, u.image, u.email, u.phone, a.apply_date, a.uid, a.jid
     FROM apply a
     JOIN users u ON a.uid = u.uid
     WHERE a.cid = @cid
@@ -98,6 +176,8 @@ class Database {
               'email': row[4],
               'phone': row[5],
               'apply_date': row[6],
+              'uid': row[7],
+              'jid': row[8]
             })
         .toList();
   }
@@ -105,11 +185,12 @@ class Database {
   Future<List<Map<String, dynamic>>> fetchAllCompanyAdmin() async {
     try {
       final result = await conn!.execute(Sql.named('''
-      SELECT c.cid, c.name, c.career, c.image, COUNT(DISTINCT j.jid), c.service_day , COUNT(DISTINCT a.apply_id), c.created_at
+      SELECT c.cid, c.name, c.career, c.image, COUNT(DISTINCT j.jid), c.service_day , COUNT(DISTINCT a.apply_id), c.created_at, c.email, au.status
 FROM company c 
 LEFT JOIN job j ON c.cid = j.cid
 LEFT JOIN apply a ON c.cid = a.cid
-GROUP BY c.cid, c.service_day -- Thêm c.service_day vào GROUP BY
+LEFT JOIN auth au ON c.email = au.email
+GROUP BY c.cid, c.service_day, au.status
 ORDER BY c.service_day DESC
 '''));
       return result.map((row) {
@@ -121,7 +202,9 @@ ORDER BY c.service_day DESC
           'countJ': row[4],
           'service_day': row[5],
           'countU': row[6],
-          'created_at': row[7]
+          'created_at': row[7],
+          'email': row[8],
+          'status': row[9]
         };
       }).toList();
     } catch (e) {
@@ -133,16 +216,20 @@ ORDER BY c.service_day DESC
 // user
   Future<List<Map<String, dynamic>>> fetchApplyForUid(int uid) async {
     final result = await conn!.execute(Sql.named('''
-    SELECT a.title, c.name AS namec, a.status 
+    SELECT u.name AS nameu, a.imagec, a.status, a.apply_date, a.title, a.jid, u.image
     FROM apply a
-    JOIN company c ON a.cid = c.cid
+    JOIN users u ON a.uid = u.uid
     WHERE a.uid = @uid
     '''), parameters: {'uid': uid});
     return result
         .map((row) => {
-              'title': row[0],
-              'namec': row[1],
+              'nameu': row[0],
+              'imagec': row[1],
               'status': row[2],
+              'apply_date': row[3],
+              'title': row[4],
+              'jid': row[5],
+              'image': row[6]
             })
         .toList();
   }
@@ -150,10 +237,10 @@ ORDER BY c.service_day DESC
   Future<List<Map<String, dynamic>>> fetchAllUserAdmin() async {
     try {
       final result = await conn!.execute(Sql.named('''
-    SELECT u.*, (SELECT COUNT(*) FROM apply WHERE uid = u.uid) AS num_apply
+    SELECT u.*, (SELECT COUNT(*) FROM apply WHERE uid = u.uid) AS num_apply, au.status
       FROM users u
+      JOIN auth au ON u.email = au.email
 '''));
-
       return result.map((row) {
         return {
           'uid': row[0],
@@ -171,6 +258,7 @@ ORDER BY c.service_day DESC
           'experience': row[12],
           'create_at': row[13],
           'num_apply': row[16],
+          'status': row[17],
         };
       }).toList();
     } catch (e) {
@@ -183,7 +271,7 @@ ORDER BY c.service_day DESC
   Future<Map<String, dynamic>> fetchApplyJidUid(int jid, int uid) async {
     try {
       final result = await conn!.execute(Sql.named('''
-     SELECT a.status, u.birthday, u.gender, u.email, u.phone, a.cv_id, a.namecv, a.comment
+     SELECT a.status, u.birthday, u.gender, u.email, u.phone, a.cv_id, a.namecv, a.comment, a.namec, a.address
       FROM apply a
       JOIN users u ON a.uid = u.uid
       WHERE a.jid = @jid AND a.uid = @uid
@@ -197,7 +285,9 @@ ORDER BY c.service_day DESC
         'phone': row[4],
         'cv_id': row[5],
         'namecv': row[6],
-        'comment': row[7]
+        'comment': row[7],
+        'namec': row[8],
+        'address': row[9],
       };
     } catch (e) {
       print('fetch apply error: $e');
@@ -313,18 +403,30 @@ CASE WHEN c.service_day IS NULL THEN 0 ELSE 1 END DESC,
   }
 
   Future<List<Map<String, dynamic>>> fetchInvoicesForService(int svId) async {
-    final result = await conn!.execute(Sql.named('''
-    SELECT sv_name, price, day_order 
-    FROM payment
-    WHERE sv_id = @sv_id
-    '''), parameters: {'sv_id': svId});
-    return result
-        .map((row) => {
-              'sv_name': row[0],
-              'price': row[1],
-              'day_order': row[2],
-            })
-        .toList();
+    try {
+      final result = await conn!.execute(Sql.named('''
+      SELECT * FROM payment WHERE sv_id = @sv_id'''),
+          parameters: {'sv_id': svId});
+      if (result.isEmpty) {
+        return [];
+      }
+      return result.map((row) {
+        return {
+          'pay_id': row[0],
+          'cid': row[1],
+          'sv_id': row[2],
+          'name': row[3],
+          'sv_name': row[4],
+          'price': row[5],
+          'day_order': row[6],
+          'status': row[7],
+          'pay': row[8],
+        };
+      }).toList();
+    } catch (e) {
+      print('fetch payment error: $e');
+      rethrow;
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchInvoicesForCompany(
@@ -1329,9 +1431,9 @@ ORDER BY c.service_day DESC, j.expiration_date DESC
       int cId, bool status) async {
     try {
       final result = await conn!.execute(Sql.named('''
-  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day 
+  SELECT c.cid, c.name, c.address, c.image, j.jid, j.title,j.career, j.salary_from, j.salary_to, j.experience, j.expiration_date, c.service_day, j.status
   FROM company c JOIN job j ON c.cid = j.cid 
-  WHERE c.cid = @cid AND status = @status
+  WHERE c.cid = @cid
   ORDER BY c.service_day DESC, j.expiration_date DESC
     '''), parameters: {
         'cid': cId,
@@ -1350,7 +1452,8 @@ ORDER BY c.service_day DESC, j.expiration_date DESC
           'salaryTo': row[8],
           'experience': row[9],
           'expiration_date': row[10],
-          'service_day': row[11]
+          'service_day': row[11],
+          'status': row[12]
         };
       }).toList();
     } catch (e) {

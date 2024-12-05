@@ -14,7 +14,8 @@ class AdminUser extends StatefulWidget {
 
 class _AdminUserState extends State<AdminUser> {
   List<Map<String, dynamic>> allUser = [];
-  bool isLoading = false; // Thêm biến isLoading
+  bool isLoading = false;
+  String? _currentFilter;
 
   @override
   void initState() {
@@ -69,9 +70,42 @@ class _AdminUserState extends State<AdminUser> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Quản lý ứng viên'),
+        actions: [
+          PopupMenuButton<String>(
+            initialValue: _currentFilter,
+            onSelected: (String filter) {
+              setState(() {
+                _currentFilter = filter;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'Tất cả',
+                  child: Text('Tất cả'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Hoạt động',
+                  child: Text('Hoạt động'),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Bị khóa',
+                  child: Text('Bị khóa'),
+                ),
+              ];
+            },
+            child: ElevatedButton(
+              onPressed: null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: Text(_currentFilter ?? 'Thống kê'),
+            ),
+          ),
+        ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // Hiển thị loading
+          ? const Center(child: CircularProgressIndicator())
           : allUser.isEmpty
               ? const Center(child: Text('Không có ứng viên nào.'))
               : ListView.separated(
@@ -80,6 +114,13 @@ class _AdminUserState extends State<AdminUser> {
                       const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final user = allUser[index];
+                    if (_currentFilter == 'Hoạt động' &&
+                        user['status'] != false) {
+                      return const SizedBox.shrink();
+                    } else if (_currentFilter == 'Bị khóa' &&
+                        user['status'] != true) {
+                      return const SizedBox.shrink();
+                    }
                     return GestureDetector(
                       onTap: () {
                         Get.toNamed('/userDetailAdmin', arguments: user['uid']);
@@ -103,7 +144,24 @@ class _AdminUserState extends State<AdminUser> {
                               Text('Hồ sơ đã ứng tuyển: ${user['num_apply']}'),
                             ],
                           ),
-                          trailing: Icon(Icons.remove_red_eye_sharp),
+                          trailing: IconButton(
+                            onPressed: () async {
+                              await Database().updateAuthStatus(
+                                  user['email'], !user['status']);
+                              setState(() {
+                                user['status'] = !user['status'];
+                              });
+                            },
+                            icon: Icon(
+                              user['status']
+                                  ? Icons.lock
+                                  : Icons
+                                      .lock_open, // Chọn icon dựa trên status
+                              color: user['status']
+                                  ? Colors.yellow
+                                  : Colors.black, // Chọn màu dựa trên status
+                            ),
+                          ),
                         ),
                       ),
                     );

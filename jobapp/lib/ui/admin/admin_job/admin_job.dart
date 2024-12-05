@@ -140,9 +140,7 @@ class _AdminJobState extends State<AdminJob> {
                   leading: Icon(
                     _isSortByStatus ? Icons.toggle_on : Icons.toggle_off,
                   ),
-                  title: Text(_isSortByStatus
-                      ? 'Tắt sắp xếp theo trạng thái'
-                      : 'Sắp xếp theo trạng thái'),
+                  title: Text(_isSortByStatus ? 'Hoạt động' : 'Đã ẩn'),
                 ),
               ),
             ],
@@ -262,11 +260,19 @@ class _AdminJobState extends State<AdminJob> {
                     job['status'] == false ? Colors.green[50] : Colors.red[50],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                job['status'] == false ? 'Hoạt động' : 'Đã ẩn',
-                style: TextStyle(
-                  color: job['status'] == false ? Colors.green : Colors.red,
-                  fontWeight: FontWeight.bold,
+              child: GestureDetector(
+                onTap: () async {
+                  await Database().deleteJob(job['jid'], !job['status']);
+                  setState(() {
+                    job['status'] = !job['status'];
+                  });
+                },
+                child: Text(
+                  job['status'] == false ? 'Hoạt động' : 'Đã ẩn',
+                  style: TextStyle(
+                    color: job['status'] == false ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

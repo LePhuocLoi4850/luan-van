@@ -361,36 +361,78 @@ class _UvDetailAdminState extends State<UvDetailAdmin> {
                                         ],
                                       ),
                                     ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10.0, vertical: 15),
-                                child: isLoadContact
-                                    ? null
-                                    : ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blueAccent,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Xem thông tin liên hệ ứng viên',
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18),
-                                        ),
-                                      ),
-                              ),
                             ],
                           ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          const Text(
+                            'THÔNG TIN CÔNG TY',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
                           Container(
-                            margin: const EdgeInsets.only(top: 0, bottom: 10),
-                            height: 1,
-                            width: 360,
-                            color: const Color.fromARGB(255, 143, 143, 143),
+                            width: double.infinity,
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                color: Colors.blue,
+                              ),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Icon(
+                                        Icons.business,
+                                        size: 30,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                    Text(
+                                      userData['namec'],
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Icon(
+                                        Icons.location_on,
+                                        size: 30,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                        userData['address'],
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
                           ),
                           const Text(
                             'CV ỨNG TUYỂN',
@@ -438,12 +480,8 @@ class _UvDetailAdminState extends State<UvDetailAdmin> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            height: 1,
-                            width: 360,
-                            color: const Color.fromARGB(255, 143, 143, 143),
+                          const SizedBox(
+                            height: 10,
                           ),
                           (userData['status'] == 'approved' ||
                                   userData['status'] == 'rejected')
